@@ -134,4 +134,28 @@ BOOST_AUTO_TEST_CASE(utility_tuple_test)
     static_assert(std::is_same<std::tuple<>, decltype(t2)>{});
     BOOST_TEST(t2 == std::tuple<>{});
   }
+
+  {
+    // tuple_remove
+    auto t1 = std::make_tuple(5, 10L, 'a');
+    auto t2 = tuple_remove<long>(t1);
+    static_assert(std::is_same<std::tuple<int, char>, decltype(t2)>{});
+    BOOST_TEST(t2 == std::make_tuple(5, 'a'));
+  }
+
+  {
+    // tuple_remove not contained
+    auto t1 = std::make_tuple(2L, 5L, true);
+    auto t2 = tuple_remove<int>(std::move(t1));
+    static_assert(std::is_same<std::tuple<long, long, bool>, decltype(t2)>{});
+    BOOST_TEST(t2 == std::make_tuple(2L, 5L, true));
+  }
+
+  {
+    // tuple_remove multiple
+    auto t1 = std::make_tuple(2L, 5L, true);
+    auto t2 = tuple_remove<long>(std::move(t1));
+    static_assert(std::is_same<std::tuple<bool>, decltype(t2)>{});
+    BOOST_TEST(t2 == std::make_tuple(true));
+  }
 }

@@ -62,9 +62,9 @@ namespace stream::utility {
   struct adl{};
 
   template<typename Adl, typename Tuple>
-  constexpr auto make_unique_tuple_impl(Adl _, Tuple&& tuple)
+  constexpr Tuple make_unique_tuple_impl(Adl _, Tuple&& tuple)
   {
-    return std::forward<Tuple>(tuple);
+    return tuple;
   }
 
   template<typename Adl, typename Tuple, typename Head, typename... Tail,
@@ -128,20 +128,65 @@ namespace stream::utility {
 
 
   template<typename Fun, typename... Ts>
-  auto tuple_transform_impl(Fun& fun, Ts&&... args)
+  constexpr auto tuple_transform_impl(Fun& fun, Ts&&... args)
   {
     return std::make_tuple(fun(std::forward<Ts>(args))...);
   };
 
 
   template<typename Tuple, typename Fun>
-  auto tuple_transform(Fun&& fun, Tuple&& tuple)
+  constexpr auto tuple_transform(Fun&& fun, Tuple&& tuple)
   {
     return std::experimental::apply(
       [fun=std::forward<Fun>(fun)](auto&&... args){
         return tuple_transform_impl(fun, std::forward<decltype(args)>(args)...); },
       std::forward<Tuple>(tuple));
   };
+
+
+  /* tuple_remove */
+
+
+  template<typename Rem, typename Adl, typename Tuple>
+  constexpr Tuple make_tuple_without_impl(Adl _, Tuple&& tuple)
+  {
+    return tuple;
+  }
+
+  template<typename Rem, typename Adl, typename Tuple, typename Head, typename... Tail,
+           typename std::enable_if_t<!std::is_same<std::decay_t<Head>, std::decay_t<Rem>>{}, int> = 0>
+  constexpr auto make_tuple_without_impl(Adl adl, Tuple&& tuple, Head&& head, Tail&&... tail)
+  {
+    return make_tuple_without_impl<Rem>(adl, std::tuple_cat(std::forward<Tuple>(tuple),
+                                                            std::make_tuple(std::forward<Head>(head))),
+                                        std::forward<Tail>(tail)...);
+  }
+
+  template<typename Rem, typename Adl, typename Tuple, typename Head, typename... Tail,
+           typename std::enable_if_t<std::is_same<std::decay_t<Head>, std::decay_t<Rem>>{}, int> = 0>
+  constexpr auto make_tuple_without_impl(Adl adl, Tuple&& tuple, Head&& head, Tail&&... tail)
+  {
+    return make_tuple_without_impl<Rem>(adl, std::forward<Tuple>(tuple),
+                                        std::forward<Tail>(tail)...);
+  }
+
+
+  template<typename Rem, typename... Args>
+  constexpr auto make_tuple_without(Args&&... args)
+  {
+    return make_tuple_without_impl<Rem>(adl{}, std::tuple<>{},
+                                        std::forward<Args>(args)...);
+  }
+
+
+  template<typename Rem, typename Tuple>
+  constexpr auto tuple_remove(Tuple&& tuple)
+  {
+    return std::experimental::apply(
+      [](auto&&... args){ return make_tuple_without<Rem>(std::forward<decltype(args)>(args)...); },
+      std::forward<Tuple>(tuple));
+  };
+
 
 } // end namespace stream::utility
 
