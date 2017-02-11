@@ -91,4 +91,17 @@ BOOST_AUTO_TEST_CASE(column_transform_test)
 
     BOOST_TEST(generated == desired, test_tools::per_element{});
   }
+
+  {
+    // drop column
+    std::vector<std::tuple<A, B>> data = {{{3},{5.}}, {{1},{2.}}};
+    auto generated =
+        data
+      | column_drop<A>()
+      | to_vector;
+
+    std::vector<std::tuple<B>> desired = {{{5.}}, {{2.}}};
+
+    BOOST_TEST(generated == desired, test_tools::per_element{});
+  }
 }

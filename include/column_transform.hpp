@@ -83,5 +83,15 @@ namespace stream {
     });
   }
 
+
+  template<typename Column>
+  auto column_drop()
+  {
+    return view::transform([](auto source){
+      return utility::tuple_remove<Column>(std::move(source));
+    });
+  }
+
+
 } // end namespace stream
 #endif
