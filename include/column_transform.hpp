@@ -78,10 +78,9 @@ namespace stream {
   template<typename... FromColumns, typename... ToColumns, typename Fun>
   auto column_transform(from<FromColumns...> f, to<ToColumns...> t, Fun fun)
   {
-    auto get_value = [](auto&& column){
-      return std::forward<decltype(column)>(column).value;
-    };
-    return partial_transform(f, t, std::move(fun), std::move(get_value));
+    return partial_transform(f, t, std::move(fun), [](auto& column) -> auto& {
+      return column.value;
+    });
   }
 
 } // end namespace stream
