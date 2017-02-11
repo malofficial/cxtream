@@ -108,7 +108,7 @@ namespace stream::utility {
   /* tuple_print */
 
 
-  template<class Tuple, size_t... Is>
+  template<typename Tuple, size_t... Is>
   std::ostream& tuple_print(std::ostream& out, const Tuple& tuple, std::index_sequence<Is...>)
   {
     out << "(";
@@ -117,12 +117,31 @@ namespace stream::utility {
     return out;
   }
 
-  template<class... Ts>
+  template<typename... Ts>
   std::ostream& operator<<(std::ostream& out, const std::tuple<Ts...>& tuple)
   {
     return tuple_print(out, tuple, std::make_index_sequence<sizeof...(Ts)>{});
   }
 
+
+  /* tuple_transform */
+
+
+  template<typename Fun, typename... Ts>
+  auto tuple_transform_impl(Fun& fun, Ts&&... args)
+  {
+    return std::make_tuple(fun(std::forward<Ts>(args))...);
+  };
+
+
+  template<typename Tuple, typename Fun>
+  auto tuple_transform(Fun&& fun, Tuple&& tuple)
+  {
+    return std::experimental::apply(
+      [fun=std::forward<Fun>(fun)](auto&&... args){
+        return tuple_transform_impl(fun, std::forward<decltype(args)>(args)...); },
+      std::forward<Tuple>(tuple));
+  };
 
 } // end namespace stream::utility
 

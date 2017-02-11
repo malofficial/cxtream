@@ -22,7 +22,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 # Compiler Flags
 # --------------
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1z")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1z -Wall -Wno-missing-braces -pedantic")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -ggdb")
 
 # ---------------------
@@ -80,7 +80,7 @@ if(BUILD_PYTHON_LIB)
   if(BUILD_PYTHON_WHEEL)
 
     add_custom_target(
-      wheel ALL
+      ${PROJECT_NAME}_python_wheel ALL
       COMMAND ${PYTHON_EXECUTABLE} "setup.py" "bdist_wheel"
       WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
       DEPENDS ${PROJECT_NAME}_python_lib
