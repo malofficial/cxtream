@@ -14,7 +14,6 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
-#include <pyboostcvconverter/pyboostcvconverter.hpp>
 #include <range/v3/view.hpp>
 #include <vector>
 #include <random>
