@@ -1,63 +1,100 @@
-cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
 project("stream")
 
-#----------------------------CMAKE & GLOBAL PROPERTIES-------------------------#
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+# -------
+# Options
+# -------
 
-###============= C++1z support====================================
+OPTION(BUILD_PYTHON_LIB "Build Python dynamic library" ON)
+OPTION(BUILD_PYTHON_WHEEL "Build Python wheel package" ON)
+OPTION(BUILD_TEST "Build test binaries" ON)
+
+# -------------
+# CMake Options
+# -------------
+
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
+# --------------
+# Compiler Flags
+# --------------
+
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1z")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -ggdb")
 
-# python version
-set(PYTHON_DESIRED_VERSION "3.X")
+# ---------------------
+# Find Common Libraries
+# ---------------------
 
-#=============== Find Packages 
 find_package(OpenCV COMPONENTS core highgui imgproc REQUIRED)
-include("DetectPython")
-set(Python_ADDITIONAL_VERSIONS ${PYTHON3_VERSION_MAJOR}.${PYTHON3_VERSION_MINOR})
-find_package(Boost COMPONENTS python-py${PYTHON3_VERSION_MAJOR}${PYTHON3_VERSION_MINOR} REQUIRED)
+find_package(Boost COMPONENTS python3 unit_test_framework REQUIRED)
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/include")
 
+# -------------
+# Python Stream
+# -------------
 
-#========pick python stuff========================================
-set(PYTHON_INCLUDE_DIRS ${PYTHON3_INCLUDE_DIR} ${PYTHON3_INCLUDE_DIR2} ${PYTHON3_NUMPY_INCLUDE_DIRS})
-set(PYTHON_LIBRARIES ${PYTHON3_LIBRARY})
-set(PYTHON_EXECUTABLE ${PYTHON3_EXECUTABLE})
-set(PYTHON_PACKAGES_PATH ${PYTHON3_PACKAGES_PATH})
-set(ARCHIVE_OUTPUT_NAME stream)
+if(BUILD_PYTHON_LIB)
 
-file(GLOB_RECURSE project_sources ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
+  # find python packages
+  set(Python_ADDITIONAL_VERSIONS "3.X")
+  find_package(PythonLibs REQUIRED)
+  find_package(PythonInterp REQUIRED)
+  include("FindPythonSuffix")
 
-add_library(${PROJECT_NAME} SHARED ${project_sources} ${CMAKE_CURRENT_SOURCE_DIR}/include/pyboostcvconverter/pyboostcvconverter.hpp)
-target_include_directories(${PROJECT_NAME} PUBLIC
-        "${CMAKE_CURRENT_SOURCE_DIR}/include"
-        ${Boost_INCLUDE_DIRS}
-        ${OpenCV_INCLUDE_DIRS}
-        ${PYTHON_INCLUDE_DIRS}
-        )
+  # build stream dynamic library
+  file(
+    GLOB_RECURSE pyboost_module_sources
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/pyboost_module/*.cpp")
+  add_library(
+    ${PROJECT_NAME}_python_lib SHARED
+    ${pyboost_module_sources}
+  )
+  target_include_directories(
+    ${PROJECT_NAME}_python_lib
+    PRIVATE ${Boost_INCLUDE_DIRS}
+    PRIVATE ${OpenCV_INCLUDE_DIRS}
+    PRIVATE ${PYTHON_INCLUDE_DIRS}
+  )
+  set_target_properties(
+    ${PROJECT_NAME}_python_lib PROPERTIES
+    PREFIX ""
+    OUTPUT_NAME ${PROJECT_NAME}
+    SUFFIX ${PYTHON_SUFFIX}
+  )
+  target_link_libraries(
+    ${PROJECT_NAME}_python_lib
+    ${Boost_LIBRARIES}
+    ${OpenCV_LIBRARIES}
+    ${PYTHON_LIBRARIES}
+    stdc++fs
+  )
 
-target_link_libraries(${PROJECT_NAME}
-        ${Boost_LIBRARIES}
-        ${OpenCV_LIBRARIES}
-        ${PYTHON_LIBRARIES}
-        stdc++fs
-        )
+  # ----------------------
+  # Python wheel installer
+  # ----------------------
 
-#---------------------------   INSTALLATION    -----------------------------------------------------
-#-get proper extension for python binary shared object on this platform
-execute_process(COMMAND ${PYTHON_EXECUTABLE} -c "import distutils.sysconfig; print(distutils.sysconfig.get_config_var('SO'))"
-        RESULT_VARIABLE PYTHON_${PROJECT_NAME}_PY_PROCESS
-        OUTPUT_VARIABLE ${PROJECT_NAME}_PY_SUFFIX
-        OUTPUT_STRIP_TRAILING_WHITESPACE)
+  if(BUILD_PYTHON_WHEEL)
 
-set_target_properties(${PROJECT_NAME} PROPERTIES
-        PREFIX ""
-        OUTPUT_NAME stream
-        SUFFIX ${${PROJECT_NAME}_PY_SUFFIX})
+    add_custom_target(
+      wheel ALL
+      COMMAND ${PYTHON_EXECUTABLE} "setup.py" "bdist_wheel"
+      WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+      DEPENDS ${PROJECT_NAME}_python_lib
+    )
 
-install(TARGETS ${PROJECT_NAME}
-        ${PYTHON_INSTALL_CONFIGURATIONS}
-        RUNTIME DESTINATION ${PYTHON_PACKAGES_PATH} COMPONENT python
-        LIBRARY DESTINATION ${PYTHON_PACKAGES_PATH} COMPONENT python
-        ${PYTHON_INSTALL_ARCHIVE}
-        )
+  endif()
+endif()
 
+# -----
+# Tests
+# -----
+
+if(BUILD_TEST)
+  include("BoostTest")
+  enable_testing()
+  add_subdirectory("test")
+endif()
