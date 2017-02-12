@@ -30,8 +30,9 @@ struct col_name { \
   bool operator==(const col_name& rhs) const noexcept \
   { return value == rhs.value; } \
 }; \
+template<typename = int> \
 std::ostream& operator<<(std::ostream& out, const col_name& c) \
-{ return out << std::make_tuple(c.name, c.value); }
+{ return out << std::make_tuple(std::cref(c.name), std::cref(c.value)); }
 
 
 namespace stream {
@@ -62,7 +63,7 @@ namespace stream {
   auto partial_transform(from<FromTypes...>, to<ToTypes...>,
                          Fun fun, Projection proj = Projection{})
   {
-    return view::transform([fun=std::move(fun), proj=std::move(proj)](auto source){
+    return view::transform([fun=std::move(fun), proj=std::move(proj)](auto&& source) {
       // select the tuple types to be processed
       auto slice = utility::tuple_type_view<FromTypes...>(source);
       // project them
@@ -70,7 +71,7 @@ namespace stream {
       // process the result and convert to the requested types
       std::tuple<ToTypes...> result{std::experimental::apply(fun, proj_slice)};
       // replace the returned types
-      return utility::tuple_cat_unique(std::move(result), std::move(source));
+      return utility::tuple_cat_unique(std::move(result), std::forward<decltype(source)>(source));
     });
   }
 
@@ -78,8 +79,8 @@ namespace stream {
   template<typename... FromColumns, typename... ToColumns, typename Fun>
   auto column_transform(from<FromColumns...> f, to<ToColumns...> t, Fun fun)
   {
-    return partial_transform(f, t, std::move(fun), [](auto& column) -> auto& {
-      return column.value;
+    return partial_transform(f, t, std::move(fun), [](auto& column) {
+      return std::ref(column.value);
     });
   }
 
@@ -87,8 +88,8 @@ namespace stream {
   template<typename Column>
   auto column_drop()
   {
-    return view::transform([](auto source){
-      return utility::tuple_remove<Column>(std::move(source));
+    return view::transform([](auto&& source) {
+      return utility::tuple_remove<Column>(std::forward<decltype(source)>(source));
     });
   }
 

@@ -34,9 +34,9 @@ namespace stream::utility {
 
 
   template<typename... Types, typename Tuple>
-  constexpr std::tuple<Types&...> tuple_type_view(Tuple& tuple)
+  constexpr auto tuple_type_view(Tuple& tuple)
   {
-    return {std::get<Types>(tuple)...};
+    return std::make_tuple(std::ref(std::get<Types>(tuple))...);
   }
 
 
@@ -59,12 +59,13 @@ namespace stream::utility {
 
   /* make_unique_tuple */
 
+
   struct adl{};
 
   template<typename Adl, typename Tuple>
   constexpr Tuple make_unique_tuple_impl(Adl _, Tuple&& tuple)
   {
-    return tuple;
+    return std::forward<Tuple>(tuple);
   }
 
   template<typename Adl, typename Tuple, typename Head, typename... Tail,
@@ -150,7 +151,7 @@ namespace stream::utility {
   template<typename Rem, typename Adl, typename Tuple>
   constexpr Tuple make_tuple_without_impl(Adl _, Tuple&& tuple)
   {
-    return tuple;
+    return std::forward<Tuple>(tuple);
   }
 
   template<typename Rem, typename Adl, typename Tuple, typename Head, typename... Tail,
