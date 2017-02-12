@@ -15,11 +15,9 @@ class BinaryDistribution(Distribution):
         return True
 
 
-setup(name='stream',
+setup(name='${STREAM_NAME}',
       author="Filip Matzner",
       description="Python interface to the C++ stream library.",
       license="Boost Software License, Version 1.0",
       version='0.1',
       distclass=BinaryDistribution,)
-      # package_data={'stream': ['build/lib/stream.so','build/lib/stream.dll']},
-      # packages=['stream'],)

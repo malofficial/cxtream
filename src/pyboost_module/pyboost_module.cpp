@@ -10,12 +10,13 @@
 
 #define PY_ARRAY_UNIQUE_SYMBOL pbcvt_ARRAY_API
 
-#include <utility/pyboost_cv3_converter.hpp>
-#include <utility/pyboost_range.hpp>
-#include <stream.hpp>
-
 #include <random>
 #include <boost/python.hpp>
+
+#include <utility/pyboost_cv3_converter.hpp>
+#include <utility/pyboost_range.hpp>
+
+#include STREAM_HEADER_FILE
 
 namespace stream {
 
@@ -44,7 +45,7 @@ namespace stream {
   }
 
 
-  BOOST_PYTHON_MODULE(stream)
+  BOOST_PYTHON_MODULE(STREAM_NAME)
   {
     init_ar();
 
