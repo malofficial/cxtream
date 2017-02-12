@@ -18,8 +18,10 @@
 #include <boost/test/unit_test.hpp>
 #include <range/v3/to_container.hpp>
 #include <range/v3/view/iota.hpp>
-#include <range/v3/view/zip.hpp>
+#include <range/v3/view/generate_n.hpp>
 #include <range/v3/view/move.hpp>
+#include <range/v3/view/reverse.hpp>
+#include <range/v3/view/zip.hpp>
 #include <column_transform.hpp>
 
 
@@ -32,7 +34,6 @@ using namespace stream;
 using namespace ranges;
 using namespace boost;
 using namespace utility;
-using namespace std;
 
 
 inline namespace columns {
@@ -105,6 +106,20 @@ BOOST_AUTO_TEST_CASE(column_transform_test)
       | to_vector;
 
     std::vector<std::tuple<A, B>> desired = {{{6}, {9.}}, {{2}, {1.}}};
+
+    BOOST_TEST(generated == desired, test_tools::per_element{});
+  }
+
+  {
+    // create a new column
+    int i = 0;
+    auto generated =
+        view::generate_n([&i](){
+          return std::tuple<A>(10 - ++i);
+        }, 10)
+      | to_vector;
+
+    std::vector<std::tuple<A>> desired = view::iota(0, 10) | view::reverse;
 
     BOOST_TEST(generated == desired, test_tools::per_element{});
   }
