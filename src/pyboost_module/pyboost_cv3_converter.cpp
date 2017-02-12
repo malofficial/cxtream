@@ -26,8 +26,8 @@ static int failmsg(const char *fmt, ...) {
 	return 0;
 }
 
-static PyObject* failmsgp(const char *fmt, ...)
-		{
+/*
+static PyObject* failmsgp(const char *fmt, ...) {
 	char str[1000];
 
 	va_list ap;
@@ -38,6 +38,7 @@ static PyObject* failmsgp(const char *fmt, ...)
 	PyErr_SetString(PyExc_TypeError, str);
 	return 0;
 }
+*/
 
 //===================   THREADING     ==============================================================
 class PyAllowThreads {
