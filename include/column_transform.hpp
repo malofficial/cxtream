@@ -51,7 +51,7 @@ namespace stream {
   struct identity
   {
     template<typename T>
-    T&& operator()(T&& val) const noexcept
+    constexpr T&& operator()(T&& val) const noexcept
     {
       return std::forward<T>(val);
     }
@@ -60,7 +60,7 @@ namespace stream {
 
   template<typename... FromTypes, typename... ToTypes,
            typename Fun, typename Projection = identity>
-  auto partial_transform(from<FromTypes...>, to<ToTypes...>,
+  constexpr auto partial_transform(from<FromTypes...>, to<ToTypes...>,
                          Fun fun, Projection proj = Projection{})
   {
     return view::transform([fun=std::move(fun), proj=std::move(proj)](auto&& source) {
@@ -76,7 +76,7 @@ namespace stream {
 
 
   template<typename... FromColumns, typename... ToColumns, typename Fun>
-  auto column_transform(from<FromColumns...> f, to<ToColumns...> t, Fun fun)
+  constexpr auto column_transform(from<FromColumns...> f, to<ToColumns...> t, Fun fun)
   {
     return partial_transform(f, t, std::move(fun), [](auto& column) {
       return std::ref(column.value);
@@ -85,7 +85,7 @@ namespace stream {
 
 
   template<typename Column>
-  auto column_drop()
+  constexpr auto column_drop()
   {
     return view::transform([](auto&& source) {
       return utility::tuple_remove<Column>(std::forward<decltype(source)>(source));
