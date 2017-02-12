@@ -45,7 +45,7 @@ namespace stream::utility {
   /* tuple_contains */
 
 
-  template<typename T, typename Tuple>
+  template<typename T, typename Tuple = void>
   struct tuple_contains;
 
   template<typename T, typename... Types>

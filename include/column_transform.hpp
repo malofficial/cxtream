@@ -14,6 +14,7 @@
 #include <type_traits>
 #include <utility>
 #include <ostream>
+#include <boost/type_traits/has_left_shift.hpp>
 
 #include <utility/tuple.hpp>
 #include <range/v3/view/transform.hpp>
@@ -25,14 +26,17 @@ struct col_name { \
   col_type value; \
   static constexpr const char* name = #col_name; \
   col_name() = default; \
-  col_name(col_type v) noexcept \
+  col_name(col_type v) \
     : value{std::move(v)} {} \
-  bool operator==(const col_name& rhs) const noexcept \
+  bool operator==(const col_name& rhs) const \
   { return value == rhs.value; } \
 }; \
-template<typename = int> \
+template<typename = boost::has_left_shift<std::ostream&, const col_type&>::type> \
 std::ostream& operator<<(std::ostream& out, const col_name& c) \
-{ return out << std::make_tuple(std::cref(c.name), std::cref(c.value)); }
+{ \
+  using utility::operator<<; \
+  return out << std::make_tuple(std::cref(c.name), std::cref(c.value)); \
+}
 
 
 namespace stream {
