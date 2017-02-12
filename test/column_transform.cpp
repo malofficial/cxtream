@@ -148,7 +148,7 @@ BOOST_AUTO_TEST_CASE(column_transform_test)
     auto to_check =
         generated
       | view::move
-      | column_drop<MoveOnly>()
+      | column_drop<MoveOnly>
       | to_vector;
 
     std::vector<std::tuple<B, A>> desired;
@@ -162,7 +162,7 @@ BOOST_AUTO_TEST_CASE(column_transform_test)
     std::vector<std::tuple<A, B>> data = {{{3},{5.}}, {{1},{2.}}};
     auto generated =
         data
-      | column_drop<A>()
+      | column_drop<A>
       | to_vector;
 
     std::vector<std::tuple<B>> desired = {{{5.}}, {{2.}}};

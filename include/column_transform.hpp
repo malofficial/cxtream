@@ -89,12 +89,15 @@ namespace stream {
 
 
   template<typename Column>
-  constexpr auto column_drop()
+  constexpr auto column_drop_fn()
   {
     return view::transform([](auto&& source) {
       return utility::tuple_remove<Column>(std::forward<decltype(source)>(source));
     });
   }
+
+  template<typename Column>
+  auto column_drop = column_drop_fn<Column>();
 
 
 } // end namespace stream
