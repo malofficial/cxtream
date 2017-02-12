@@ -51,7 +51,7 @@ BOOST_AUTO_TEST_CASE(column_transform_test)
     auto data =
         view::iota((int)'f', (int)'j')
       | view::transform(std::make_tuple<int>)
-      | partial_transform(from<int>{}, to<char>{}, [](int i){
+      | partial_transform(from<int>, to<char>, [](int i){
           return std::make_tuple((char)(i - 5));
         })
       | to_vector;
@@ -70,7 +70,7 @@ BOOST_AUTO_TEST_CASE(column_transform_test)
     std::vector<std::tuple<A, B>> data = {{{3},{5.}}, {{1},{2.}}};
     auto generated =
         data
-      | column_transform(from<A>{}, to<A>{}, [](const int &v){
+      | column_transform(from<A>, to<A>, [](const int &v){
           return std::make_tuple(v - 1);
         })
       | to_vector;
@@ -85,7 +85,7 @@ BOOST_AUTO_TEST_CASE(column_transform_test)
     std::vector<std::tuple<A, B>> data = {{{3},{5.}}, {{1},{2.}}};
     auto generated =
         data
-      | column_transform(from<A, B>{}, to<B>{}, [](int i, double d){
+      | column_transform(from<A, B>, to<B>, [](int i, double d){
           return std::make_tuple((double)(i + d));
         })
       | to_vector;
@@ -100,7 +100,7 @@ BOOST_AUTO_TEST_CASE(column_transform_test)
     std::vector<std::tuple<A>> data = {{{3}}, {{1}}};
     auto generated =
         data
-      | column_transform(from<A>{}, to<A, B>{}, [](int i){
+      | column_transform(from<A>, to<A, B>, [](int i){
           return std::make_tuple(i + i, (double)(i * i));
         })
       | to_vector;
@@ -133,7 +133,7 @@ BOOST_AUTO_TEST_CASE(column_transform_test)
     auto generated =
          data
        | view::move
-       | column_transform(from<MoveOnly>{}, to<MoveOnly, B>{},
+       | column_transform(from<MoveOnly>, to<MoveOnly, B>,
            [](const std::unique_ptr<int> &ptr){
              return std::make_tuple(std::make_unique<int>(*ptr), (double)*ptr);
          })

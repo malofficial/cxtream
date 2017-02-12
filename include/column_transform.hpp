@@ -45,11 +45,16 @@ namespace stream {
 
 
   template<typename... Columns>
-  struct from {};
-
+  struct from_t {};
 
   template<typename... Columns>
-  struct to {};
+  auto from = from_t<Columns...>{};
+
+  template<typename... Columns>
+  struct to_t {};
+
+  template<typename... Columns>
+  auto to = to_t<Columns...>{};
 
 
   struct identity
@@ -64,7 +69,7 @@ namespace stream {
 
   template<typename... FromTypes, typename... ToTypes,
            typename Fun, typename Projection = identity>
-  constexpr auto partial_transform(from<FromTypes...>, to<ToTypes...>,
+  constexpr auto partial_transform(from_t<FromTypes...>, to_t<ToTypes...>,
                          Fun fun, Projection proj = Projection{})
   {
     return view::transform([fun=std::move(fun), proj=std::move(proj)](auto&& source) {
@@ -80,7 +85,7 @@ namespace stream {
 
 
   template<typename... FromColumns, typename... ToColumns, typename Fun>
-  constexpr auto column_transform(from<FromColumns...> f, to<ToColumns...> t, Fun fun)
+  constexpr auto column_transform(from_t<FromColumns...> f, to_t<ToColumns...> t, Fun fun)
   {
     return partial_transform(f, t, std::move(fun), [](auto& column) {
       return std::ref(column.value);
