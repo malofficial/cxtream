@@ -64,13 +64,12 @@ namespace stream {
                          Fun fun, Projection proj = Projection{})
   {
     return view::transform([fun=std::move(fun), proj=std::move(proj)](auto&& source) {
-      // select the tuple types to be processed
-      auto slice = utility::tuple_type_view<FromTypes...>(source);
-      // project them
-      const auto proj_slice = utility::tuple_transform(std::move(proj), std::move(slice));
-      // process the result and convert to the requested types
-      std::tuple<ToTypes...> result{std::experimental::apply(fun, proj_slice)};
-      // replace the returned types
+      // build the view for the transformer; 1) slice 2) project
+      const auto slice_view =
+        utility::tuple_transform(proj, utility::tuple_type_view<FromTypes...>(source));
+      // process the transformer's result and convert it to the requested types
+      std::tuple<ToTypes...> result{std::experimental::apply(fun, slice_view)};
+      // replace the corresponding fields
       return utility::tuple_cat_unique(std::move(result), std::forward<decltype(source)>(source));
     });
   }
