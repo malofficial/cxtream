@@ -199,6 +199,60 @@ BOOST_AUTO_TEST_CASE(utility_tuple_test)
   }
 
   {
+    // tuple_transform for mutable functions
+    std::tuple<std::unique_ptr<int>, std::unique_ptr<double>> t1{};
+
+    struct
+    {
+      int called = 0;
+      std::unique_ptr<int> operator()(std::unique_ptr<int>& ptr)
+      {
+        return std::make_unique<int>(called++);
+      }
+      std::unique_ptr<double> operator()(std::unique_ptr<double>& ptr)
+      {
+        return std::make_unique<double>(called++);
+      }
+    } fun;
+
+    auto t2 = tuple_transform(fun, t1);
+    static_assert(std::is_same<std::tuple<std::unique_ptr<int>,
+                                          std::unique_ptr<double>>,
+                               decltype(t2)>{});
+    BOOST_TEST(fun.called == 0);
+
+    auto t3 = tuple_transform([](const auto &ptr){ return *ptr; }, t2);
+    static_assert(std::is_same<std::tuple<int, double>, decltype(t3)>{});
+    BOOST_TEST(t3 == std::make_tuple(0, 1.));
+  }
+
+  {
+    // tuple_for_each
+    // assign to pointers increasing values
+    std::tuple<std::unique_ptr<int>, std::unique_ptr<double>> t1{};
+
+    struct
+    {
+      int called = 0;
+      void operator()(std::unique_ptr<int>& ptr)
+      {
+        ptr.reset(new int(called++));
+      }
+      void operator()(std::unique_ptr<double>& ptr)
+      {
+        ptr.reset(new double(called++));
+      }
+    } fun;
+
+    fun = tuple_for_each(fun, t1);
+    BOOST_TEST(fun.called == 2);
+
+    auto t2 = tuple_transform([](const auto &ptr){ return *ptr; }, t1);
+    static_assert(std::is_same<std::tuple<int, double>, decltype(t2)>{});
+    BOOST_TEST(t2 == std::make_tuple(0, 1.));
+  }
+
+  {
     // tuple_remove
     auto t1 = std::make_tuple(5, 10L, 'a');
     auto t2 = tuple_remove<long>(t1);

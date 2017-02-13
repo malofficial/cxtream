@@ -22,11 +22,33 @@ namespace stream::utility {
   struct adl{};
 
 
+  /* tuple_for_each */
+
+
+  template<typename Fun, typename... Ts>
+  constexpr Fun& tuple_for_each_impl(Fun&& fun, Ts&&... args)
+  {
+    (..., fun(std::forward<Ts>(args)));
+    return std::forward<Fun>(fun);
+  };
+
+
+  template<typename Tuple, typename Fun>
+  constexpr auto tuple_for_each(Fun&& fun, Tuple&& tuple)
+  {
+    return std::experimental::apply(
+      [fun=std::forward<Fun>(fun)](auto&&... args) mutable {
+        return tuple_for_each_impl(std::forward<Fun>(fun),
+                                   std::forward<decltype(args)>(args)...); },
+      std::forward<Tuple>(tuple));
+  };
+
+
   /* tuple_transform */
 
 
   template<typename Fun, typename... Ts>
-  constexpr auto tuple_transform_impl(Fun& fun, Ts&&... args)
+  constexpr auto tuple_transform_impl(Fun&& fun, Ts&&... args)
   {
     return std::make_tuple(fun(std::forward<Ts>(args))...);
   };
@@ -36,7 +58,7 @@ namespace stream::utility {
   constexpr auto tuple_transform(Fun&& fun, Tuple&& tuple)
   {
     return std::experimental::apply(
-      [fun=std::forward<Fun>(fun)](auto&&... args){
+      [fun=std::forward<Fun>(fun)](auto&&... args) mutable {
         return tuple_transform_impl(fun, std::forward<decltype(args)>(args)...); },
       std::forward<Tuple>(tuple));
   };
