@@ -25,7 +25,7 @@
 
 namespace stream {
 
-	namespace fs = std::experimental::filesystem;
+  namespace fs = std::experimental::filesystem;
   using namespace ranges;
   using namespace stream;
 
@@ -45,51 +45,51 @@ namespace stream {
 
 
   std::vector<fs::path> list_dir(const fs::path& dataRoot)
-	{
-		return {fs::directory_iterator(dataRoot),
+  {
+    return {fs::directory_iterator(dataRoot),
             fs::directory_iterator()};
-	}
+  }
 
 
-	auto cv_load()
-	{
-		return [](const fs::path& p) {
-			return std::make_tuple(cv::imread(p.string()));
-		};
-	}
+  auto cv_load()
+  {
+    return [](const fs::path& p) {
+      return std::make_tuple(cv::imread(p.string()));
+    };
+  }
 
-	auto cv_resize(int width, int height)
-	{
-		cv::Size size(width, height);
-		return [size](const cv::Mat& src) {
-			cv::Mat dst;
-			cv::resize(src, dst, size, 0, 0, cv::INTER_CUBIC);
-			return std::make_tuple(dst);
-		};
-	}
-
-
-	template <typename Prng>
-	auto cv_rotate(double angle, Prng& prng)
-	{
-		return [angle, &prng](const cv::Mat& src) {
-			std::uniform_real_distribution<> dis(-angle, angle);
-			cv::Mat rot_mat = cv::getRotationMatrix2D(
-					cv::Point2f(src.cols/2, src.rows/2), dis(prng), 1);
-			cv::Mat dst;
-			cv::warpAffine(src, dst, rot_mat, src.size(), cv::INTER_CUBIC);
-			return std::make_tuple(dst);
-		};
-	}
+  auto cv_resize(int width, int height)
+  {
+    cv::Size size(width, height);
+    return [size](const cv::Mat& src) {
+      cv::Mat dst;
+      cv::resize(src, dst, size, 0, 0, cv::INTER_CUBIC);
+      return std::make_tuple(dst);
+    };
+  }
 
 
-	auto cv_show(int delay = 0)
-	{
-		return [delay](const fs::path& p, const cv::Mat& img) {
-			cv::imshow(p.string(), img);
-			cv::waitKey(delay);
-		};
-	}
+  template <typename Prng>
+  auto cv_rotate(double angle, Prng& prng)
+  {
+    return [angle, &prng](const cv::Mat& src) {
+      std::uniform_real_distribution<> dis(-angle, angle);
+      cv::Mat rot_mat = cv::getRotationMatrix2D(
+          cv::Point2f(src.cols/2, src.rows/2), dis(prng), 1);
+      cv::Mat dst;
+      cv::warpAffine(src, dst, rot_mat, src.size(), cv::INTER_CUBIC);
+      return std::make_tuple(dst);
+    };
+  }
+
+
+  auto cv_show(int delay = 0)
+  {
+    return [delay](const fs::path& p, const cv::Mat& img) {
+      cv::imshow(p.string(), img);
+      cv::waitKey(delay);
+    };
+  }
 
 
   /* build stream */
