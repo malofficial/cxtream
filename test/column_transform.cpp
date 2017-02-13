@@ -116,14 +116,12 @@ BOOST_AUTO_TEST_CASE(column_transform_test)
 
   {
     // create a new column
-    int i = 0;
     auto generated =
-        view::generate_n([&i](){
-          return std::tuple<A>(10 - ++i);
-        }, 10)
+        view::iota(0, 10)
+      | column_create<A>
       | to_vector;
 
-    std::vector<std::tuple<A>> desired = view::iota(0, 10) | view::reverse;
+    std::vector<std::tuple<A>> desired = view::iota(0, 10);
 
     BOOST_TEST(generated == desired, test_tools::per_element{});
   }

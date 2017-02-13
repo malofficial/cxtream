@@ -42,6 +42,9 @@ namespace stream {
   using namespace ranges;
 
 
+  /* helpers */
+
+
   template<typename... Columns>
   struct from_t {};
 
@@ -65,6 +68,9 @@ namespace stream {
   };
 
   auto identity = identity_t{};
+
+
+  /* column_transform */
 
 
   template<typename... FromTypes, typename... ToTypes,
@@ -93,6 +99,9 @@ namespace stream {
   }
 
 
+  /* column_drop */
+
+
   template<typename Column>
   constexpr auto column_drop_fn()
   {
@@ -103,6 +112,21 @@ namespace stream {
 
   template<typename Column>
   auto column_drop = column_drop_fn<Column>();
+
+
+  /* column_create */
+
+
+  template<typename Column>
+  constexpr auto column_create_fn()
+  {
+    return view::transform([](auto&& source){
+        return std::tuple<Column>{std::forward<decltype(source)>(source)};
+    });
+  }
+
+  template<typename Column>
+  auto column_create = column_create_fn<Column>();
 
 
 } // end namespace stream
