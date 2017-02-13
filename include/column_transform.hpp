@@ -28,8 +28,6 @@ struct col_name { \
   col_name() = default; \
   col_name(col_type v) \
     : value{std::move(v)} {} \
-  bool operator==(const col_name& rhs) const \
-  { return value == rhs.value; } \
 }; \
 template<typename = boost::has_left_shift<std::ostream&, const col_type&>::type> \
 std::ostream& operator<<(std::ostream& out, const col_name& c) \
@@ -57,7 +55,7 @@ namespace stream {
   auto to = to_t<Columns...>{};
 
 
-  struct identity
+  struct identity_t
   {
     template<typename T>
     constexpr T&& operator()(T&& val) const noexcept
@@ -66,9 +64,11 @@ namespace stream {
     }
   };
 
+  auto identity = identity_t{};
+
 
   template<typename... FromTypes, typename... ToTypes,
-           typename Fun, typename Projection = identity>
+           typename Fun, typename Projection = identity_t>
   constexpr auto partial_transform(from_t<FromTypes...>, to_t<ToTypes...>,
                          Fun fun, Projection proj = Projection{})
   {

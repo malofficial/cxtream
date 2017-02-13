@@ -41,6 +41,10 @@ inline namespace columns {
   STREAM_DEFINE_COLUMN(B, double);
   STREAM_DEFINE_COLUMN(MoveOnly, std::unique_ptr<int>);
 };
+bool operator==(const A& lhs, const A& rhs)
+{ return lhs.value == rhs.value; }
+bool operator==(const B& lhs, const B& rhs)
+{ return lhs.value == rhs.value; }
 
 
 BOOST_AUTO_TEST_CASE(column_transform_test)
