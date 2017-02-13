@@ -58,6 +58,7 @@ namespace stream {
     };
   }
 
+
   auto cv_resize(int width, int height)
   {
     cv::Size size(width, height);
@@ -104,6 +105,7 @@ namespace stream {
       | column_transform(from<image>, to<rimage>, cv_rotate(20, global_prng))
       | column_for_each(from<fpath, rimage>, cv_show());
   }
+
 
 } //end namespace stream
 #endif

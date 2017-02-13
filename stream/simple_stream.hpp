@@ -28,6 +28,9 @@ namespace stream {
   extern std::mt19937 global_prng;
 
 
+  /* define augmenters */
+
+
   std::vector<fs::path> list_dir(const fs::path& dataRoot)
   {
     return {fs::directory_iterator(dataRoot), fs::directory_iterator()};
@@ -77,6 +80,9 @@ namespace stream {
   }
 
 
+  /* build stream */
+
+
   auto build_stream(const fs::path& path)
   {
     return list_dir(path) | view::shared
@@ -86,6 +92,7 @@ namespace stream {
                           | cv_rotate(20, global_prng)
                           | cv_show(500);
   }
+
 
 } //end namespace stream
 #endif
