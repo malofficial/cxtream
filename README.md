@@ -10,7 +10,7 @@ Build
 ```
 mkdir build
 cd build
-cmake -DCMAKE_INSTALL_PREFIX=~/.local ..
+cmake ..
 make -j5
 ```
 
