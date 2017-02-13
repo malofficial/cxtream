@@ -1,9 +1,9 @@
 Requirements
 ============
-
-- ranges-v3 library - branch shared_view from user FloopCZ
+- ranges-v3 library - fork from user FloopCZ
 - boost::python library
-- python3
+- OpenCV 3
+- Python 3
 
 Build
 =====
@@ -11,13 +11,11 @@ Build
 mkdir build
 cd build
 cmake -DCMAKE_INSTALL_PREFIX=~/.local ..
-make
-make install
-cd ..
+make -j5
 ```
 
 Test
 ====
 ```
-python src/iterate_stream.py
+make test
 ```
