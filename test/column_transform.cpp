@@ -115,6 +115,19 @@ BOOST_AUTO_TEST_CASE(column_transform_test)
   }
 
   {
+    // for_each of two columns
+    std::vector<std::tuple<A, B>> data = {{{3},{5.}}, {{1},{2.}}};
+    auto generated =
+        data
+      | column_for_each(from<A, B>, [](const int &v, char c){ })
+      | to_vector;
+
+    std::vector<std::tuple<A, B>> desired = {{{3},{5.}}, {{1},{2.}}};
+
+    BOOST_TEST(generated == desired, test_tools::per_element{});
+  }
+
+  {
     // create a new column
     auto generated =
         view::iota(0, 10)

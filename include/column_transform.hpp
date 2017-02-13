@@ -76,8 +76,11 @@ namespace stream {
   template<typename... FromTypes, typename... ToTypes,
            typename Fun, typename Projection = identity_t>
   constexpr auto partial_transform(from_t<FromTypes...>, to_t<ToTypes...>,
-                         Fun fun, Projection proj = Projection{})
+                                   Fun fun, Projection proj = Projection{})
   {
+    static_assert(sizeof...(ToTypes) > 0, "For non-transforming operations, please"
+        " use the partial_for_each.");
+
     return view::transform([fun=std::move(fun), proj=std::move(proj)](auto&& source) {
       // build the view for the transformer; 1) slice 2) project
       const auto slice_view =
@@ -94,6 +97,34 @@ namespace stream {
   constexpr auto column_transform(from_t<FromColumns...> f, to_t<ToColumns...> t, Fun fun)
   {
     return partial_transform(f, t, std::move(fun), [](auto& column) {
+      return std::ref(column.value);
+    });
+  }
+
+
+  /* column_for_each */
+
+
+  template<typename... FromTypes, typename Fun, typename Projection = identity_t>
+  constexpr auto partial_for_each(from_t<FromTypes...>,
+                                  Fun fun, Projection proj = Projection{})
+  {
+    return view::transform([fun=std::move(fun), proj=std::move(proj)](auto&& source) {
+      // build the view for the transformer; 1) slice 2) project
+      const auto slice_view =
+        utility::tuple_transform(proj, utility::tuple_type_view<FromTypes...>(source));
+      // apply the function
+      std::experimental::apply(fun, slice_view);
+      // return the original
+      return std::forward<decltype(source)>(source);
+    });
+  }
+
+
+  template<typename... FromColumns, typename Fun>
+  constexpr auto column_for_each(from_t<FromColumns...> f, Fun fun)
+  {
+    return partial_for_each(f, std::move(fun), [](auto& column) {
       return std::ref(column.value);
     });
   }
