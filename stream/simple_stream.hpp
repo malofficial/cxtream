@@ -77,14 +77,14 @@ namespace stream {
 	}
 
 
-  auto build_stream()
+  auto build_stream(const fs::path& path)
   {
-    return list_dir("pictures") | view::shared
-                                | view::cycle
-                                | cv_load()
-                                | cv_resize(256, 256)
-                                | cv_rotate(20, global_prng)
-                                | cv_show(500);
+    return list_dir(path) | view::shared
+                          | view::cycle
+                          | cv_load()
+                          | cv_resize(256, 256)
+                          | cv_rotate(20, global_prng)
+                          | cv_show(500);
   }
 
 } //end namespace stream
