@@ -26,7 +26,7 @@ namespace stream::utility {
 
 
   template<typename Fun, typename... Ts>
-  constexpr Fun& tuple_for_each_impl(Fun&& fun, Ts&&... args)
+  constexpr Fun&& tuple_for_each_impl(Fun&& fun, Ts&&... args)
   {
     (..., fun(std::forward<Ts>(args)));
     return std::forward<Fun>(fun);

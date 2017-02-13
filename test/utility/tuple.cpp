@@ -228,6 +228,19 @@ BOOST_AUTO_TEST_CASE(utility_tuple_test)
 
   {
     // tuple_for_each
+    auto t1 = std::make_tuple(std::make_unique<int>(5), std::make_unique<double>(2.));
+
+    tuple_for_each([](auto& ptr){
+        ptr = std::make_unique<std::remove_reference_t<decltype(*ptr)>>(*ptr + 1);
+      }, t1);
+
+    auto t2 = tuple_transform([](const auto &ptr){ return *ptr; }, t1);
+    static_assert(std::is_same<std::tuple<int, double>, decltype(t2)>{});
+    BOOST_TEST(t2 == std::make_tuple(6, 3.));
+  }
+
+  {
+    // tuple_for_each
     // assign to pointers increasing values
     std::tuple<std::unique_ptr<int>, std::unique_ptr<double>> t1{};
 
