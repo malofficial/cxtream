@@ -8,8 +8,8 @@
 //  (see http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#ifndef COLUMN_TRANSFORM_HPP
-#define COLUMN_TRANSFORM_HPP
+#ifndef STREAM_COLUMN_TRANSFORM_HPP
+#define STREAM_COLUMN_TRANSFORM_HPP
 
 #include <type_traits>
 #include <utility>

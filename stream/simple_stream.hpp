@@ -8,8 +8,8 @@
 //  (see http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#ifndef STREAM_HPP
-#define STREAM_HPP
+#ifndef STREAM_SIMPLE_STREAM_HPP
+#define STREAM_SIMPLE_STREAM_HPP
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>

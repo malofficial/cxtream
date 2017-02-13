@@ -8,8 +8,8 @@
 //  (see http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#ifndef BOOST_RANGE_UTILS_HPP
-#define BOOST_RANGE_UTILS_HPP
+#ifndef STREAM_PYBOOST_RANGE_UTILS_HPP
+#define STREAM_PYBOOST_RANGE_UTILS_HPP
 
 #include <range/v3/core.hpp>
 #include <boost/python.hpp>

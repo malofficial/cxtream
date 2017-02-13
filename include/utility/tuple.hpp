@@ -8,8 +8,8 @@
 //  (see http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#ifndef TUPLE_UTILS_HPP
-#define TUPLE_UTILS_HPP
+#ifndef STREAM_TUPLE_UTILS_HPP
+#define STREAM_TUPLE_UTILS_HPP
 
 
 #include <type_traits>
