@@ -1,4 +1,4 @@
-function(add_boost_test EXECUTABLE_FILE_NAME SOURCE_FILE_NAME DEPENDENCY_LIB)
+function(add_boost_test EXECUTABLE_FILE_NAME SOURCE_FILE_NAME INCLUDES LIBRARIES)
   add_executable(
     ${EXECUTABLE_FILE_NAME}
     ${SOURCE_FILE_NAME}
@@ -8,6 +8,13 @@ function(add_boost_test EXECUTABLE_FILE_NAME SOURCE_FILE_NAME DEPENDENCY_LIB)
     ${EXECUTABLE_FILE_NAME} 
     ${DEPENDENCY_LIB}
     ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
+    ${LIBRARIES}
+  )
+
+  target_include_directories(
+    ${EXECUTABLE_FILE_NAME}
+    PRIVATE ${Boost_INCLUDE_DIRS}
+    ${INCLUDES}
   )
 
   add_test(
