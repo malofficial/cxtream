@@ -13,6 +13,7 @@
 
 #include <deque>
 #include <future>
+#include <climits>
 #include <range/v3/core.hpp>
 #include <range/v3/view/all.hpp>
 
@@ -98,7 +99,7 @@ namespace stream {
 
     public:
       buffered_view() = default;
-      buffered_view(Rng rng, std::size_t n, std::launch policy = std::launch::async)
+      buffered_view(Rng rng, std::size_t n, std::launch policy)
         : rng_{rng}, n_{n}, policy_{policy}
       {}
 
@@ -121,7 +122,9 @@ namespace stream {
 
     template<typename Rng, CONCEPT_REQUIRES_(ranges::ForwardRange<Rng>())>
     buffered_view<ranges::view::all_t<Rng>> buffered_view(
-      Rng&& rng, std::size_t n, std::launch policy = std::launch::async)
+      Rng&& rng,
+      std::size_t n = std::numeric_limits<std::size_t>::max(),
+      std::launch policy = std::launch::async)
     {
       return {ranges::view::all(std::forward<Rng>(rng)), n, policy};
     }

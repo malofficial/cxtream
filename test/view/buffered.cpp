@@ -57,6 +57,7 @@ BOOST_AUTO_TEST_CASE(buffered_view_test)
     for (int i = 0; i < 5; ++i)
       data.emplace_back(std::make_shared<int>(i));
     auto rng = view::buffered_view(data, 2);
+    BOOST_TEST(rng.size() == data.size());
 
     // iterate through and check not-yet visited elements' use count
     test_use_count(data, {1, 1, 1, 1, 1});
@@ -98,5 +99,28 @@ BOOST_AUTO_TEST_CASE(buffered_view_test)
     auto vals = rng | ranges::view::indirect | ranges::to_vector;
     auto desired = ranges::view::iota(0, 5) | ranges::to_vector;
     BOOST_TEST(vals == desired, test_tools::per_element{});
+  }
+
+  {
+    // check infinite size buffer
+    std::vector<std::shared_ptr<int>> data;
+    for (int i = 0; i < 5; ++i)
+      data.emplace_back(std::make_shared<int>(i));
+    auto rng = view::buffered_view(data);
+    BOOST_TEST(rng.size() == data.size());
+
+    // iterate through and check not-yet visited elements' use count
+    test_use_count(data, {1, 1, 1, 1, 1});
+    auto it = ranges::begin(rng);
+    BOOST_CHECK(it != ranges::end(rng));
+    std::this_thread::sleep_for(40ms);
+    test_use_count(data, {2, 2, 2, 2, 2});
+    ++it;
+    std::this_thread::sleep_for(20ms);
+    test_use_count(data, {1, 2, 2, 2, 2});
+    ++it; ++it; ++it; ++it;
+    BOOST_CHECK(it == ranges::end(rng));
+    std::this_thread::sleep_for(20ms);
+    test_use_count(data, {1, 1, 1, 1, 1});
   }
 }
