@@ -11,9 +11,10 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE column_transform_test
 
+#include <memory>
+#include <ostream>
 #include <tuple>
 #include <vector>
-#include <ostream>
 
 #include <boost/test/unit_test.hpp>
 #include <range/v3/to_container.hpp>
@@ -183,5 +184,33 @@ BOOST_AUTO_TEST_CASE(column_transform_test)
     std::vector<std::tuple<B>> desired = {{{5.}}, {{2.}}};
 
     BOOST_TEST(generated == desired, test_tools::per_element{});
+  }
+
+  {
+    // batch
+    std::vector<std::shared_ptr<int>> data;
+    for (int i = 0; i < 5; ++i)
+      data.emplace_back(std::make_shared<int>(i));
+
+    auto rng = data | batch(2);
+
+    std::vector<int> result;
+    int batch_n = 0;
+    for (auto bt : rng) {
+      // the last batch should be only a single element
+      if (batch_n == 2)
+        BOOST_TEST(bt.size() == 1);
+      else
+        BOOST_TEST(bt.size() == 2);
+
+      for (auto elem : bt) {
+        static_assert(std::is_same<std::shared_ptr<int>, decltype(elem)>{});
+        result.push_back(*elem);
+      }
+      ++batch_n;
+    }
+
+    auto desired = ranges::view::iota(0, 5) | ranges::to_vector;
+    BOOST_TEST(result == desired, test_tools::per_element{});
   }
 }

@@ -18,6 +18,7 @@
 
 #include <boost/type_traits/has_left_shift.hpp>
 #include <range/v3/view/transform.hpp>
+#include <range/v3/view/chunk.hpp>
 
 #include <utility/tuple.hpp>
 #include <view/buffer.hpp>
@@ -161,6 +162,15 @@ namespace stream {
   // allow calls without parentheses
   template<typename Column>
   inline auto column_create = column_create_fn<Column>();
+
+
+  /* batch */
+
+
+  auto batch(std::size_t n, std::launch policy = std::launch::async)
+  {
+    return view::chunk(n) | view::transform(buffer);
+  }
 
 
 } // end namespace stream
