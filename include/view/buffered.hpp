@@ -16,10 +16,10 @@
 #include <range/v3/core.hpp>
 #include <range/v3/view/all.hpp>
 
-#include <iostream>
 
 namespace stream {
   
+
   template<typename Rng>
   struct buffered_view
     : ranges::view_facade<buffered_view<Rng>>
@@ -29,8 +29,8 @@ namespace stream {
 
       Rng rng_;
 
-      std::launch policy_;
       std::size_t n_;
+      std::launch policy_;
 
       struct cursor
       {
@@ -38,8 +38,8 @@ namespace stream {
           buffered_view<Rng> *rng_ = nullptr;
           ranges::range_iterator_t<Rng> it_ = {};
 
-          std::launch policy_;
           std::size_t n_;
+          std::launch policy_;
 
           std::deque<
             std::shared_future<
@@ -54,9 +54,8 @@ namespace stream {
           void fill_buffer()
           {
             while (it_ != ranges::end(rng_->rng_) && buffer_.size() < n_) {
-              auto it_copy = it_;
-              buffer_.emplace_back(std::async(policy_, [it_copy](){
-                return *it_copy;
+              buffer_.emplace_back(std::async(policy_, [it=it_](){
+                return *it;
               }));
               ++it_;
             }
@@ -67,8 +66,8 @@ namespace stream {
           explicit cursor(buffered_view<Rng>& rng)
             : rng_{&rng},
               it_{ranges::begin(rng.rng_)},
-              policy_{rng.policy_},
-              n_{rng.n_}
+              n_{rng.n_},
+              policy_{rng.policy_}
           {
             fill_buffer();
           }
@@ -99,8 +98,8 @@ namespace stream {
 
     public:
       buffered_view() = default;
-      buffered_view(Rng rng, std::launch policy, std::size_t n)
-        : rng_{rng}, policy_{policy}, n_{n}
+      buffered_view(Rng rng, std::size_t n, std::launch policy = std::launch::async)
+        : rng_{rng}, n_{n}, policy_{policy}
       {}
 
       CONCEPT_REQUIRES(ranges::SizedRange<Rng const>())
@@ -116,14 +115,17 @@ namespace stream {
       }
   };
 
+
   namespace view {
+
 
     template<typename Rng, CONCEPT_REQUIRES_(ranges::ForwardRange<Rng>())>
     buffered_view<ranges::view::all_t<Rng>> buffered_view(
-      Rng&& rng, std::launch policy, std::size_t n)
+      Rng&& rng, std::size_t n, std::launch policy = std::launch::async)
     {
-      return {ranges::view::all(std::forward<Rng>(rng)), policy, n};
+      return {ranges::view::all(std::forward<Rng>(rng)), n, policy};
     }
+
 
   } //end namespace view
 } //end namespace stream
