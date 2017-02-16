@@ -9,7 +9,7 @@
 //
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE buffered_view_test
+#define BOOST_TEST_MODULE buffer_view_test
 
 #include <vector>
 #include <memory>
@@ -19,7 +19,7 @@
 #include <range/v3/view/iota.hpp>
 #include <range/v3/view/indirect.hpp>
 
-#include <view/buffered.hpp>
+#include <view/buffer.hpp>
 
 
 using namespace stream;
@@ -35,28 +35,35 @@ void test_use_count(const std::vector<std::shared_ptr<int>>& ptrs,
 }
 
 
-BOOST_AUTO_TEST_CASE(buffered_view_test)
+BOOST_AUTO_TEST_CASE(buffer_view_test)
 {
   {
     // check simple traverse
     std::vector<int> data = {1, 2, 3, 4, 5};
-    auto rng = view::buffered_view(data, 2);
-    auto it = ranges::begin(rng);
-    static_assert(std::is_same<int, decltype(*it)>{});
-    BOOST_TEST(*it == 1);
+    auto rng1 = buffer(data, 2);
+    auto rng2 = data | buffer(2);
 
-    auto generated = rng | ranges::to_vector;
+    auto it1 = ranges::begin(rng1);
+    static_assert(std::is_same<int, decltype(*it1)>{});
+    BOOST_TEST(*it1 == 1);
 
-    BOOST_TEST(*it == 1);
-    BOOST_TEST(generated == data, test_tools::per_element{});
+    auto it2 = ranges::begin(rng2);
+    static_assert(std::is_same<int, decltype(*it2)>{});
+    BOOST_TEST(*it2 == 1);
+
+    auto generated1 = rng1 | ranges::to_vector;
+    auto generated2 = rng2 | ranges::to_vector;
+
+    BOOST_TEST(generated1 == data, test_tools::per_element{});
+    BOOST_TEST(generated2 == data, test_tools::per_element{});
   }
 
   {
-    // check if it is really buffered
+    // check if it is really buffer
     std::vector<std::shared_ptr<int>> data;
     for (int i = 0; i < 5; ++i)
       data.emplace_back(std::make_shared<int>(i));
-    auto rng = view::buffered_view(data, 2);
+    auto rng = buffer(data, 2);
     BOOST_TEST(rng.size() == data.size());
 
     // iterate through and check not-yet visited elements' use count
@@ -106,7 +113,7 @@ BOOST_AUTO_TEST_CASE(buffered_view_test)
     std::vector<std::shared_ptr<int>> data;
     for (int i = 0; i < 5; ++i)
       data.emplace_back(std::make_shared<int>(i));
-    auto rng = view::buffered_view(data);
+    auto rng = data | buffer;
     BOOST_TEST(rng.size() == data.size());
 
     // iterate through and check not-yet visited elements' use count

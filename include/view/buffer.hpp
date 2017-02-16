@@ -8,8 +8,8 @@
 //  (see http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#ifndef STREAM_BUFFERED_VIEW_HPP
-#define STREAM_BUFFERED_VIEW_HPP
+#ifndef STREAM_buffer_view_HPP
+#define STREAM_buffer_view_HPP
 
 #include <deque>
 #include <future>
@@ -22,8 +22,8 @@ namespace stream {
   
 
   template<typename Rng>
-  struct buffered_view
-    : ranges::view_facade<buffered_view<Rng>>
+  struct buffer_view
+    : ranges::view_facade<buffer_view<Rng>>
   {
     private:
       friend ranges::range_access;
@@ -36,7 +36,7 @@ namespace stream {
       struct cursor
       {
         private:
-          buffered_view<Rng> *rng_ = nullptr;
+          buffer_view<Rng> *rng_ = nullptr;
           ranges::range_iterator_t<Rng> it_ = {};
 
           std::size_t n_;
@@ -64,7 +64,7 @@ namespace stream {
 
         public:
           cursor() = default;
-          explicit cursor(buffered_view<Rng>& rng)
+          explicit cursor(buffer_view<Rng>& rng)
             : rng_{&rng},
               it_{ranges::begin(rng.rng_)},
               n_{rng.n_},
@@ -98,8 +98,8 @@ namespace stream {
       }
 
     public:
-      buffered_view() = default;
-      buffered_view(Rng rng, std::size_t n, std::launch policy)
+      buffer_view() = default;
+      buffer_view(Rng rng, std::size_t n, std::launch policy)
         : rng_{rng}, n_{n}, policy_{policy}
       {}
 
@@ -117,19 +117,34 @@ namespace stream {
   };
 
 
-  namespace view {
+  class buffer_fn {
 
+    private:
 
-    template<typename Rng, CONCEPT_REQUIRES_(ranges::ForwardRange<Rng>())>
-    buffered_view<ranges::view::all_t<Rng>> buffered_view(
-      Rng&& rng,
-      std::size_t n = std::numeric_limits<std::size_t>::max(),
-      std::launch policy = std::launch::async)
-    {
-      return {ranges::view::all(std::forward<Rng>(rng)), n, policy};
-    }
+      friend ranges::view::view_access;
 
+      static auto bind(
+        buffer_fn buffer,
+        std::size_t n = std::numeric_limits<std::size_t>::max(),
+        std::launch policy = std::launch::async)
+      {
+        return ranges::make_pipeable(std::bind(buffer, std::placeholders::_1, n, policy));
+      }
 
-  } //end namespace view
+    public:
+
+      template<typename Rng, CONCEPT_REQUIRES_(ranges::ForwardRange<Rng>())>
+      buffer_view<ranges::view::all_t<Rng>> operator()(
+        Rng&& rng,
+        std::size_t n = std::numeric_limits<std::size_t>::max(),
+        std::launch policy = std::launch::async) const
+      {
+        return {ranges::view::all(std::forward<Rng>(rng)), n, policy};
+      }
+
+  };
+
+  inline constexpr ranges::view::view<buffer_fn> buffer{};
+
 } //end namespace stream
 #endif

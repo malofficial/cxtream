@@ -1,1 +1,1 @@
-add_boost_test("test.view.buffered" "buffered.cpp" "" "-lpthread")
+add_boost_test("test.view.buffer" "buffer.cpp" "" "-lpthread")

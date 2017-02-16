@@ -14,12 +14,13 @@
 #include <type_traits>
 #include <utility>
 #include <ostream>
+#include <vector>
+
 #include <boost/type_traits/has_left_shift.hpp>
+#include <range/v3/view/transform.hpp>
 
 #include <utility/tuple.hpp>
-#include <range/v3/view/transform.hpp>
-#include <experimental/tuple>
-
+#include <view/buffer.hpp>
 
 #define STREAM_DEFINE_COLUMN(col_name, col_type) \
 struct col_name { \
@@ -141,8 +142,9 @@ namespace stream {
     });
   }
 
+  // allow calls without parentheses
   template<typename Column>
-  auto column_drop = column_drop_fn<Column>();
+  inline auto column_drop = column_drop_fn<Column>();
 
 
   /* column_create */
@@ -156,8 +158,9 @@ namespace stream {
     });
   }
 
+  // allow calls without parentheses
   template<typename Column>
-  auto column_create = column_create_fn<Column>();
+  inline auto column_create = column_create_fn<Column>();
 
 
 } // end namespace stream
