@@ -14,6 +14,7 @@
 #include <boost/test/unit_test.hpp>
 #include <utility/tuple.hpp>
 #include <memory>
+#include <vector>
 
 using namespace stream::utility;
 
@@ -323,5 +324,40 @@ BOOST_AUTO_TEST_CASE(utility_tuple_test)
     static_assert(std::is_same<std::tuple<const std::unique_ptr<int>&,
                                           const std::unique_ptr<double>&>,
                                decltype(t2)>{});
+  }
+
+  {
+    // unzip
+    std::vector<std::tuple<int, double>> data{};
+    data.emplace_back(1, 5.);
+    data.emplace_back(2, 6.);
+    data.emplace_back(3, 7.);
+
+    std::vector<int> va;
+    std::vector<double> vb;
+    std::tie(va, vb) = unzip(data);
+
+    std::vector<int> va_desired{1, 2, 3};
+    std::vector<double> vb_desired{5., 6., 7.};
+    BOOST_TEST(va == va_desired);
+    BOOST_TEST(vb == vb_desired);
+  }
+
+  {
+    // unzip move only
+    std::vector<std::tuple<int, std::unique_ptr<int>>> data{};
+    data.emplace_back(1, std::make_unique<int>(5));
+    data.emplace_back(2, std::make_unique<int>(6));
+    data.emplace_back(3, std::make_unique<int>(7));
+
+    std::vector<int> va;
+    std::vector<std::unique_ptr<int>> vb;
+    std::tie(va, vb) = unzip(std::move(data));
+
+    std::vector<int> va_desired{1, 2, 3};
+    BOOST_TEST(va == va_desired);
+    for (std::size_t i = 0; i < 3; ++i) {
+      BOOST_TEST(*vb[i] == i + 5);
+    }
   }
 }

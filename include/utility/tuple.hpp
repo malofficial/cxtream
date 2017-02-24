@@ -15,6 +15,8 @@
 #include <type_traits>
 #include <ostream>
 #include <experimental/tuple>
+#include <range/v3/size.hpp>
+#include <range/v3/core.hpp>
 
 
 namespace stream::utility {
@@ -211,6 +213,41 @@ namespace stream::utility {
       [](auto&&... args){ return make_tuple_without<Rem>(std::forward<decltype(args)>(args)...); },
       std::move(tuple));
   };
+
+
+  /* unzip */
+
+
+  template<typename Tuple, std::size_t... Is>
+  auto vectorize_tuple(std::size_t size, std::index_sequence<Is...>)
+  {
+    return std::make_tuple(
+      std::vector<std::tuple_element_t<Is, std::decay_t<Tuple>>>(size)...);
+  }
+
+  template<typename ToR, typename Tuple, std::size_t... Is>
+  void unzip_impl(ToR& tuple_of_ranges, std::size_t i,
+                  Tuple&& tuple, std::index_sequence<Is...>)
+  {
+    (..., (std::get<Is>(tuple_of_ranges)[i] = std::get<Is>(std::forward<Tuple>(tuple))));
+  }
+
+  template<typename RangeT>
+  auto unzip(RangeT range_of_tuples)
+  {
+    using tuple_type = ranges::range_value_t<RangeT>;
+    constexpr auto tuple_size = std::tuple_size<tuple_type>{};
+    constexpr auto indexes = std::make_index_sequence<tuple_size>{};
+    auto range_size = ranges::size(range_of_tuples);
+
+    auto tuple_of_ranges = vectorize_tuple<tuple_type>(range_size, indexes);
+
+    for (std::size_t i = 0; i < range_size; ++i) {
+      unzip_impl(tuple_of_ranges, i, std::move(range_of_tuples[i]), indexes);
+    }
+
+    return tuple_of_ranges;
+  }
 
 
 } // end namespace stream::utility
