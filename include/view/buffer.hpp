@@ -8,8 +8,8 @@
 //  (see http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#ifndef STREAM_buffer_view_HPP
-#define STREAM_buffer_view_HPP
+#ifndef STREAM_BUFFER_VIEW_HPP
+#define STREAM_BUFFER_VIEW_HPP
 
 #include <deque>
 #include <future>
@@ -72,7 +72,7 @@ namespace stream {
           {
             fill_buffer();
           }
-          auto read() const
+          decltype(auto) read() const
           {
             return buffer_.front().get();
           }

@@ -44,11 +44,11 @@ BOOST_AUTO_TEST_CASE(buffer_view_test)
     auto rng2 = data | buffer(2);
 
     auto it1 = ranges::begin(rng1);
-    static_assert(std::is_same<int, decltype(*it1)>{});
+    static_assert(std::is_same<const int&, decltype(*it1)>{});
     BOOST_TEST(*it1 == 1);
 
     auto it2 = ranges::begin(rng2);
-    static_assert(std::is_same<int, decltype(*it2)>{});
+    static_assert(std::is_same<const int&, decltype(*it2)>{});
     BOOST_TEST(*it2 == 1);
 
     auto generated1 = rng1 | ranges::to_vector;
@@ -100,7 +100,7 @@ BOOST_AUTO_TEST_CASE(buffer_view_test)
     ++it2;
     std::this_thread::sleep_for(20ms);
     test_use_count(data, {2, 3, 2, 1, 1});
-    static_assert(std::is_same<std::shared_ptr<int>, decltype(*it)>{});
+    static_assert(std::is_same<const std::shared_ptr<int>&, decltype(*it)>{});
 
     // check values
     auto vals = rng | ranges::view::indirect | ranges::to_vector;
