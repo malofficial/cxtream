@@ -18,6 +18,7 @@
 #include <range/v3/to_container.hpp>
 #include <range/v3/view/iota.hpp>
 #include <range/v3/view/indirect.hpp>
+#include <range/v3/view/transform.hpp>
 
 #include <view/buffer.hpp>
 
@@ -56,6 +57,21 @@ BOOST_AUTO_TEST_CASE(buffer_view_test)
 
     BOOST_TEST(generated1 == data, test_tools::per_element{});
     BOOST_TEST(generated2 == data, test_tools::per_element{});
+  }
+
+  {
+    // check move only type buffering
+    auto rng =
+        ranges::view::iota(1, 6)
+      | ranges::view::transform([](int i){
+          return std::make_unique<int>(i);
+        })
+      | buffer(2)
+      | ranges::view::indirect
+      | ranges::to_vector;
+
+    auto desired = ranges::view::iota(1, 6) | ranges::to_vector;
+    BOOST_TEST(rng == desired, test_tools::per_element{});
   }
 
   {
