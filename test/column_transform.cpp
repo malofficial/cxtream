@@ -52,11 +52,13 @@ std::ostream& operator<<(std::ostream& out, const std::vector<T>& vec)
 
 
 inline namespace columns {
-  STREAM_DEFINE_COLUMN(A, int);
-  STREAM_DEFINE_COLUMN(B, double);
-  STREAM_DEFINE_COLUMN(Unique, std::unique_ptr<int>);
-  STREAM_DEFINE_COLUMN(Shared, std::shared_ptr<int>);
-};
+  STREAM_DEFINE_COLUMN(A, int)
+  STREAM_DEFINE_COLUMN(B, double)
+  STREAM_DEFINE_COLUMN(Unique, std::unique_ptr<int>)
+  STREAM_DEFINE_COLUMN(Shared, std::shared_ptr<int>)
+}
+
+
 bool operator==(const A& lhs, const A& rhs)
 { return lhs.value == rhs.value; }
 bool operator==(const B& lhs, const B& rhs)
@@ -66,24 +68,6 @@ std::ostream& operator<<(std::ostream& out, const A& rhs)
 std::ostream& operator<<(std::ostream& out, const B& rhs)
 { return out << rhs.value; }
 
-
-auto generate_batched_data(int batches, int batch_size)
-{
-  // data are 3 batches of size 4
-  // desired output are 12 batches of size 1
-  std::vector<std::tuple<Unique, Shared>> data;
-  for (int i = 0; i < batches; ++i) {
-    std::vector<std::unique_ptr<int>> unique_data;
-    std::vector<std::shared_ptr<int>> shared_data;
-    for (int j = 0; j < batch_size; ++j) {
-      unique_data.emplace_back(std::make_unique<int>(i * batch_size + j));
-      shared_data.emplace_back(std::make_shared<int>(i * batch_size + j));
-    }
-    data.emplace_back(std::make_tuple(std::move(unique_data),
-                                      std::move(shared_data)));
-  }
-  return data;
-}
 
 BOOST_AUTO_TEST_CASE(column_transform_test)
 {
@@ -224,84 +208,4 @@ BOOST_AUTO_TEST_CASE(column_transform_test)
     BOOST_TEST(generated == desired, test_tools::per_element{});
   }
 
-  {
-    // reset_batch
-    auto data = generate_batched_data(3, 4);
-
-    auto rng = data | view::move | reset_batch;
-    using tuple_type = decltype(*ranges::begin(rng));
-    static_assert(std::is_same<std::tuple<Unique, Shared>, tuple_type>{});
-    using first_type = decltype(std::get<0>(*ranges::begin(rng)).value[0]);
-    static_assert(std::is_same<std::unique_ptr<int>&, first_type>{});
-    using second_type = decltype(std::get<1>(*ranges::begin(rng)).value[0]);
-    static_assert(std::is_same<std::shared_ptr<int>&, second_type>{});
-
-    // iterate through batches
-    std::vector<int> result_unique;
-    std::vector<int> result_shared;
-    int n = 0;
-    for (auto tuple : rng) {
-      // the batch should be only a single element
-      BOOST_TEST(std::get<0>(tuple).value.size() == 1);
-      BOOST_TEST(std::get<1>(tuple).value.size() == 1);
-      // remember the values
-      result_unique.push_back(*(std::get<0>(tuple).value[0]));
-      result_shared.push_back(*(std::get<1>(tuple).value[0]));
-      ++n;
-    }
-    BOOST_TEST(n == 12);
-
-    auto desired = ranges::view::iota(0, 12) | ranges::to_vector;
-    BOOST_TEST(result_unique == desired, test_tools::per_element{});
-    BOOST_TEST(result_shared == desired, test_tools::per_element{});
-  }
-
-  {
-    // batch out of larger batches
-    auto data = generate_batched_data(4, 5);
-
-    auto rng = data | view::move | batch(3);
-    /*
-    using tuple_type = decltype(*ranges::begin(rng));
-    static_assert(std::is_same<std::tuple<Unique, Shared>, tuple_type>{});
-    using first_type = decltype(std::get<0>(*ranges::begin(rng)).value[0]);
-    static_assert(std::is_same<std::unique_ptr<int>&, first_type>{});
-    using second_type = decltype(std::get<1>(*ranges::begin(rng)).value[0]);
-    static_assert(std::is_same<std::shared_ptr<int>&, second_type>{});
-
-    // iterate through batches
-    std::vector<int> result_unique;
-    std::vector<int> result_shared;
-    int batch_n = 0;
-    int n = 0;
-    for (auto tuple : rng) {
-      // the last batch should be smaller
-      if (batch_n == 6) {
-        BOOST_TEST(std::get<0>(tuple).value.size() == 2);
-        BOOST_TEST(std::get<1>(tuple).value.size() == 2);
-      }
-      else {
-        BOOST_TEST(std::get<0>(tuple).value.size() == 3);
-        BOOST_TEST(std::get<1>(tuple).value.size() == 3);
-      }
-      BOOST_CHECK(is_same_batch_size(tuple));
-
-      // iterate through batch values
-      for (auto elem : std::get<0>(tuple).value) {
-        result_unique.push_back(*elem);
-        ++n;
-      }
-      for (auto elem : std::get<1>(tuple).value) {
-        result_shared.push_back(*elem);
-      }
-      ++batch_n;
-    }
-    BOOST_TEST(batch_n == 7);
-    BOOST_TEST(n == 20);
-
-    auto desired = ranges::view::iota(0, 20) | ranges::to_vector;
-    BOOST_TEST(result_unique == desired, test_tools::per_element{});
-    BOOST_TEST(result_shared == desired, test_tools::per_element{});
-    */
-  }
 }

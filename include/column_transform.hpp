@@ -257,7 +257,7 @@ namespace stream {
 
   // allow calls without parentheses
   template<typename Column>
-  inline auto column_drop = column_drop_fn<Column>();
+  auto column_drop = column_drop_fn<Column>();
 
 
   /* column_create */
@@ -273,74 +273,7 @@ namespace stream {
 
   // allow calls without parentheses
   template<typename Column>
-  inline auto column_create = column_create_fn<Column>();
-
-
-  /* is_same_batch_size */
-
-
-  template<typename Tuple>
-  constexpr bool is_same_batch_size(const Tuple& tuple)
-  {
-    bool same = true;
-    if (std::tuple_size<Tuple>{} > 0) {
-      auto bs = std::get<0>(tuple).value.size();
-      utility::tuple_for_each([bs, &same](const auto& column){
-        same &= (column.value.size() == bs);
-      }, tuple);
-    }
-    return same;
-  }
-
-
-  /* reset_batch */
-
-
-  auto reset_batch_fn()
-  {
-    // using view::transform and view::join instead of view::for_each
-    // see https://github.com/ericniebler/range-v3/issues/566
-    return view::transform([](auto tuple){
-      assert(is_same_batch_size(tuple) &&
-             "All the columns have to have equal batch size prior to a batch resize");
-
-      // extract the values from the columns
-      auto tuple_of_views = utility::tuple_transform([](auto& column){
-          return std::move(column.value) | view::shared;
-      }, tuple);
-
-      // zip the values together on the 0-th (batch) dimension
-      auto view_of_tuples =
-        std::experimental::apply(
-          view::zip,
-          std::move(tuple_of_views));
-
-      // convert the raw values back to column types and yield them one by one
-      return yield_from(
-          std::move(view_of_tuples)
-        | view::move
-        | view::transform([](auto&& raw_tuple) -> decltype(tuple) {
-            return std::move(raw_tuple);
-      }));
-    }) | view::join;
-  }
-
-  // allow calls without parentheses
-  inline auto reset_batch = reset_batch_fn();
-
-
-  /* batch */
-
-
-  auto batch(std::size_t n, std::launch policy = std::launch::async)
-  {
-    return reset_batch_fn()
-         | view::chunk(n)
-         | view::transform(buffer)
-         | view::transform([](auto&& subrng){
-             return utility::unzip(std::forward<decltype(subrng)>(subrng));
-    });
-  }
+  auto column_create = column_create_fn<Column>();
 
 
 } // end namespace stream
