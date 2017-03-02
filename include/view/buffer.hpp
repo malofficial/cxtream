@@ -144,7 +144,7 @@ namespace stream {
 
   };
 
-  inline constexpr ranges::view::view<buffer_fn> buffer{};
+  ranges::view::view<buffer_fn> buffer{};
 
 } //end namespace stream
 #endif
