@@ -32,7 +32,7 @@ namespace stream::utility {
   {
     (..., fun(std::forward<Ts>(args)));
     return std::forward<Fun>(fun);
-  };
+  }
 
 
   template<typename Tuple, typename Fun>
@@ -43,7 +43,7 @@ namespace stream::utility {
         return tuple_for_each_impl(std::forward<Fun>(fun),
                                    std::forward<decltype(args)>(args)...); },
       std::forward<Tuple>(tuple));
-  };
+  }
 
 
   /* tuple_transform */
@@ -53,7 +53,7 @@ namespace stream::utility {
   constexpr auto tuple_transform_impl(Fun&& fun, Ts&&... args)
   {
     return std::make_tuple(fun(std::forward<Ts>(args))...);
-  };
+  }
 
 
   template<typename Tuple, typename Fun>
@@ -63,7 +63,7 @@ namespace stream::utility {
       [fun=std::forward<Fun>(fun)](auto&&... args) mutable {
         return tuple_transform_impl(fun, std::forward<decltype(args)>(args)...); },
       std::forward<Tuple>(tuple));
-  };
+  }
 
 
   /* tuple_contains */
@@ -212,7 +212,7 @@ namespace stream::utility {
     return std::experimental::apply(
       [](auto&&... args){ return make_tuple_without<Rem>(std::forward<decltype(args)>(args)...); },
       std::move(tuple));
-  };
+  }
 
 
   /* unzip */

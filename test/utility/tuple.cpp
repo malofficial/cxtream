@@ -15,6 +15,7 @@
 #include <utility/tuple.hpp>
 #include <memory>
 #include <vector>
+#include <iostream>
 
 using namespace stream::utility;
 
@@ -201,26 +202,31 @@ BOOST_AUTO_TEST_CASE(utility_tuple_test)
 
   {
     // tuple_transform for mutable functions
+    // beware, the order of application is unspecified
     std::tuple<std::unique_ptr<int>, std::unique_ptr<double>> t1{};
 
-    struct
+    int called = 0;
+    struct Fun
     {
-      int called = 0;
+      int& called_;
+
       std::unique_ptr<int> operator()(std::unique_ptr<int>& ptr)
       {
-        return std::make_unique<int>(called++);
+        called_++;
+        return std::make_unique<int>(0);
       }
       std::unique_ptr<double> operator()(std::unique_ptr<double>& ptr)
       {
-        return std::make_unique<double>(called++);
+        called_++;
+        return std::make_unique<double>(1);
       }
-    } fun;
+    } fun{called};
 
     auto t2 = tuple_transform(fun, t1);
     static_assert(std::is_same<std::tuple<std::unique_ptr<int>,
                                           std::unique_ptr<double>>,
                                decltype(t2)>{});
-    BOOST_TEST(fun.called == 0);
+    BOOST_TEST(called == 2);
 
     auto t3 = tuple_transform([](const auto &ptr){ return *ptr; }, t2);
     static_assert(std::is_same<std::tuple<int, double>, decltype(t3)>{});
