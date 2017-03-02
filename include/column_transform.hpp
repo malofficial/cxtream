@@ -15,11 +15,8 @@
 #include <utility>
 #include <vector>
 
-#include <range/v3/view/chunk.hpp>
-#include <range/v3/view/join.hpp>
 #include <range/v3/view/for_each.hpp>
 #include <range/v3/view/transform.hpp>
-#include <range/v3/view/shared.hpp>
 #include <range/v3/view/zip.hpp>
 
 #include <utility/tuple.hpp>
@@ -100,12 +97,23 @@ namespace stream {
 
   auto identity = identity_t{};
 
+  struct ref_wrap_t
+  {
+    template<typename T>
+    constexpr decltype(auto) operator()(T& val) const noexcept
+    {
+      return std::ref(val);
+    }
+  };
+
+  auto ref_wrap = ref_wrap_t{};
+
 
   /* partial_transform */
 
 
   template<typename... FromTypes, typename... ToTypes,
-           typename Fun, typename Projection = identity_t>
+           typename Fun, typename Projection = ref_wrap_t>
   constexpr auto partial_transform(from_t<FromTypes...>, to_t<ToTypes...>,
                                    Fun fun, Projection proj = Projection{})
   {
@@ -176,12 +184,12 @@ namespace stream {
   /* partial_for_each */
 
 
-  template<typename... FromTypes, typename Fun, typename Projection = identity_t>
+  template<typename... FromTypes, typename Fun, typename Projection = ref_wrap_t>
   constexpr auto partial_for_each(from_t<FromTypes...>,
                                   Fun fun, Projection proj = Projection{})
   {
     return view::transform([fun=std::move(fun), proj=std::move(proj)](auto&& source) mutable {
-      // build the view for the transformer; 1) slice 2) project
+      // build the view for the transformer, i.e., slice and project
       const auto slice_view =
         utility::tuple_transform(proj, utility::tuple_type_view<FromTypes...>(source));
       // apply the function
