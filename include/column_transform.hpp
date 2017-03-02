@@ -25,7 +25,7 @@
 #include <utility/tuple.hpp>
 #include <view/buffer.hpp>
 
-template<typename T>
+template<typename T, bool = std::is_copy_constructible<T>{}>
 struct column_base
 {
   std::vector<T> value;
@@ -44,6 +44,16 @@ struct column_base
   column_base(const std::vector<T>& rhs)
     : value{rhs}
   { }
+};
+
+template<typename T>
+struct column_base<T, false> : column_base<T, true>
+{
+  using column_base<T, true>::column_base;
+
+  column_base() = default;
+  column_base(const T& rhs) = delete;
+  column_base(const std::vector<T>& rhs) = delete;
 };
 
 #define STREAM_DEFINE_COLUMN(col_name, col_type) \
