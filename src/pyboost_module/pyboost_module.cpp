@@ -14,7 +14,7 @@
 #include <boost/python.hpp>
 #include <range/v3/view/transform.hpp>
 
-#include <utility/pyboost_columns_converter.hpp>
+#include <utility/pyboost_column_converter.hpp>
 #include <utility/pyboost_cv3_converter.hpp>
 #include <utility/pyboost_fs_path_converter.hpp>
 #include <utility/pyboost_range.hpp>
@@ -29,8 +29,6 @@ namespace stream {
   std::mt19937 global_prng{std::random_device{}()};
 
 
-#ifdef STREAM_COLUMNED
-
   auto build_python_stream(const fs::path& path)
   {
     auto stream = build_stream(path) | view::transform([](auto&& tuple){
@@ -39,21 +37,14 @@ namespace stream {
     return python_iterator<decltype(stream)>{std::move(stream)};
   }
 
-#else
 
-  auto build_python_stream(const fs::path& path)
-  {
-    using Stream = decltype(build_stream(path));
-    return python_iterator<Stream>{build_stream(path)};
-  }
-
-#endif
-
+  // the type of the original range
+  using range_t = decltype(build_stream(fs::path{}));
   // the type of the python stream to be used as Iterator class in python
   using python_iterator_t = decltype(build_python_stream(fs::path{}));
 
 
-  static void * init_ar()
+  static void* init_ar()
   {
     Py_Initialize();
     import_array();
@@ -75,7 +66,7 @@ namespace stream {
     // register OpenCV converters
     p::to_python_converter<cv::Mat, pbcvt::matToNDArrayBoostConverter>();
     pbcvt::matFromNDArrayBoostConverter();
-    
+
     // expose the iterator class
     p::class_<python_iterator_t>("Iterator", p::no_init)
       .def("__iter__", &python_iterator_t::iter)

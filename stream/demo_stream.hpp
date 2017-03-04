@@ -34,7 +34,6 @@ namespace stream {
   /* define columns */
 
 
-#define STREAM_COLUMNED
   STREAM_DEFINE_COLUMN(fpath, fs::path);
   STREAM_DEFINE_COLUMN(image, cv::Mat);
   STREAM_DEFINE_COLUMN(rimage, cv::Mat);
