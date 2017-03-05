@@ -12,7 +12,6 @@
 #define BOOST_TEST_MODULE transform_test
 
 #include <memory>
-#include <ostream>
 #include <tuple>
 #include <vector>
 
@@ -22,49 +21,14 @@
 #include <range/v3/view/move.hpp>
 #include <range/v3/view/zip.hpp>
 
-#include <cxtream/column.hpp>
 #include <cxtream/drop.hpp>
 #include <cxtream/transform.hpp>
 
-// make the tuple print visible for boost test
-// this is forbidden by the standard (simple workarounds?)
-namespace std { using cxtream::utility::operator<<; }
+#include "common.hpp"
 
 using namespace cxtream;
 using namespace ranges;
 using namespace boost;
-using namespace utility;
-
-template<typename T>
-std::ostream& operator<<(std::ostream& out, const std::vector<T>& vec)
-{
-  out << "{";
-  for (std::size_t i = 0; i < vec.size(); ++i) {
-    out << vec[i];
-    if (i + 1 != vec.size())
-      out << ", ";
-  }
-  out << "}";
-  return out;
-}
-
-
-inline namespace columns {
-  CXTREAM_DEFINE_COLUMN(A, int)
-  CXTREAM_DEFINE_COLUMN(B, double)
-  CXTREAM_DEFINE_COLUMN(Unique, std::unique_ptr<int>)
-  CXTREAM_DEFINE_COLUMN(Shared, std::shared_ptr<int>)
-}
-
-
-bool operator==(const A& lhs, const A& rhs)
-{ return lhs.value == rhs.value; }
-bool operator==(const B& lhs, const B& rhs)
-{ return lhs.value == rhs.value; }
-std::ostream& operator<<(std::ostream& out, const A& rhs)
-{ return out << rhs.value; }
-std::ostream& operator<<(std::ostream& out, const B& rhs)
-{ return out << rhs.value; }
 
 
 BOOST_AUTO_TEST_CASE(transform_test)
@@ -91,29 +55,29 @@ BOOST_AUTO_TEST_CASE(transform_test)
 
   {
     // transform a single column to itself
-    std::vector<std::tuple<A, B>> data = {{{3},{5.}}, {{1},{2.}}};
+    std::vector<std::tuple<Int, Double>> data = {{{3},{5.}}, {{1},{2.}}};
     auto generated =
         data
-      | transform(from<A>, to<A>, [](const int &v){
+      | transform(from<Int>, to<Int>, [](const int &v){
           return std::make_tuple(v - 1);
         })
       | to_vector;
 
-    std::vector<std::tuple<A, B>> desired = {{{2},{5.}}, {{0},{2.}}};
+    std::vector<std::tuple<Int, Double>> desired = {{{2},{5.}}, {{0},{2.}}};
 
     BOOST_TEST(generated == desired, test_tools::per_element{});
   }
 
   {
     // transform move-only column
-    std::vector<std::tuple<A, Unique>> data;
+    std::vector<std::tuple<Int, Unique>> data;
     data.emplace_back(3, std::make_unique<int>(5));
     data.emplace_back(1, std::make_unique<int>(2));
 
     auto generated =
          data
        | view::move
-       | transform(from<Unique>, to<Unique, B>,
+       | transform(from<Unique>, to<Unique, Double>,
            [](const std::unique_ptr<int> &ptr){
              return std::make_tuple(std::make_unique<int>(*ptr), (double)*ptr);
          })
@@ -132,7 +96,7 @@ BOOST_AUTO_TEST_CASE(transform_test)
       | drop<Unique>
       | to_vector;
 
-    std::vector<std::tuple<B, A>> desired;
+    std::vector<std::tuple<Double, Int>> desired;
     desired.emplace_back(5., 3);
     desired.emplace_back(2., 1);
     BOOST_TEST(to_check == desired, test_tools::per_element{});
@@ -140,30 +104,30 @@ BOOST_AUTO_TEST_CASE(transform_test)
 
   {
     // transform two columns to a single column
-    std::vector<std::tuple<A, B>> data = {{{3},{5.}}, {{1},{2.}}};
+    std::vector<std::tuple<Int, Double>> data = {{{3},{5.}}, {{1},{2.}}};
     auto generated =
         data
-      | transform(from<A, B>, to<B>, [](int i, double d){
+      | transform(from<Int, Double>, to<Double>, [](int i, double d){
           return std::make_tuple((double)(i + d));
         })
       | to_vector;
 
-    std::vector<std::tuple<B, A>> desired = {{{3 + 5.}, {3}}, {{1 + 2.}, {1}}};
+    std::vector<std::tuple<Double, Int>> desired = {{{3 + 5.}, {3}}, {{1 + 2.}, {1}}};
 
     BOOST_TEST(generated == desired, test_tools::per_element{});
   }
 
   {
     // transform a single column to two columns
-    std::vector<std::tuple<A>> data = {{{3}}, {{1}}};
+    std::vector<std::tuple<Int>> data = {{{3}}, {{1}}};
     auto generated =
         data
-      | transform(from<A>, to<A, B>, [](int i){
+      | transform(from<Int>, to<Int, Double>, [](int i){
           return std::make_tuple(i + i, (double)(i * i));
         })
       | to_vector;
 
-    std::vector<std::tuple<A, B>> desired = {{{6}, {9.}}, {{2}, {1.}}};
+    std::vector<std::tuple<Int, Double>> desired = {{{6}, {9.}}, {{2}, {1.}}};
 
     BOOST_TEST(generated == desired, test_tools::per_element{});
   }

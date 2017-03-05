@@ -20,20 +20,12 @@
 #include <range/v3/view/move.hpp>
 
 #include <cxtream/batch.hpp>
-#include <cxtream/column.hpp>
 
+#include "common.hpp"
 
 using namespace ranges;
 using namespace cxtream;
 using namespace boost;
-
-
-inline namespace columns {
-  CXTREAM_DEFINE_COLUMN(A, int)
-  CXTREAM_DEFINE_COLUMN(B, double)
-  CXTREAM_DEFINE_COLUMN(Unique, std::unique_ptr<int>)
-  CXTREAM_DEFINE_COLUMN(Shared, std::shared_ptr<int>)
-}
 
 
 auto generate_batched_data(std::vector<int> batch_sizes)

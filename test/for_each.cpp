@@ -12,7 +12,6 @@
 #define BOOST_TEST_MODULE for_each_test
 
 #include <memory>
-#include <ostream>
 #include <tuple>
 #include <vector>
 
@@ -21,48 +20,13 @@
 #include <range/v3/view/iota.hpp>
 #include <range/v3/view/move.hpp>
 
-#include <cxtream/column.hpp>
 #include <cxtream/for_each.hpp>
 
-// make the tuple print visible for boost test
-// this is forbidden by the standard (simple workarounds?)
-namespace std { using cxtream::utility::operator<<; }
+#include "common.hpp"
 
 using namespace cxtream;
 using namespace ranges;
 using namespace boost;
-using namespace utility;
-
-template<typename T>
-std::ostream& operator<<(std::ostream& out, const std::vector<T>& vec)
-{
-  out << "{";
-  for (std::size_t i = 0; i < vec.size(); ++i) {
-    out << vec[i];
-    if (i + 1 != vec.size())
-      out << ", ";
-  }
-  out << "}";
-  return out;
-}
-
-
-inline namespace columns {
-  CXTREAM_DEFINE_COLUMN(A, int)
-  CXTREAM_DEFINE_COLUMN(B, double)
-  CXTREAM_DEFINE_COLUMN(Unique, std::unique_ptr<int>)
-  CXTREAM_DEFINE_COLUMN(Shared, std::shared_ptr<int>)
-}
-
-
-bool operator==(const A& lhs, const A& rhs)
-{ return lhs.value == rhs.value; }
-bool operator==(const B& lhs, const B& rhs)
-{ return lhs.value == rhs.value; }
-std::ostream& operator<<(std::ostream& out, const A& rhs)
-{ return out << rhs.value; }
-std::ostream& operator<<(std::ostream& out, const B& rhs)
-{ return out << rhs.value; }
 
 
 BOOST_AUTO_TEST_CASE(for_each_test)
@@ -105,20 +69,20 @@ BOOST_AUTO_TEST_CASE(for_each_test)
 
   {
     // for_each of two columns
-    std::vector<std::tuple<A, B>> data = {{{3},{5.}}, {{1},{2.}}};
+    std::vector<std::tuple<Int, Double>> data = {{{3},{5.}}, {{1},{2.}}};
     auto generated =
         data
-      | for_each(from<A, B>, [](const int &v, char c){ })
+      | for_each(from<Int, Double>, [](const int &v, char c){ })
       | to_vector;
 
-    std::vector<std::tuple<A, B>> desired = {{{3},{5.}}, {{1},{2.}}};
+    std::vector<std::tuple<Int, Double>> desired = {{{3},{5.}}, {{1},{2.}}};
 
     BOOST_TEST(generated == desired, test_tools::per_element{});
   }
 
   {
     // for_each of a move-only column
-    std::vector<std::tuple<A, Unique>> data;
+    std::vector<std::tuple<Int, Unique>> data;
     data.emplace_back(3, std::make_unique<int>(5));
     data.emplace_back(1, std::make_unique<int>(2));
 
@@ -126,7 +90,7 @@ BOOST_AUTO_TEST_CASE(for_each_test)
 
       data
     | view::move
-    | for_each(from<A, Unique>,
+    | for_each(from<Int, Unique>,
         [&generated](const int& v, const std::unique_ptr<int>& p){
           generated.push_back(v + *p);
       })
