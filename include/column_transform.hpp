@@ -139,7 +139,7 @@ struct col_name : cxtream::column_base<col_type> { \
   }
 
 
-  /* column_transform */
+  /* transform */
 
 
   // apply fun to some dimension
@@ -174,10 +174,10 @@ struct col_name : cxtream::column_base<col_type> { \
   };
 
   template<typename... FromColumns, typename... ToColumns, typename Fun, int Dim = 1>
-  constexpr auto column_transform(from_t<FromColumns...> f,
-                                  to_t<ToColumns...> t,
-                                  Fun fun,
-                                  dim_t<Dim> d = dim_t<1>{})
+  constexpr auto transform(from_t<FromColumns...> f,
+                           to_t<ToColumns...> t,
+                           Fun fun,
+                           dim_t<Dim> d = dim_t<1>{})
   {
     // wrap the function to be applied in the appropriate dimension
     auto fun_wrapper = wrap_fun_for_dim<Dim>::impl(std::move(fun));
@@ -207,7 +207,7 @@ struct col_name : cxtream::column_base<col_type> { \
   }
 
 
-  /* column_for_each */
+  /* for_each */
 
 
   // apply fun to some dimension
@@ -246,9 +246,9 @@ struct col_name : cxtream::column_base<col_type> { \
 
 
   template<typename... FromColumns, typename Fun, int Dim = 1>
-  constexpr auto column_for_each(from_t<FromColumns...> f,
-                                 Fun fun,
-                                 dim_t<Dim> d = dim_t<1>{})
+  constexpr auto for_each(from_t<FromColumns...> f,
+                          Fun fun,
+                          dim_t<Dim> d = dim_t<1>{})
   {
     // wrap the function to be applied in the appropriate dimension
     auto fun_wrapper = wrap_void_fun_for_dim<Dim>::impl(std::move(fun));
@@ -259,11 +259,11 @@ struct col_name : cxtream::column_base<col_type> { \
   }
 
 
-  /* column_drop */
+  /* drop */
 
 
   template<typename Column>
-  constexpr auto column_drop_fn()
+  constexpr auto drop_fn()
   {
     return view::transform([](auto&& source) {
       return utility::tuple_remove<Column>(std::forward<decltype(source)>(source));
@@ -272,14 +272,14 @@ struct col_name : cxtream::column_base<col_type> { \
 
   // allow calls without parentheses
   template<typename Column>
-  auto column_drop = column_drop_fn<Column>();
+  auto drop = drop_fn<Column>();
 
 
-  /* column_create */
+  /* create */
 
 
   template<typename Column>
-  constexpr auto column_create_fn()
+  constexpr auto create_fn()
   {
     return view::transform([](auto&& source){
         return std::tuple<Column>{std::forward<decltype(source)>(source)};
@@ -288,7 +288,7 @@ struct col_name : cxtream::column_base<col_type> { \
 
   // allow calls without parentheses
   template<typename Column>
-  auto column_create = column_create_fn<Column>();
+  auto create = create_fn<Column>();
 
 
 } // end namespace cxtream

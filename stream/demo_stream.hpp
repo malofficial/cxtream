@@ -26,6 +26,8 @@ namespace cxtream {
 
   namespace fs = std::experimental::filesystem;
   using namespace ranges;
+  using cxtream::from;
+  using cxtream::to;
 
   extern std::mt19937 global_prng;
 
@@ -96,11 +98,11 @@ namespace cxtream {
   auto build_stream(const fs::path& path)
   {
     return list_dir(path) | view::shared
-      | column_create<fpath>
-      | column_transform(from<fpath>, to<image>, cv_load())
-      | column_transform(from<image>, to<image>, cv_resize(256, 256))
-      | column_transform(from<image>, to<rimage>, cv_rotate(20, global_prng))
-      | column_for_each(from<fpath, rimage>, cv_show());
+      | cxtream::create<fpath>
+      | cxtream::transform(from<fpath>, to<image>, cv_load())
+      | cxtream::transform(from<image>, to<image>, cv_resize(256, 256))
+      | cxtream::transform(from<image>, to<rimage>, cv_rotate(20, global_prng))
+      | cxtream::for_each(from<fpath, rimage>, cv_show());
   }
 
 

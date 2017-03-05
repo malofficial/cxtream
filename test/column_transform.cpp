@@ -96,7 +96,7 @@ BOOST_AUTO_TEST_CASE(column_transform_test)
     std::vector<std::tuple<A, B>> data = {{{3},{5.}}, {{1},{2.}}};
     auto generated =
         data
-      | column_transform(from<A>, to<A>, [](const int &v){
+      | transform(from<A>, to<A>, [](const int &v){
           return std::make_tuple(v - 1);
         })
       | to_vector;
@@ -111,7 +111,7 @@ BOOST_AUTO_TEST_CASE(column_transform_test)
     std::vector<std::tuple<A, B>> data = {{{3},{5.}}, {{1},{2.}}};
     auto generated =
         data
-      | column_transform(from<A, B>, to<B>, [](int i, double d){
+      | transform(from<A, B>, to<B>, [](int i, double d){
           return std::make_tuple((double)(i + d));
         })
       | to_vector;
@@ -126,7 +126,7 @@ BOOST_AUTO_TEST_CASE(column_transform_test)
     std::vector<std::tuple<A>> data = {{{3}}, {{1}}};
     auto generated =
         data
-      | column_transform(from<A>, to<A, B>, [](int i){
+      | transform(from<A>, to<A, B>, [](int i){
           return std::make_tuple(i + i, (double)(i * i));
         })
       | to_vector;
@@ -177,7 +177,7 @@ BOOST_AUTO_TEST_CASE(column_transform_test)
     std::vector<std::tuple<A, B>> data = {{{3},{5.}}, {{1},{2.}}};
     auto generated =
         data
-      | column_for_each(from<A, B>, [](const int &v, char c){ })
+      | for_each(from<A, B>, [](const int &v, char c){ })
       | to_vector;
 
     std::vector<std::tuple<A, B>> desired = {{{3},{5.}}, {{1},{2.}}};
@@ -195,7 +195,7 @@ BOOST_AUTO_TEST_CASE(column_transform_test)
 
       data
     | view::move
-    | column_for_each(from<A, Unique>,
+    | for_each(from<A, Unique>,
         [&generated](const int& v, const std::unique_ptr<int>& p){
           generated.push_back(v + *p);
       })
@@ -209,7 +209,7 @@ BOOST_AUTO_TEST_CASE(column_transform_test)
     // create a new column
     auto generated =
         view::iota(0, 10)
-      | column_create<A>
+      | create<A>
       | to_vector;
 
     std::vector<std::tuple<A>> desired = view::iota(0, 10);
@@ -226,7 +226,7 @@ BOOST_AUTO_TEST_CASE(column_transform_test)
     auto generated =
          data
        | view::move
-       | column_transform(from<Unique>, to<Unique, B>,
+       | transform(from<Unique>, to<Unique, B>,
            [](const std::unique_ptr<int> &ptr){
              return std::make_tuple(std::make_unique<int>(*ptr), (double)*ptr);
          })
@@ -242,7 +242,7 @@ BOOST_AUTO_TEST_CASE(column_transform_test)
     auto to_check =
         generated
       | view::move
-      | column_drop<Unique>
+      | drop<Unique>
       | to_vector;
 
     std::vector<std::tuple<B, A>> desired;
@@ -256,7 +256,7 @@ BOOST_AUTO_TEST_CASE(column_transform_test)
     std::vector<std::tuple<A, B>> data = {{{3},{5.}}, {{1},{2.}}};
     auto generated =
         data
-      | column_drop<A>
+      | drop<A>
       | to_vector;
 
     std::vector<std::tuple<B>> desired = {{{5.}}, {{2.}}};
