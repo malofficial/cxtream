@@ -11,7 +11,7 @@
 #ifndef CXTREAM_UTILITY_PYBOOST_COLUMN_CONVERTER_HPP
 #define CXTREAM_UTILITY_PYBOOST_COLUMN_CONVERTER_HPP
 
-#include <utility/tuple.hpp>
+#include <cxtream/utility/tuple.hpp>
 #include <boost/python.hpp>
 #include <string>
 #include <vector>

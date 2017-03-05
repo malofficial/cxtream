@@ -19,8 +19,8 @@
 #include <range/v3/view/transform.hpp>
 #include <range/v3/view/zip.hpp>
 
-#include <utility/tuple.hpp>
-#include <view/buffer.hpp>
+#include <cxtream/utility/tuple.hpp>
+#include <cxtream/view/buffer.hpp>
 
 namespace cxtream {
 

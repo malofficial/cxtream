@@ -20,8 +20,8 @@
 #include <range/v3/view/move.hpp>
 #include <range/v3/view/indirect.hpp>
 
-#include <view/batch.hpp>
-#include <column_transform.hpp>
+#include <cxtream/view/batch.hpp>
+#include <cxtream/column_transform.hpp>
 
 
 using namespace cxtream;

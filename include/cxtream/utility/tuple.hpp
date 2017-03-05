@@ -17,7 +17,6 @@
 #include <range/v3/size.hpp>
 #include <range/v3/core.hpp>
 
-
 namespace cxtream::utility {
 
   struct adl{};

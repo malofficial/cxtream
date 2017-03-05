@@ -20,7 +20,7 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <range/v3/view.hpp>
 
-#include <column_transform.hpp>
+#include <cxtream/column_transform.hpp>
 
 namespace cxtream {
 

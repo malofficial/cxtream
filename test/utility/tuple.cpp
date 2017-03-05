@@ -12,7 +12,7 @@
 #define BOOST_TEST_MODULE utility_tuple_test
 
 #include <boost/test/unit_test.hpp>
-#include <utility/tuple.hpp>
+#include <cxtream/utility/tuple.hpp>
 #include <memory>
 #include <vector>
 #include <iostream>

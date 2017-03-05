@@ -14,10 +14,10 @@
 #include <boost/python.hpp>
 #include <range/v3/view/transform.hpp>
 
-#include <utility/pyboost_column_converter.hpp>
-#include <utility/pyboost_cv3_converter.hpp>
-#include <utility/pyboost_fs_path_converter.hpp>
-#include <utility/pyboost_range.hpp>
+#include <cxtream/utility/pyboost_column_converter.hpp>
+#include <cxtream/utility/pyboost_cv3_converter.hpp>
+#include <cxtream/utility/pyboost_fs_path_converter.hpp>
+#include <cxtream/utility/pyboost_range.hpp>
 
 #include STREAM_HEADER_FILE
 
