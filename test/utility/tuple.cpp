@@ -11,11 +11,11 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE utility_tuple_test
 
-#include <boost/test/unit_test.hpp>
-#include <cxtream/utility/tuple.hpp>
 #include <memory>
 #include <vector>
-#include <iostream>
+
+#include <boost/test/unit_test.hpp>
+#include <cxtream/utility/tuple.hpp>
 
 using namespace cxtream::utility;
 
