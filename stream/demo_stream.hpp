@@ -1,15 +1,15 @@
-/// \file
-// Stream prototype library
-//
-//  Copyright Filip Matzner 2017
-//
-//  Use, modification and distribution is subject to the
-//  Boost Software License, Version 1.0.
-//  (see http://www.boost.org/LICENSE_1_0.txt)
-//
+/*********************************************************
+ *  cxtream library
+ *
+ *  Copyright (c) 2017, Filip Matzner
+ *
+ *  Use, modification and distribution is subject to the
+ *  Boost Software License, Version 1.0.
+ *  (see http://www.boost.org/LICENSE_1_0.txt)
+ *********************************************************/
 
-#ifndef STREAM_COLUMN_STREAM_HPP
-#define STREAM_COLUMN_STREAM_HPP
+#ifndef CXTREAM_DEMO_STREAM_HPP
+#define CXTREAM_DEMO_STREAM_HPP
 
 #include <vector>
 #include <random>
@@ -22,11 +22,10 @@
 
 #include <column_transform.hpp>
 
-namespace stream {
+namespace cxtream {
 
   namespace fs = std::experimental::filesystem;
   using namespace ranges;
-  using namespace stream;
 
   extern std::mt19937 global_prng;
 
@@ -34,9 +33,9 @@ namespace stream {
   /* define columns */
 
 
-  STREAM_DEFINE_COLUMN(fpath, fs::path);
-  STREAM_DEFINE_COLUMN(image, cv::Mat);
-  STREAM_DEFINE_COLUMN(rimage, cv::Mat);
+  CXTREAM_DEFINE_COLUMN(fpath, fs::path)
+  CXTREAM_DEFINE_COLUMN(image, cv::Mat)
+  CXTREAM_DEFINE_COLUMN(rimage, cv::Mat)
 
 
   /* define augmenters */
@@ -105,5 +104,5 @@ namespace stream {
   }
 
 
-} //end namespace stream
+} //end namespace cxtream
 #endif

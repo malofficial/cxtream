@@ -1,26 +1,22 @@
-/// \file
-// Stream prototype library
-//
-//  Copyright Filip Matzner 2017
-//
-//  Use, modification and distribution is subject to the
-//  Boost Software License, Version 1.0.
-//  (see http://www.boost.org/LICENSE_1_0.txt)
-//
+/*********************************************************
+ *  cxtream library
+ *
+ *  Copyright (c) 2017, Filip Matzner
+ *
+ *  Use, modification and distribution is subject to the
+ *  Boost Software License, Version 1.0.
+ *  (see http://www.boost.org/LICENSE_1_0.txt)
+ *********************************************************/
 
-#ifndef STREAM_UTILITY_PYBOOST_COLUMN_CONVERTER_HPP
-#define STREAM_UTILITY_PYBOOST_COLUMN_CONVERTER_HPP
+#ifndef CXTREAM_UTILITY_PYBOOST_COLUMN_CONVERTER_HPP
+#define CXTREAM_UTILITY_PYBOOST_COLUMN_CONVERTER_HPP
 
 #include <utility/tuple.hpp>
 #include <boost/python.hpp>
-#include <boost/python/suite/indexing/indexing_suite.hpp>
-#include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 #include <string>
 #include <vector>
-#include <stdexcept>
-#include <typeinfo>
 
-namespace stream {
+namespace cxtream {
 
   namespace p = boost::python;
 
@@ -69,8 +65,8 @@ namespace stream {
       res[column.name] = vector_to_py(std::move(column.value));
     }, tuple);
     return res;
-  };
+  }
 
 
-} //end namespace stream
+} //end namespace cxtream
 #endif

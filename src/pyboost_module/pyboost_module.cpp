@@ -1,12 +1,12 @@
-/// \file
-// Stream prototype library
-//
-//  Copyright Filip Matzner 2017
-//
-//  Use, modification and distribution is subject to the
-//  Boost Software License, Version 1.0.
-//  (see http://www.boost.org/LICENSE_1_0.txt)
-//
+/*********************************************************
+ *  cxtream library
+ *
+ *  Copyright (c) 2017, Filip Matzner
+ *
+ *  Use, modification and distribution is subject to the
+ *  Boost Software License, Version 1.0.
+ *  (see http://www.boost.org/LICENSE_1_0.txt)
+ *********************************************************/
 
 #define PY_ARRAY_UNIQUE_SYMBOL pbcvt_ARRAY_API
 
@@ -21,7 +21,7 @@
 
 #include STREAM_HEADER_FILE
 
-namespace stream {
+namespace cxtream {
 
   namespace p = boost::python;
 
@@ -76,4 +76,4 @@ namespace stream {
     p::def("get_epoch_iterator", build_python_stream);
   }
 
-} //end namespace stream
+} //end namespace cxtream

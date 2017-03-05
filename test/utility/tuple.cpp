@@ -1,12 +1,12 @@
-/// \file
-// Tuple utilities
-//
-//  Copyright Filip Matzner 2017
-//
-//  Use, modification and distribution is subject to the
-//  Boost Software License, Version 1.0.
-//  (see http://www.boost.org/LICENSE_1_0.txt)
-//
+/*********************************************************
+ *  cxtream library
+ *
+ *  Copyright (c) 2017, Filip Matzner
+ *
+ *  Use, modification and distribution is subject to the
+ *  Boost Software License, Version 1.0.
+ *  (see http://www.boost.org/LICENSE_1_0.txt)
+ *********************************************************/
 
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE utility_tuple_test
@@ -17,12 +17,12 @@
 #include <vector>
 #include <iostream>
 
-using namespace stream::utility;
+using namespace cxtream::utility;
 
 
 // make the tuple print visible for boost test
 // this is forbidden by the standard (simple workarounds?)
-namespace std { using stream::utility::operator<<; }
+namespace std { using cxtream::utility::operator<<; }
 
 
 BOOST_AUTO_TEST_CASE(utility_tuple_test)

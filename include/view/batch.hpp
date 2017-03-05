@@ -1,25 +1,22 @@
-/// \file
-// Stream prototype library
-//
-//  Copyright Filip Matzner 2017
-//
-//  Use, modification and distribution is subject to the
-//  Boost Software License, Version 1.0.
-//  (see http://www.boost.org/LICENSE_1_0.txt)
-//
+/*********************************************************
+ *  cxtream library
+ *
+ *  Copyright (c) 2017, Filip Matzner
+ *
+ *  Use, modification and distribution is subject to the
+ *  Boost Software License, Version 1.0.
+ *  (see http://www.boost.org/LICENSE_1_0.txt)
+ *********************************************************/
 
-#ifndef STREAM_BATCH_VIEW_HPP
-#define STREAM_BATCH_VIEW_HPP
+#ifndef CXTREAM_BATCH_VIEW_HPP
+#define CXTREAM_BATCH_VIEW_HPP
 
-#include <deque>
-#include <future>
-#include <climits>
 #include <range/v3/core.hpp>
 #include <range/v3/view/all.hpp>
 #include <utility/tuple.hpp>
 
 
-namespace stream {
+namespace cxtream {
   
 
   /* batch_size */
@@ -202,5 +199,5 @@ namespace stream {
 
   constexpr ranges::view::view<batch_fn> batch{};
 
-} //end namespace stream
+} //end namespace cxtream
 #endif

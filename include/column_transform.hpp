@@ -1,15 +1,15 @@
-/// \file
-// Stream prototype library
-//
-//  Copyright Filip Matzner 2017
-//
-//  Use, modification and distribution is subject to the
-//  Boost Software License, Version 1.0.
-//  (see http://www.boost.org/LICENSE_1_0.txt)
-//
+/*********************************************************
+ *  cxtream library
+ *
+ *  Copyright (c) 2017, Filip Matzner
+ *
+ *  Use, modification and distribution is subject to the
+ *  Boost Software License, Version 1.0.
+ *  (see http://www.boost.org/LICENSE_1_0.txt)
+ *********************************************************/
 
-#ifndef STREAM_COLUMN_TRANSFORM_HPP
-#define STREAM_COLUMN_TRANSFORM_HPP
+#ifndef CXTREAM_COLUMN_TRANSFORM_HPP
+#define CXTREAM_COLUMN_TRANSFORM_HPP
 
 #include <type_traits>
 #include <utility>
@@ -22,50 +22,53 @@
 #include <utility/tuple.hpp>
 #include <view/buffer.hpp>
 
-template<typename T, bool = std::is_copy_constructible<T>{}>
-struct column_base
-{
-  std::vector<T> value;
-
-  column_base() = default;
-  column_base(T&& rhs)
-  {
-    value.emplace_back(std::move(rhs));
-  }
-  column_base(const T& rhs)
-    : value{rhs}
-  { }
-  column_base(std::vector<T>&& rhs)
-    : value{std::move(rhs)}
-  { }
-  column_base(const std::vector<T>& rhs)
-    : value{rhs}
-  { }
-};
-
-template<typename T>
-struct column_base<T, false> : column_base<T, true>
-{
-  using column_base<T, true>::column_base;
-
-  column_base() = default;
-  column_base(const T& rhs) = delete;
-  column_base(const std::vector<T>& rhs) = delete;
-};
-
-#define STREAM_DEFINE_COLUMN(col_name, col_type) \
-struct col_name : column_base<col_type> { \
-  using column_base<col_type>::column_base; \
-  static constexpr const char* name = #col_name; \
-};
-
-
-namespace stream {
+namespace cxtream {
 
   using namespace ranges;
 
 
-  /* helpers */
+  /* column definition macro */
+
+
+  template<typename T, bool = std::is_copy_constructible<T>{}>
+  struct column_base
+  {
+    std::vector<T> value;
+
+    column_base() = default;
+    column_base(T&& rhs)
+    {
+      value.emplace_back(std::move(rhs));
+    }
+    column_base(const T& rhs)
+      : value{rhs}
+    { }
+    column_base(std::vector<T>&& rhs)
+      : value{std::move(rhs)}
+    { }
+    column_base(const std::vector<T>& rhs)
+      : value{rhs}
+    { }
+  };
+
+  template<typename T>
+  struct column_base<T, false> : column_base<T, true>
+  {
+    using column_base<T, true>::column_base;
+
+    column_base() = default;
+    column_base(const T& rhs) = delete;
+    column_base(const std::vector<T>& rhs) = delete;
+  };
+
+#define CXTREAM_DEFINE_COLUMN(col_name, col_type) \
+struct col_name : cxtream::column_base<col_type> { \
+  using cxtream::column_base<col_type>::column_base; \
+  static constexpr const char* name = #col_name; \
+};
+
+
+  /* helper types */
 
 
   template<typename... Columns>
@@ -85,6 +88,10 @@ namespace stream {
 
   template<int Dim>
   auto dim = dim_t<Dim>{};
+
+
+  /* helper projections */
+
 
   struct identity_t
   {
@@ -284,5 +291,5 @@ namespace stream {
   auto column_create = column_create_fn<Column>();
 
 
-} // end namespace stream
+} // end namespace cxtream
 #endif

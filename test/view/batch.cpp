@@ -1,12 +1,12 @@
-/// \file
-// Stream prototype library
-//
-//  Copyright Filip Matzner 2017
-//
-//  Use, modification and distribution is subject to the
-//  Boost Software License, Version 1.0.
-//  (see http://www.boost.org/LICENSE_1_0.txt)
-//
+/*********************************************************
+ *  cxtream library
+ *
+ *  Copyright (c) 2017, Filip Matzner
+ *
+ *  Use, modification and distribution is subject to the
+ *  Boost Software License, Version 1.0.
+ *  (see http://www.boost.org/LICENSE_1_0.txt)
+ *********************************************************/
 
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE batch_view_test
@@ -24,15 +24,15 @@
 #include <column_transform.hpp>
 
 
-using namespace stream;
+using namespace cxtream;
 using namespace boost;
 
 
 inline namespace columns {
-  STREAM_DEFINE_COLUMN(A, int)
-  STREAM_DEFINE_COLUMN(B, double)
-  STREAM_DEFINE_COLUMN(Unique, std::unique_ptr<int>)
-  STREAM_DEFINE_COLUMN(Shared, std::shared_ptr<int>)
+  CXTREAM_DEFINE_COLUMN(A, int)
+  CXTREAM_DEFINE_COLUMN(B, double)
+  CXTREAM_DEFINE_COLUMN(Unique, std::unique_ptr<int>)
+  CXTREAM_DEFINE_COLUMN(Shared, std::shared_ptr<int>)
 }
 
 

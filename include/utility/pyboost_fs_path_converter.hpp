@@ -1,20 +1,20 @@
-/// \file
-// Stream prototype library
-//
-//  Copyright Filip Matzner 2017
-//
-//  Use, modification and distribution is subject to the
-//  Boost Software License, Version 1.0.
-//  (see http://www.boost.org/LICENSE_1_0.txt)
-//
+/*********************************************************
+ *  cxtream library
+ *
+ *  Copyright (c) 2017, Filip Matzner
+ *
+ *  Use, modification and distribution is subject to the
+ *  Boost Software License, Version 1.0.
+ *  (see http://www.boost.org/LICENSE_1_0.txt)
+ *********************************************************/
 
-#ifndef STREAM_UTILITY_PYBOOST_FS_PATH_CONVERTER_HPP
-#define STREAM_UTILITY_PYBOOST_FS_PATH_CONVERTER_HPP
+#ifndef CXTREAM_UTILITY_PYBOOST_FS_PATH_CONVERTER_HPP
+#define CXTREAM_UTILITY_PYBOOST_FS_PATH_CONVERTER_HPP
 
 #include <boost/python.hpp>
 #include <experimental/filesystem>
 
-namespace stream {
+namespace cxtream {
 
 	namespace fs = std::experimental::filesystem;
   namespace p = boost::python;
@@ -60,5 +60,5 @@ namespace stream {
   };
 
 
-} //end namespace stream
+} //end namespace cxtream
 #endif

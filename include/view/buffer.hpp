@@ -1,15 +1,15 @@
-/// \file
-// Stream prototype library
-//
-//  Copyright Filip Matzner 2017
-//
-//  Use, modification and distribution is subject to the
-//  Boost Software License, Version 1.0.
-//  (see http://www.boost.org/LICENSE_1_0.txt)
-//
+/*********************************************************
+ *  cxtream library
+ *
+ *  Copyright (c) 2017, Filip Matzner
+ *
+ *  Use, modification and distribution is subject to the
+ *  Boost Software License, Version 1.0.
+ *  (see http://www.boost.org/LICENSE_1_0.txt)
+ *********************************************************/
 
-#ifndef STREAM_BUFFER_VIEW_HPP
-#define STREAM_BUFFER_VIEW_HPP
+#ifndef CXTREAM_BUFFER_VIEW_HPP
+#define CXTREAM_BUFFER_VIEW_HPP
 
 #include <deque>
 #include <future>
@@ -18,7 +18,7 @@
 #include <range/v3/view/all.hpp>
 
 
-namespace stream {
+namespace cxtream {
   
 
   template<typename Rng>

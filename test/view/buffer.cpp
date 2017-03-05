@@ -1,12 +1,12 @@
-/// \file
-// Stream prototype library
-//
-//  Copyright Filip Matzner 2017
-//
-//  Use, modification and distribution is subject to the
-//  Boost Software License, Version 1.0.
-//  (see http://www.boost.org/LICENSE_1_0.txt)
-//
+/*********************************************************
+ *  cxtream library
+ *
+ *  Copyright (c) 2017, Filip Matzner
+ *
+ *  Use, modification and distribution is subject to the
+ *  Boost Software License, Version 1.0.
+ *  (see http://www.boost.org/LICENSE_1_0.txt)
+ *********************************************************/
 
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE buffer_view_test
@@ -23,7 +23,7 @@
 #include <view/buffer.hpp>
 
 
-using namespace stream;
+using namespace cxtream;
 using namespace boost;
 using namespace std::chrono_literals;
 

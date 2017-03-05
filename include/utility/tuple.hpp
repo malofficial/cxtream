@@ -1,16 +1,15 @@
-/// \file
-// Tuple utilities
-//
-//  Copyright Filip Matzner 2017
-//
-//  Use, modification and distribution is subject to the
-//  Boost Software License, Version 1.0.
-//  (see http://www.boost.org/LICENSE_1_0.txt)
-//
+/*********************************************************
+ *  cxtream library
+ *
+ *  Copyright (c) 2017, Filip Matzner
+ *
+ *  Use, modification and distribution is subject to the
+ *  Boost Software License, Version 1.0.
+ *  (see http://www.boost.org/LICENSE_1_0.txt)
+ *********************************************************/
 
-#ifndef STREAM_TUPLE_UTILS_HPP
-#define STREAM_TUPLE_UTILS_HPP
-
+#ifndef CXTREAM_TUPLE_UTILS_HPP
+#define CXTREAM_TUPLE_UTILS_HPP
 
 #include <type_traits>
 #include <ostream>
@@ -19,7 +18,7 @@
 #include <range/v3/core.hpp>
 
 
-namespace stream::utility {
+namespace cxtream::utility {
 
   struct adl{};
 
@@ -250,6 +249,6 @@ namespace stream::utility {
   }
 
 
-} // end namespace stream::utility
+} // end namespace cxtream::utility
 
 #endif
