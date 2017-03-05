@@ -31,8 +31,10 @@ namespace cxtream {
 
   auto build_python_stream(const fs::path& path)
   {
-    auto stream = build_stream(path) | view::transform([](auto&& tuple){
-      return column_tuple_to_py(std::forward<decltype(tuple)>(tuple));
+    auto stream =
+        build_stream(path)
+      | ranges::view::transform([](auto&& tuple){
+          return column_tuple_to_py(std::forward<decltype(tuple)>(tuple));
     });
     return python_iterator<decltype(stream)>{std::move(stream)};
   }

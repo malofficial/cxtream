@@ -11,8 +11,12 @@
 #ifndef CXTREAM_HPP
 #define CXTREAM_HPP
 
-#include <cxtream/column_transform.hpp>
-#include <cxtream/view/buffer.hpp>
-#include <cxtream/view/batch.hpp>
+#include <cxtream/batch.hpp>
+#include <cxtream/buffer.hpp>
+#include <cxtream/column.hpp>
+#include <cxtream/create.hpp>
+#include <cxtream/drop.hpp>
+#include <cxtream/for_each.hpp>
+#include <cxtream/transform.hpp>
 
 #endif

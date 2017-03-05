@@ -20,8 +20,7 @@
 #include <range/v3/view/indirect.hpp>
 #include <range/v3/view/transform.hpp>
 
-#include <cxtream/view/buffer.hpp>
-
+#include <cxtream/buffer.hpp>
 
 using namespace cxtream;
 using namespace boost;

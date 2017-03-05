@@ -18,12 +18,12 @@
 #include <range/v3/to_container.hpp>
 #include <range/v3/view/iota.hpp>
 #include <range/v3/view/move.hpp>
-#include <range/v3/view/indirect.hpp>
 
-#include <cxtream/view/batch.hpp>
-#include <cxtream/column_transform.hpp>
+#include <cxtream/batch.hpp>
+#include <cxtream/column.hpp>
 
 
+using namespace ranges;
 using namespace cxtream;
 using namespace boost;
 
