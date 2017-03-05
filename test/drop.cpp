@@ -27,6 +27,9 @@ using namespace ranges;
 using namespace boost;
 
 
+CXTREAM_DEFINE_COLUMN(Unique2, std::unique_ptr<int>)
+
+
 BOOST_AUTO_TEST_CASE(drop_test)
 {
   {
@@ -42,6 +45,21 @@ BOOST_AUTO_TEST_CASE(drop_test)
     BOOST_TEST(generated == desired, test_tools::per_element{});
   }
 
-  // TODO drop move-only
+  {
+    // drop a move-only column
+    std::vector<std::tuple<Unique, Unique2>> data;
+    data.emplace_back(std::make_unique<int>(1), std::make_unique<int>(5));
+    data.emplace_back(std::make_unique<int>(2), std::make_unique<int>(6));
 
+    auto generated = 
+        data
+      | view::move
+      | drop<Unique>
+      | view::transform([](auto t){ return *(std::get<0>(std::move(t)).value[0]); })
+      | to_vector;
+
+    std::vector<int> desired = {5, 6};
+
+    BOOST_TEST(generated == desired, test_tools::per_element{});
+  }
 }

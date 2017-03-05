@@ -42,6 +42,21 @@ BOOST_AUTO_TEST_CASE(create_test)
     BOOST_TEST(generated == desired, test_tools::per_element{});
   }
 
-  // TODO create move-only
+  {
+    // create a move-only column
+    std::vector<std::unique_ptr<int>> data;
+    data.emplace_back(std::make_unique<int>(5));
+    data.emplace_back(std::make_unique<int>(6));
 
+    auto generated = 
+        data
+      | view::move
+      | create<Unique>
+      | view::transform([](auto t){ return *(std::get<0>(std::move(t)).value[0]); })
+      | to_vector;
+
+    std::vector<int> desired = {5, 6};
+
+    BOOST_TEST(generated == desired, test_tools::per_element{});
+  }
 }
