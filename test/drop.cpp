@@ -62,4 +62,24 @@ BOOST_AUTO_TEST_CASE(drop_test)
 
     BOOST_TEST(generated == desired, test_tools::per_element{});
   }
+
+  {
+    /*
+    // drop multiple columns
+    std::vector<std::tuple<Int, Unique, Unique2>> data;
+    data.emplace_back(-1, std::make_unique<int>(1), std::make_unique<int>(5));
+    data.emplace_back(-2, std::make_unique<int>(2), std::make_unique<int>(6));
+
+    auto generated = 
+        data
+      | view::move
+      | drop<Int, Unique>
+      | view::transform([](auto t){ return *(std::get<0>(std::move(t)).value[0]); })
+      | to_vector;
+
+    std::vector<int> desired = {5, 6};
+
+    BOOST_TEST(generated == desired, test_tools::per_element{});
+    */
+  }
 }
