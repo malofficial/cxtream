@@ -21,17 +21,17 @@ namespace cxtream {
   /* create */
 
 
-  template<typename Column>
+  template<typename... Columns>
   constexpr auto create_fn()
   {
     return ranges::view::transform([](auto&& source){
-      return std::tuple<Column>{std::forward<decltype(source)>(source)};
+      return std::tuple<Columns...>{std::forward<decltype(source)>(source)};
     });
   }
 
   // allow calls without parentheses
-  template<typename Column>
-  auto create = create_fn<Column>();
+  template<typename... Columns>
+  auto create = create_fn<Columns...>();
 
 
 } // end namespace cxtream
