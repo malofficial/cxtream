@@ -41,6 +41,7 @@ namespace cxtream {
   CXTREAM_DEFINE_COLUMN(fpaths, fs::path)
   CXTREAM_DEFINE_COLUMN(images, cv::Mat)
   CXTREAM_DEFINE_COLUMN(labels, int)
+  CXTREAM_DEFINE_COLUMN(str_labels, std::string)
 
 
   // TODO separate file
@@ -156,7 +157,9 @@ namespace cxtream {
       auto assign_label()
       {
         return [this](const fs::path& path) {
-          return std::make_tuple(label_enc_.at(labels_.at(path.stem()).at(0)));
+          std::string str_label = labels_.at(path.stem()).at(0);
+          int label = label_enc_.at(str_label);
+          return std::make_tuple(label, str_label);
         };
       }
 
@@ -181,8 +184,9 @@ namespace cxtream {
         return list_dir(path) | view::shared
           | cxtream::create<fpaths>
           | cxtream::transform(from<fpaths>, to<images>, cv_load())
-          | cxtream::transform(from<fpaths>, to<labels>, assign_label())
-          | cxtream::transform(from<images>, to<images>, cv_resize(256, 256));
+          | cxtream::transform(from<images>, to<images>, cv_resize(28, 28))
+          | cxtream::transform(from<fpaths>, to<labels, str_labels>, assign_label())
+          | cxtream::batch(100);
       }
 
 
@@ -193,7 +197,7 @@ namespace cxtream {
       {
         return make_python_iterator(
           common_stream(data_root_/"train")
-            | cxtream::transform(from<images>, to<images>, cv_rotate(20, global_prng))
+            // | cxtream::transform(from<images>, to<images>, cv_rotate(20, global_prng))
             // | cxtream::for_each(from<fpaths, rimage>, cv_show())
         );
       }
