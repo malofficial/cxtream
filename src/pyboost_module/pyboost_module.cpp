@@ -11,13 +11,12 @@
 #define PY_ARRAY_UNIQUE_SYMBOL pbcvt_ARRAY_API
 
 #include <random>
-#include <boost/python.hpp>
-#include <range/v3/view/transform.hpp>
+#include <functional>
 
-#include <cxtream/utility/pyboost_column_converter.hpp>
+#include <boost/python.hpp>
+
 #include <cxtream/utility/pyboost_cv3_converter.hpp>
 #include <cxtream/utility/pyboost_fs_path_converter.hpp>
-#include <cxtream/utility/pyboost_range.hpp>
 
 #include STREAM_HEADER_FILE
 
@@ -27,23 +26,6 @@ namespace cxtream {
 
 
   std::mt19937 global_prng{std::random_device{}()};
-
-
-  auto build_python_stream(const fs::path& path)
-  {
-    auto stream =
-        build_stream(path)
-      | ranges::view::transform([](auto&& tuple){
-          return column_tuple_to_py(std::forward<decltype(tuple)>(tuple));
-    });
-    return python_iterator<decltype(stream)>{std::move(stream)};
-  }
-
-
-  // the type of the original range
-  using range_t = decltype(build_stream(fs::path{}));
-  // the type of the python stream to be used as Iterator class in python
-  using python_iterator_t = decltype(build_python_stream(fs::path{}));
 
 
   static void* init_ar()
@@ -69,13 +51,10 @@ namespace cxtream {
     p::to_python_converter<cv::Mat, pbcvt::matToNDArrayBoostConverter>();
     pbcvt::matFromNDArrayBoostConverter();
 
-    // expose the iterator class
-    p::class_<python_iterator_t>("Iterator", p::no_init)
-      .def("__iter__", &python_iterator_t::iter)
-      .def("__next__", &python_iterator_t::next);
-
-    // expose the global function to build the stream
-    p::def("get_epoch_iterator", build_python_stream);
+    p::class_<Dataset>("Dataset", p::init<fs::path>())
+      .def("create_train_stream", &Dataset::create_train_stream_py)
+      .def("create_valid_stream", &Dataset::create_valid_stream_py)
+      .def("create_test_stream", &Dataset::create_valid_stream_py);
   }
 
 } //end namespace cxtream

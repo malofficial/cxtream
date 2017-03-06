@@ -18,5 +18,6 @@
 #include <cxtream/drop.hpp>
 #include <cxtream/for_each.hpp>
 #include <cxtream/transform.hpp>
+#include <cxtream/pyboost_range.hpp>
 
 #endif

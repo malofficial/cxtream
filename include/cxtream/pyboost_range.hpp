@@ -8,11 +8,18 @@
  *  (see http://www.boost.org/LICENSE_1_0.txt)
  *********************************************************/
 
-#ifndef CXTREAM_PYBOOST_RANGE_UTILS_HPP
-#define CXTREAM_PYBOOST_RANGE_UTILS_HPP
+#ifndef CXTREAM_PYBOOST_RANGE_HPP
+#define CXTREAM_PYBOOST_RANGE_HPP
+
+#include <functional>
+#include <string>
+#include <typeinfo>
 
 #include <range/v3/core.hpp>
+#include <range/v3/view/transform.hpp>
 #include <boost/python.hpp>
+
+#include <cxtream/utility/pyboost_column_converter.hpp>
 
 namespace cxtream {
 
@@ -46,6 +53,14 @@ namespace cxtream {
         : rng_{std::move(rng)}
       {
         initialize_iterators();
+
+        // TODO call only once!
+        // register python iterator type
+        using this_t = python_iterator<Rng>;
+        std::string this_t_name = std::string("cxtream_") + typeid(this_t).name();
+        p::class_<this_t>(this_t_name.c_str(), p::no_init)
+          .def("__iter__", &this_t::iter)
+          .def("__next__", &this_t::next);
       }
 
       python_iterator(const python_iterator& rhs)
@@ -80,6 +95,24 @@ namespace cxtream {
         return val;
       }
   };
+
+
+  // until the compiler has full support for C++17 template argument deduction
+  template<typename Rng>
+  auto make_python_iterator(Rng&& rng)
+  {
+    // transform the range of columns to a range of python types
+    auto range_of_python_types =
+        std::forward<Rng&&>(rng)
+      | ranges::view::transform([](auto&& tuple){
+          return column_tuple_to_py(std::forward<decltype(tuple)>(tuple));
+        });
+
+    // make python iterator out of the range of python types
+    using PyRng = decltype(range_of_python_types);
+    return python_iterator<PyRng>{std::move(range_of_python_types)};
+  }
+
 
 } //end namespace cxtream
 #endif
