@@ -8,15 +8,8 @@
  *  (see http://www.boost.org/LICENSE_1_0.txt)
  *********************************************************/
 
-#ifndef CXTREAM_HPP
-#define CXTREAM_HPP
+#ifndef CXTREAM_BUILD_CONFIG_HPP
+#define CXTREAM_BUILD_CONFIG_HPP
 
-#include <cxtream/batch.hpp>
-#include <cxtream/buffer.hpp>
-#include <cxtream/column.hpp>
-#include <cxtream/create.hpp>
-#include <cxtream/drop.hpp>
-#include <cxtream/for_each.hpp>
-#include <cxtream/transform.hpp>
 
 #endif

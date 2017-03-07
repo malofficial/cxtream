@@ -8,15 +8,10 @@
  *  (see http://www.boost.org/LICENSE_1_0.txt)
  *********************************************************/
 
-#ifndef CXTREAM_HPP
-#define CXTREAM_HPP
+#ifndef CXTREAM_PYTHON_HPP
+#define CXTREAM_PYTHON_HPP
 
-#include <cxtream/batch.hpp>
-#include <cxtream/buffer.hpp>
-#include <cxtream/column.hpp>
-#include <cxtream/create.hpp>
-#include <cxtream/drop.hpp>
-#include <cxtream/for_each.hpp>
-#include <cxtream/transform.hpp>
+#include <cxtream/python/pyboost_initialize.hpp>
+#include <cxtream/python/pyboost_range_iterator.hpp>
 
 #endif

@@ -8,17 +8,17 @@
  *  (see http://www.boost.org/LICENSE_1_0.txt)
  *********************************************************/
 
-#ifndef CXTREAM_UTILITY_PYBOOST_COLUMN_CONVERTER_HPP
-#define CXTREAM_UTILITY_PYBOOST_COLUMN_CONVERTER_HPP
+#ifndef CXTREAM_PYTHON_UTILITY_PYBOOST_COLUMN_CONVERTER_HPP
+#define CXTREAM_PYTHON_UTILITY_PYBOOST_COLUMN_CONVERTER_HPP
 
-#include <cxtream/utility/tuple.hpp>
-#include <boost/python.hpp>
 #include <string>
 #include <vector>
 
-namespace cxtream {
+#include <boost/python.hpp>
 
-  namespace p = boost::python;
+#include <cxtream/utility/tuple.hpp>
+
+namespace cxtream::python::utility {
 
 
   /* recursive transformation from a multidimensional vector to a python list */
@@ -37,9 +37,9 @@ namespace cxtream {
   template<typename T>
   struct vector_to_py_impl<std::vector<T>>
   {
-    static p::list impl(std::vector<T> vec)
+    static boost::python::list impl(std::vector<T> vec)
     {
-      p::list res;
+      boost::python::list res;
       for (auto& val : vec) {
         res.append(vector_to_py_impl<T>::impl(std::move(val)));
       }
@@ -48,7 +48,7 @@ namespace cxtream {
   };
 
   template<typename Vector>
-  p::list vector_to_py(Vector&& v)
+  boost::python::list vector_to_py(Vector&& v)
   {
     return vector_to_py_impl<std::decay_t<Vector>>::impl(
       std::forward<Vector>(v));
@@ -58,15 +58,15 @@ namespace cxtream {
 
 
   template<typename Tuple>
-  p::dict column_tuple_to_py(Tuple tuple)
+  boost::python::dict column_tuple_to_py(Tuple tuple)
   {
-    p::dict res;
-    utility::tuple_for_each([&res](auto& column){
+    boost::python::dict res;
+    cxtream::utility::tuple_for_each([&res](auto& column){
       res[column.name] = vector_to_py(std::move(column.value));
     }, tuple);
     return res;
   }
 
 
-} //end namespace cxtream
+} //end namespace cxtream::python::utility
 #endif

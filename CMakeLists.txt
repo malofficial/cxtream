@@ -8,7 +8,8 @@ project("stream")
 OPTION(BUILD_PYTHON_LIB "Build Python dynamic library" ON)
 OPTION(BUILD_PYTHON_WHEEL "Build Python wheel package" ON)
 OPTION(BUILD_TEST "Build test binaries" ON)
-OPTION(USE_OPENCV "Search for OpenCV libraries" ON)
+OPTION(WITH_PYTHON "Build C++ <-> Python converters" ON)
+OPTION(WITH_PYTHON_OPENCV "Build C++ <-> Python OpenCV converters (requires WITH_PYTHON)" ON)
 
 # -------------
 # CMake Options

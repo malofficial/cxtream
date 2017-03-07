@@ -7,15 +7,18 @@
  *     License: MIT
  */
 
-#ifndef CVBOOSTCONVERTER_HPP_
-#define CVBOOSTCONVERTER_HPP_
+
+#ifndef CXTREAM_PYTHON_UTILITY_PYBOOST_CV3_CONVERTER_HPP
+#define CXTREAM_PYTHON_UTILITY_PYBOOST_CV3_CONVERTER_HPP
 
 #define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
-#include <Python.h>
+
+#include <cstdio>
+
+#include <boost/python.hpp>
 #include <numpy/ndarrayobject.h>
 #include <opencv2/core/core.hpp>
-#include <boost/python.hpp>
-#include <cstdio>
+#include <Python.h>
 
 namespace pbcvt{
 
@@ -88,4 +91,4 @@ struct matFromNDArrayBoostConverter {
 			boost::python::converter::rvalue_from_python_stage1_data* data);
 };
 } // end namespace pbcvt
-#endif /* CVBOOSTCONVERTER_HPP_ */
+#endif

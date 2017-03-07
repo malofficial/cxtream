@@ -1,4 +1,4 @@
-function(add_python_stream STREAM_NAME HEADER_FILE INCLUDES LIBRARIES)
+function(add_python_stream STREAM_NAME SOURCE_FILE INCLUDES LIBRARIES)
 
   # -------------
   # Python Stream
@@ -17,21 +17,17 @@ function(add_python_stream STREAM_NAME HEADER_FILE INCLUDES LIBRARIES)
       set(WORKDIR "${CMAKE_BINARY_DIR}/python/${STREAM_NAME}")
       file(
         GLOB_RECURSE pyboost_module_sources
-        "${CMAKE_SOURCE_DIR}/src/pyboost_module/*.cpp")
+        "${CMAKE_SOURCE_DIR}/src/pyboost_module/*.cpp"
+        "${SOURCE_FILE}"
+      )
       add_library(
         ${STREAM_NAME}_python_lib SHARED
         ${pyboost_module_sources}
-      )
-      target_compile_definitions(
-        ${STREAM_NAME}_python_lib
-        PRIVATE STREAM_HEADER_FILE=<${HEADER_FILE}>
-        PRIVATE STREAM_NAME=${STREAM_NAME}
       )
       target_include_directories(
         ${STREAM_NAME}_python_lib
         PRIVATE ${Boost_INCLUDE_DIRS}
         PRIVATE ${PYTHON_INCLUDE_DIRS}
-        PRIVATE "${CMAKE_SOURCE_DIR}/stream"
         ${INCLUDES}
       )
       set_target_properties(

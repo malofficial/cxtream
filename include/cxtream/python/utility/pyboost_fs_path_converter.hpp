@@ -7,18 +7,21 @@
  *  Boost Software License, Version 1.0.
  *  (see http://www.boost.org/LICENSE_1_0.txt)
  *********************************************************/
+// TODO compile this file into a dynamic library
 
-#ifndef CXTREAM_UTILITY_PYBOOST_FS_PATH_CONVERTER_HPP
-#define CXTREAM_UTILITY_PYBOOST_FS_PATH_CONVERTER_HPP
+#ifndef CXTREAM_PYTHON_UTILITY_PYBOOST_FS_PATH_CONVERTER_HPP
+#define CXTREAM_PYTHON_UTILITY_PYBOOST_FS_PATH_CONVERTER_HPP
 
-#include <boost/python.hpp>
 #include <experimental/filesystem>
 
-namespace cxtream {
+#include <boost/python.hpp>
 
-	namespace fs = std::experimental::filesystem;
-  namespace p = boost::python;
+namespace cxtream::python::utility {
 
+  namespace {
+    namespace fs = std::experimental::filesystem;
+    namespace p = boost::python;
+  }
 
   struct fs_path_to_python_str
   {
@@ -60,5 +63,5 @@ namespace cxtream {
   };
 
 
-} //end namespace cxtream
+} //end namespace cxtream::python::utility
 #endif
