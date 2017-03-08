@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
 project("cxtream")
+set(CXTREAM_VERSION_MAJOR 0)
+set(CXTREAM_VERSION_MINOR 1)
 
 # -------
 # Options
@@ -76,6 +78,11 @@ if(BUILD_PYTHON)
     ${Boost_LIBRARIES}
     ${PYTHON_LIBRARIES}
     stdc++fs
+  )
+  set(CXTREAM_VERSION_STRING ${CXTREAM_VERSION_MAJOR}.${CXTREAM_VERSION_MINOR})
+  set_target_properties(
+    cxtream_python
+    PROPERTIES VERSION ${CXTREAM_VERSION_STRING}
   )
 
   # -----------------------------------------------------
