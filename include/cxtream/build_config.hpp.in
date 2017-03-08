@@ -11,5 +11,16 @@
 #ifndef CXTREAM_BUILD_CONFIG_HPP
 #define CXTREAM_BUILD_CONFIG_HPP
 
+#cmakedefine BUILD_PYTHON
+#ifdef BUILD_PYTHON
+  #define CXTREAM_BUILD_PYTHON
+  #undef BUILD_PYTHON
+#endif
+
+#cmakedefine BUILD_PYTHON_OPENCV
+#ifdef BUILD_PYTHON_OPENCV
+  #define CXTREAM_BUILD_PYTHON_OPENCV
+  #undef BUILD_PYTHON_OPENCV
+#endif
 
 #endif

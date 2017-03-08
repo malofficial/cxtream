@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
-project("stream")
+project("cxtream")
 
 # -------
 # Options
@@ -8,8 +8,8 @@ project("stream")
 OPTION(BUILD_PYTHON_LIB "Build Python dynamic library" ON)
 OPTION(BUILD_PYTHON_WHEEL "Build Python wheel package" ON)
 OPTION(BUILD_TEST "Build test binaries" ON)
-OPTION(WITH_PYTHON "Build C++ <-> Python converters" ON)
-OPTION(WITH_PYTHON_OPENCV "Build C++ <-> Python OpenCV converters (requires WITH_PYTHON)" ON)
+OPTION(BUILD_PYTHON "Build C++ <-> Python converters" ON)
+OPTION(BUILD_PYTHON_OPENCV "Build C++ <-> Python OpenCV converters (requires WITH_PYTHON)" ON)
 
 # -------------
 # CMake Options
@@ -18,6 +18,15 @@ OPTION(WITH_PYTHON_OPENCV "Build C++ <-> Python OpenCV converters (requires WITH
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
+
+# -------------------------------------
+# Dump CMake Options Into a Header File
+# -------------------------------------
+
+configure_file(
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/cxtream/build_config.hpp.in
+  ${CMAKE_BINARY_DIR}/include/cxtream/build_config.hpp
+)
 
 # --------------
 # Compiler Flags
@@ -31,8 +40,10 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -ggdb")
 # ---------------------
 
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/include")
-if(USE_OPENCV)
-  find_package(OpenCV COMPONENTS core highgui imgproc REQUIRED)
+include_directories("${CMAKE_BINARY_DIR}/include")
+# TODO this should be moved to the .so file targets
+if(BUILD_PYTHON_OPENCV)
+  find_package(OpenCV COMPONENTS core REQUIRED)
 endif()
 
 # --------------
