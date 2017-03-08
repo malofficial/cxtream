@@ -7,7 +7,6 @@
  *  Boost Software License, Version 1.0.
  *  (see http://www.boost.org/LICENSE_1_0.txt)
  *********************************************************/
-// TODO compile this file into a dynamic library
 
 #ifndef CXTREAM_PYTHON_UTILITY_PYBOOST_FS_PATH_CONVERTER_HPP
 #define CXTREAM_PYTHON_UTILITY_PYBOOST_FS_PATH_CONVERTER_HPP
@@ -20,46 +19,25 @@ namespace cxtream::python::utility {
 
   namespace {
     namespace fs = std::experimental::filesystem;
-    namespace p = boost::python;
+    namespace py = boost::python;
   }
+
 
   struct fs_path_to_python_str
   {
-    static PyObject* convert(const fs::path& path)
-    {
-      return p::incref(p::object(path.string()).ptr());
-    }
+    static PyObject* convert(const fs::path& path);
   };
 
 
   struct fs_path_from_python_str
   {
-    fs_path_from_python_str()
-    {
-      boost::python::converter::registry::push_back(
-        &convertible,
-        &construct,
-        boost::python::type_id<fs::path>());
-    }
+    fs_path_from_python_str();
 
-    static void* convertible(PyObject* obj_ptr)
-    {
-      if (!PyUnicode_Check(obj_ptr)) return 0;
-      return obj_ptr;
-    }
+    static void* convertible(PyObject* obj_ptr);
 
     static void construct(
       PyObject* obj_ptr,
-      boost::python::converter::rvalue_from_python_stage1_data* data)
-    {
-      const char* value = PyUnicode_AsUTF8(obj_ptr);
-      if (value == 0) boost::python::throw_error_already_set();
-      void* storage = (
-        (boost::python::converter::rvalue_from_python_storage<fs::path>*)
-          data)->storage.bytes;
-      new (storage) fs::path(value);
-      data->convertible = storage;
-    }
+      py::converter::rvalue_from_python_stage1_data* data);
   };
 
 

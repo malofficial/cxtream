@@ -64,6 +64,7 @@ if(BUILD_PYTHON)
   add_library(
     cxtream_python SHARED
     "${CMAKE_CURRENT_SOURCE_DIR}/src/python/pyboost_initialize.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/python/utility/pyboost_fs_path_converter.cpp"
   )
   target_include_directories(
     cxtream_python
@@ -84,7 +85,7 @@ if(BUILD_PYTHON)
   if(BUILD_PYTHON_OPENCV)
     target_sources(
       cxtream_python
-      PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src/python/pyboost_cv3_converter.cpp"
+      PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src/python/utility/pyboost_cv3_converter.cpp"
     )
     target_include_directories(
       cxtream_python
