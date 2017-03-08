@@ -1,15 +1,13 @@
-cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
 project("cxtream")
 
 # -------
 # Options
 # -------
 
-OPTION(BUILD_PYTHON_LIB "Build Python dynamic library" ON)
-OPTION(BUILD_PYTHON_WHEEL "Build Python wheel package" ON)
 OPTION(BUILD_TEST "Build test binaries" ON)
 OPTION(BUILD_PYTHON "Build C++ <-> Python converters" ON)
-OPTION(BUILD_PYTHON_OPENCV "Build C++ <-> Python OpenCV converters (requires WITH_PYTHON)" ON)
+OPTION(BUILD_PYTHON_OPENCV "Build C++ <-> Python OpenCV converters (requires BUILD_PYTHON)" ON)
 
 # -------------
 # CMake Options
@@ -41,9 +39,63 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -ggdb")
 
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/include")
 include_directories("${CMAKE_BINARY_DIR}/include")
-# TODO this should be moved to the .so file targets
-if(BUILD_PYTHON_OPENCV)
-  find_package(OpenCV COMPONENTS core REQUIRED)
+if(BUILD_PYTHON)
+  set(Python_ADDITIONAL_VERSIONS "3.X")
+  find_package(Boost COMPONENTS python3 REQUIRED)
+  find_package(PythonLibs REQUIRED)
+  find_package(PythonInterp REQUIRED)
+
+  if(BUILD_PYTHON_OPENCV)
+    find_package(OpenCV COMPONENTS core REQUIRED)
+  endif()
+endif()
+
+# ---------------------
+# Build cxtream::python
+# ---------------------
+
+if(BUILD_PYTHON)
+  # TODO this should be moved to the .so file targets
+
+  # -------------------------
+  # Build cxtream::python .so
+  # -------------------------
+
+  add_library(
+    cxtream_python SHARED
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/python/pyboost_initialize.cpp"
+  )
+  target_include_directories(
+    cxtream_python
+    PRIVATE ${Boost_INCLUDE_DIRS}
+    PRIVATE ${PYTHON_INCLUDE_DIRS}
+  )
+  target_link_libraries(
+    cxtream_python
+    ${Boost_LIBRARIES}
+    ${PYTHON_LIBRARIES}
+    stdc++fs
+  )
+
+  # -----------------------------------------------------
+  # Build cxtream::python::utility::pyboost_cv3_converter
+  # -----------------------------------------------------
+
+  if(BUILD_PYTHON_OPENCV)
+    target_sources(
+      cxtream_python
+      PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src/python/pyboost_cv3_converter.cpp"
+    )
+    target_include_directories(
+      cxtream_python
+      PRIVATE ${OpenCV_INCLUDE_DIRS}
+    )
+    target_link_libraries(
+      cxtream_python
+      ${OpenCV_LIBRARIES}
+    )
+  endif()
+
 endif()
 
 # --------------
