@@ -54,16 +54,16 @@ namespace cxtream::python {
       {
         initialize_iterators();
 
-        namespace p = boost::python;
+        namespace py = boost::python;
         // TODO call only once!
 
         // register exception for StopIteration
-        p::register_exception_translator<stop_iteration_exception>(stop_iteration_translator);
+        py::register_exception_translator<stop_iteration_exception>(stop_iteration_translator);
 
         // register python iterator type
         using this_t = stream_iterator<Rng>;
         std::string this_t_name = std::string("cxtream_") + typeid(this_t).name();
-        p::class_<this_t>(this_t_name.c_str(), p::no_init)
+        py::class_<this_t>(this_t_name.c_str(), py::no_init)
           .def("__iter__", &this_t::iter)
           .def("__next__", &this_t::next);
       }

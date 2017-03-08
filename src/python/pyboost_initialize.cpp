@@ -35,7 +35,7 @@ namespace cxtream::python {
 
   void initialize()
   {
-    namespace p = boost::python;
+    namespace py = boost::python;
 
     // initialize python module
     Py_Initialize();
@@ -45,12 +45,12 @@ namespace cxtream::python {
     init_array();
 
     // register OpenCV converters
-    p::to_python_converter<cv::Mat, pbcvt::matToNDArrayBoostConverter>();
+    py::to_python_converter<cv::Mat, pbcvt::matToNDArrayBoostConverter>();
     pbcvt::matFromNDArrayBoostConverter();
 #endif
 
     // register fs::path converter
-    p::to_python_converter<std::experimental::filesystem::path,
+    py::to_python_converter<std::experimental::filesystem::path,
                            utility::fs_path_to_python_str>();
     utility::fs_path_from_python_str();
   }

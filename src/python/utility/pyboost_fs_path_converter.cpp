@@ -18,13 +18,13 @@ namespace cxtream::python::utility {
 
   namespace {
     namespace fs = std::experimental::filesystem;
-    namespace p = boost::python;
+    namespace py = boost::python;
   }
 
 
   PyObject* fs_path_to_python_str::convert(const fs::path& path)
   {
-    return p::incref(p::object(path.string()).ptr());
+    return py::incref(py::object(path.string()).ptr());
   }
 
 
