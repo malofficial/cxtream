@@ -57,7 +57,6 @@ endif()
 # ---------------------
 
 if(BUILD_PYTHON)
-  # TODO this should be moved to the .so file targets
 
   # -------------------------
   # Build cxtream::python .so
@@ -129,12 +128,14 @@ install(
   DIRECTORY ${CMAKE_BINARY_DIR}/include/ DESTINATION include
   FILES_MATCHING PATTERN "*.hpp"
 )
-install(
-  TARGETS cxtream_python
-  RUNTIME DESTINATION bin
-  LIBRARY DESTINATION lib
-  ARCHIVE DESTINATION lib
-)
+if(BUILD_PYTHON)
+  install(
+    TARGETS cxtream_python
+    RUNTIME DESTINATION bin
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib
+  )
+endif()
 
 # ---------
 # Uninstall
