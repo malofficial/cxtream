@@ -106,13 +106,6 @@ if(BUILD_PYTHON)
 
 endif()
 
-# --------------
-# Build Streams
-# --------------
-
-include("AddPythonStream")
-add_subdirectory("stream")
-
 # -----
 # Tests
 # -----
@@ -123,3 +116,27 @@ if(BUILD_TEST)
   include("BoostTest")
   add_subdirectory("test")
 endif()
+
+# -------
+# Install
+# -------
+
+install(
+  DIRECTORY include/ DESTINATION include
+  FILES_MATCHING PATTERN "*.hpp"
+)
+install(
+  DIRECTORY ${CMAKE_BINARY_DIR}/include/ DESTINATION include
+  FILES_MATCHING PATTERN "*.hpp"
+)
+install(
+  TARGETS cxtream_python
+  RUNTIME DESTINATION bin
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+)
+
+# ---------
+# Uninstall
+# ---------
+# cat install_manifest.txt | tr '\n' '\0' | xargs -0 rm
