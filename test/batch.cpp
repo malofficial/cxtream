@@ -32,7 +32,7 @@ auto generate_batched_data(std::vector<int> batch_sizes)
 {
   std::vector<std::tuple<Unique, Shared>> data;
   int counter = 0;
-  for (int i = 0; i < batch_sizes.size(); ++i) {
+  for (std::size_t i = 0; i < batch_sizes.size(); ++i) {
     std::vector<std::unique_ptr<int>> unique_data;
     std::vector<std::shared_ptr<int>> shared_data;
     for (int j = 0; j < batch_sizes[i]; ++j) {
