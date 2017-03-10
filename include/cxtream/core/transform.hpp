@@ -50,36 +50,41 @@ namespace cxtream {
   /* transform */
 
 
-  // apply fun to some dimension
-  template<int Dim>
-  struct wrap_fun_for_dim
-  {
-    template<typename Fun>
-    static constexpr auto impl(Fun fun)
-    {
-      return [fun=std::move(fun)](auto&& tuple_of_ranges){
-        auto range_of_tuples =
-            std::experimental::apply(
-                ranges::view::zip,
-                std::forward<decltype(tuple_of_ranges)>(tuple_of_ranges))
-          | ranges::view::transform(wrap_fun_for_dim<Dim - 1>::impl(fun));
-        return utility::unzip(std::move(range_of_tuples));
-      };
-    }
-  };
+  namespace detail {
 
-  // apply fun to the entire batch
-  template<>
-  struct wrap_fun_for_dim<0>
-  {
-    template<typename Fun>
-    static constexpr auto impl(Fun fun)
+    // apply fun to some dimension
+    template<int Dim>
+    struct wrap_fun_for_dim
     {
-      return [fun=std::move(fun)](auto&& tuple){
-        return std::experimental::apply(fun, std::forward<decltype(tuple)>(tuple));
-      };
-    }
-  };
+      template<typename Fun>
+      static constexpr auto impl(Fun fun)
+      {
+        return [fun=std::move(fun)](auto&& tuple_of_ranges){
+          auto range_of_tuples =
+              std::experimental::apply(
+                  ranges::view::zip,
+                  std::forward<decltype(tuple_of_ranges)>(tuple_of_ranges))
+            | ranges::view::transform(wrap_fun_for_dim<Dim - 1>::impl(fun));
+          return utility::unzip(std::move(range_of_tuples));
+        };
+      }
+    };
+
+    // apply fun to the entire batch
+    template<>
+    struct wrap_fun_for_dim<0>
+    {
+      template<typename Fun>
+      static constexpr auto impl(Fun fun)
+      {
+        return [fun=std::move(fun)](auto&& tuple){
+          return std::experimental::apply(fun, std::forward<decltype(tuple)>(tuple));
+        };
+      }
+    };
+
+  } // end namespace detail
+
 
   template<typename... FromColumns, typename... ToColumns, typename Fun, int Dim = 1>
   constexpr auto transform(from_t<FromColumns...> f,
@@ -88,7 +93,7 @@ namespace cxtream {
                            dim_t<Dim> d = dim_t<1>{})
   {
     // wrap the function to be applied in the appropriate dimension
-    auto fun_wrapper = wrap_fun_for_dim<Dim>::impl(std::move(fun));
+    auto fun_wrapper = detail::wrap_fun_for_dim<Dim>::impl(std::move(fun));
 
     return partial_transform(f, t, std::move(fun_wrapper), [](auto& column){
       return std::ref(column.value);

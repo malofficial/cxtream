@@ -19,8 +19,6 @@
 
 namespace cxtream::utility {
 
-  struct adl{};
-
 
   /* tuple_for_each */
 
@@ -47,11 +45,15 @@ namespace cxtream::utility {
   /* tuple_transform */
 
 
-  template<typename Fun, typename... Ts>
-  constexpr auto tuple_transform_impl(Fun&& fun, Ts&&... args)
-  {
-    return std::make_tuple(fun(std::forward<Ts>(args))...);
-  }
+  namespace detail {
+
+    template<typename Fun, typename... Ts>
+    constexpr auto tuple_transform_impl(Fun&& fun, Ts&&... args)
+    {
+      return std::make_tuple(fun(std::forward<Ts>(args))...);
+    }
+
+  } // end namespace detail
 
 
   template<typename Tuple, typename Fun>
@@ -59,8 +61,9 @@ namespace cxtream::utility {
   {
     return std::experimental::apply(
       [fun=std::forward<Fun>(fun)](auto&&... args) mutable {
-        return tuple_transform_impl(fun, std::forward<decltype(args)>(args)...); },
-      std::forward<Tuple>(tuple));
+        return detail::tuple_transform_impl(
+          fun, std::forward<decltype(args)>(args)...);
+      }, std::forward<Tuple>(tuple));
   }
 
 
@@ -88,53 +91,65 @@ namespace cxtream::utility {
   /* tuple_reverse */
 
 
-  template<typename Tuple, std::size_t N = std::tuple_size<std::decay_t<Tuple>>{}, std::size_t... Is>
-  constexpr auto tuple_reverse_impl(Tuple&& tuple, std::index_sequence<Is...>)
-  {
-    return std::tuple<std::tuple_element_t<N - 1 - Is, std::decay_t<Tuple>>...>
-      {std::get<N - 1 - Is>(std::forward<Tuple>(tuple))...};
-  }
+  namespace detail {
+
+    template<typename Tuple, std::size_t N = std::tuple_size<std::decay_t<Tuple>>{}, std::size_t... Is>
+    constexpr auto tuple_reverse_impl(Tuple&& tuple, std::index_sequence<Is...>)
+    {
+      return std::tuple<std::tuple_element_t<N - 1 - Is, std::decay_t<Tuple>>...>
+        {std::get<N - 1 - Is>(std::forward<Tuple>(tuple))...};
+    }
+
+  } // end namespace detail
 
   template<typename Tuple>
   constexpr auto tuple_reverse(Tuple&& tuple)
   {
-    return tuple_reverse_impl(std::forward<Tuple>(tuple),
-                              std::make_index_sequence<std::tuple_size<std::decay_t<Tuple>>{}>{});
+    return detail::tuple_reverse_impl(
+      std::forward<Tuple>(tuple),
+      std::make_index_sequence<std::tuple_size<std::decay_t<Tuple>>{}>{});
   }
 
 
   /* make_unique_tuple */
 
 
-  template<typename Adl, typename Tuple>
-  constexpr Tuple make_unique_tuple_impl(Adl _, Tuple&& tuple)
-  {
-    return std::forward<Tuple>(tuple);
-  }
+  namespace detail {
 
-  template<typename Adl, typename Tuple, typename Head, typename... Tail,
-           typename std::enable_if_t<!tuple_contains<Head, std::decay_t<Tuple>>{}, int> = 0>
-  constexpr auto make_unique_tuple_impl(Adl adl, Tuple&& tuple, Head&& head, Tail&&... tail)
-  {
-    return make_unique_tuple_impl(adl, std::tuple_cat(std::forward<Tuple>(tuple),
-                                                      std::tuple<Head>{std::forward<Head>(head)}),
-                                  std::forward<Tail>(tail)...);
-  }
+    struct make_unique_adl{};
 
-  template<typename Adl, typename Tuple, typename Head, typename... Tail,
-           typename std::enable_if_t<tuple_contains<Head, std::decay_t<Tuple>>{}, int> = 0>
-  constexpr auto make_unique_tuple_impl(Adl adl, Tuple&& tuple, Head&& head, Tail&&... tail)
-  {
-    return make_unique_tuple_impl(adl, std::forward<Tuple>(tuple),
-                                  std::forward<Tail>(tail)...);
-  }
+    template<typename Adl, typename Tuple>
+    constexpr Tuple make_unique_tuple_impl(Adl _, Tuple&& tuple)
+    {
+      return std::forward<Tuple>(tuple);
+    }
+
+    template<typename Adl, typename Tuple, typename Head, typename... Tail,
+             typename std::enable_if_t<!tuple_contains<Head, std::decay_t<Tuple>>{}, int> = 0>
+    constexpr auto make_unique_tuple_impl(Adl adl, Tuple&& tuple, Head&& head, Tail&&... tail)
+    {
+      return make_unique_tuple_impl(adl, std::tuple_cat(std::forward<Tuple>(tuple),
+                                                        std::tuple<Head>{std::forward<Head>(head)}),
+                                    std::forward<Tail>(tail)...);
+    }
+
+    template<typename Adl, typename Tuple, typename Head, typename... Tail,
+             typename std::enable_if_t<tuple_contains<Head, std::decay_t<Tuple>>{}, int> = 0>
+    constexpr auto make_unique_tuple_impl(Adl adl, Tuple&& tuple, Head&& head, Tail&&... tail)
+    {
+      return make_unique_tuple_impl(adl, std::forward<Tuple>(tuple),
+                                    std::forward<Tail>(tail)...);
+    }
+
+  } // end namespace detail
 
 
   template<typename... Args>
   constexpr auto make_unique_tuple(Args&&... args)
   {
-    return make_unique_tuple_impl(adl{}, std::tuple<>{},
-                                  std::forward<Args>(args)...);
+    return detail::make_unique_tuple_impl(
+      detail::make_unique_adl{}, std::tuple<>{},
+      std::forward<Args>(args)...);
   }
 
 
@@ -172,43 +187,52 @@ namespace cxtream::utility {
   /* tuple_remove */
 
 
-  template<typename Rem, typename Adl, typename Tuple>
-  constexpr Tuple make_tuple_without_impl(Adl _, Tuple&& tuple)
-  {
-    return std::forward<Tuple>(tuple);
-  }
+  namespace detail {
 
-  template<typename Rem, typename Adl, typename Tuple, typename Head, typename... Tail,
-           typename std::enable_if_t<!std::is_same<std::decay_t<Head>, std::decay_t<Rem>>{}, int> = 0>
-  constexpr auto make_tuple_without_impl(Adl adl, Tuple&& tuple, Head&& head, Tail&&... tail)
-  {
-    return make_tuple_without_impl<Rem>(adl, std::tuple_cat(std::forward<Tuple>(tuple),
-                                                            std::tuple<Head>{std::forward<Head>(head)}),
-                                        std::forward<Tail>(tail)...);
-  }
+    struct make_tuple_without_adl{};
 
-  template<typename Rem, typename Adl, typename Tuple, typename Head, typename... Tail,
-           typename std::enable_if_t<std::is_same<std::decay_t<Head>, std::decay_t<Rem>>{}, int> = 0>
-  constexpr auto make_tuple_without_impl(Adl adl, Tuple&& tuple, Head&& head, Tail&&... tail)
-  {
-    return make_tuple_without_impl<Rem>(adl, std::forward<Tuple>(tuple),
-                                        std::forward<Tail>(tail)...);
-  }
+    template<typename Rem, typename Adl, typename Tuple>
+    constexpr Tuple make_tuple_without_impl(Adl _, Tuple&& tuple)
+    {
+      return std::forward<Tuple>(tuple);
+    }
+
+    template<typename Rem, typename Adl, typename Tuple, typename Head, typename... Tail,
+             typename std::enable_if_t<!std::is_same<std::decay_t<Head>, std::decay_t<Rem>>{}, int> = 0>
+    constexpr auto make_tuple_without_impl(Adl adl, Tuple&& tuple, Head&& head, Tail&&... tail)
+    {
+      return make_tuple_without_impl<Rem>(adl, std::tuple_cat(std::forward<Tuple>(tuple),
+                                                              std::tuple<Head>{std::forward<Head>(head)}),
+                                          std::forward<Tail>(tail)...);
+    }
+
+    template<typename Rem, typename Adl, typename Tuple, typename Head, typename... Tail,
+             typename std::enable_if_t<std::is_same<std::decay_t<Head>, std::decay_t<Rem>>{}, int> = 0>
+    constexpr auto make_tuple_without_impl(Adl adl, Tuple&& tuple, Head&& head, Tail&&... tail)
+    {
+      return make_tuple_without_impl<Rem>(adl, std::forward<Tuple>(tuple),
+                                          std::forward<Tail>(tail)...);
+    }
 
 
-  template<typename Rem, typename... Args>
-  constexpr auto make_tuple_without(Args&&... args)
-  {
-    return make_tuple_without_impl<Rem>(adl{}, std::tuple<>{},
-                                        std::forward<Args>(args)...);
-  }
+    template<typename Rem, typename... Args>
+    constexpr auto make_tuple_without(Args&&... args)
+    {
+      return make_tuple_without_impl<Rem>(
+        detail::make_tuple_without_adl{}, std::tuple<>{},
+        std::forward<Args>(args)...);
+    }
+
+  } // end namespace detail
 
 
   template<typename Rem, typename Tuple>
   constexpr auto tuple_remove(Tuple tuple)
   {
     return std::experimental::apply(
-      [](auto&&... args){ return make_tuple_without<Rem>(std::forward<decltype(args)>(args)...); },
+      [](auto&&... args){
+        return detail::make_tuple_without<Rem>(std::forward<decltype(args)>(args)...);
+      },
       std::move(tuple));
   }
 
@@ -216,19 +240,23 @@ namespace cxtream::utility {
   /* unzip */
 
 
-  template<typename Tuple, std::size_t... Is>
-  auto vectorize_tuple(std::size_t size, std::index_sequence<Is...>)
-  {
-    return std::make_tuple(
-      std::vector<std::tuple_element_t<Is, std::decay_t<Tuple>>>(size)...);
-  }
+  namespace detail {
 
-  template<typename ToR, typename Tuple, std::size_t... Is>
-  void unzip_impl(ToR& tuple_of_ranges, std::size_t i,
-                  Tuple&& tuple, std::index_sequence<Is...>)
-  {
-    (..., (std::get<Is>(tuple_of_ranges)[i] = std::get<Is>(std::forward<Tuple>(tuple))));
-  }
+    template<typename Tuple, std::size_t... Is>
+    auto vectorize_tuple(std::size_t size, std::index_sequence<Is...>)
+    {
+      return std::make_tuple(
+        std::vector<std::tuple_element_t<Is, std::decay_t<Tuple>>>(size)...);
+    }
+
+    template<typename ToR, typename Tuple, std::size_t... Is>
+    void unzip_impl(ToR& tuple_of_ranges, std::size_t i,
+                    Tuple&& tuple, std::index_sequence<Is...>)
+    {
+      (..., (std::get<Is>(tuple_of_ranges)[i] = std::get<Is>(std::forward<Tuple>(tuple))));
+    }
+
+  } // end namespace detail
 
   template<typename RangeT>
   auto unzip(RangeT range_of_tuples)
@@ -238,10 +266,10 @@ namespace cxtream::utility {
     constexpr auto indexes = std::make_index_sequence<tuple_size>{};
     auto range_size = ranges::size(range_of_tuples);
 
-    auto tuple_of_ranges = vectorize_tuple<tuple_type>(range_size, indexes);
+    auto tuple_of_ranges = detail::vectorize_tuple<tuple_type>(range_size, indexes);
 
     for (std::size_t i = 0; i < range_size; ++i) {
-      unzip_impl(tuple_of_ranges, i, std::move(range_of_tuples[i]), indexes);
+      detail::unzip_impl(tuple_of_ranges, i, std::move(range_of_tuples[i]), indexes);
     }
 
     return tuple_of_ranges;

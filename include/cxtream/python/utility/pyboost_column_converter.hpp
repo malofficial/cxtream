@@ -23,34 +23,37 @@ namespace cxtream::python::utility {
 
   /* recursive transformation from a multidimensional vector to a python list */
 
+  namespace detail {
 
-  template<typename T>
-  struct vector_to_py_impl
-  {
-    template<typename U>
-    static U&& impl(U&& val)
+    template<typename T>
+    struct vector_to_py_impl
     {
-      return std::forward<U>(val);
-    }
-  };
-
-  template<typename T>
-  struct vector_to_py_impl<std::vector<T>>
-  {
-    static boost::python::list impl(std::vector<T> vec)
-    {
-      boost::python::list res;
-      for (auto& val : vec) {
-        res.append(vector_to_py_impl<T>::impl(std::move(val)));
+      template<typename U>
+      static U&& impl(U&& val)
+      {
+        return std::forward<U>(val);
       }
-      return res;
-    }
-  };
+    };
+
+    template<typename T>
+    struct vector_to_py_impl<std::vector<T>>
+    {
+      static boost::python::list impl(std::vector<T> vec)
+      {
+        boost::python::list res;
+        for (auto& val : vec) {
+          res.append(vector_to_py_impl<T>::impl(std::move(val)));
+        }
+        return res;
+      }
+    };
+
+  } // end namespace
 
   template<typename Vector>
   boost::python::list vector_to_py(Vector&& v)
   {
-    return vector_to_py_impl<std::decay_t<Vector>>::impl(
+    return detail::vector_to_py_impl<std::decay_t<Vector>>::impl(
       std::forward<Vector>(v));
   }
 
