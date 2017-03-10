@@ -166,7 +166,7 @@ install(
 # install core target
 install(
   TARGETS cxtream_core
-  EXPORT CxtreamTargets
+  EXPORT CxtreamCoreTargets
 )
 
 # install python library
@@ -181,7 +181,7 @@ if(BUILD_PYTHON)
   )
   install(
     TARGETS cxtream_python
-    EXPORT CxtreamTargets
+    EXPORT CxtreamPythonTargets
     RUNTIME DESTINATION bin
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib
@@ -216,20 +216,35 @@ configure_package_config_file(
   NO_CHECK_REQUIRED_COMPONENTS_MACRO # Cxtream does not have components
 )
 
-# install the targets file
+# install the core targets file
 install(
-  EXPORT CxtreamTargets
-  FILE CxtreamTargets.cmake
+  EXPORT CxtreamCoreTargets
+  FILE CxtreamCoreTargets.cmake
   NAMESPACE Cxtream::
   DESTINATION "${CMAKECFG_INSTALL_DIR}"
 )
-
-# export the targets file for local use
+# export the targets also for local use
 export(
-  TARGETS cxtream_python
-  FILE CxtreamTargets.cmake
+  TARGETS cxtream_core
+  FILE CxtreamCoreTargets.cmake
   NAMESPACE Cxtream::
 )
+
+# install the python targets file
+if(BUILD_PYTHON)
+  install(
+    EXPORT CxtreamPythonTargets
+    FILE CxtreamPythonTargets.cmake
+    NAMESPACE Cxtream::
+    DESTINATION "${CMAKECFG_INSTALL_DIR}"
+  )
+  # export the targets also for local use
+  export(
+    TARGETS cxtream_python
+    FILE CxtreamPythonTargets.cmake
+    NAMESPACE Cxtream::
+  )
+endif()
 
 # install the package files
 install(
