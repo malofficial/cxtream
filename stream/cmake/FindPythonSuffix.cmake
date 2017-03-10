@@ -1,5 +1,8 @@
 set(Python_ADDITIONAL_VERSIONS "3.X")
-find_package(PythonInterp REQUIRED)
+
+if(NOT PYTHON_EXECUTABLE)
+  find_package(PythonInterp REQUIRED)
+endif()
 
 execute_process(
   COMMAND ${PYTHON_EXECUTABLE} -c
