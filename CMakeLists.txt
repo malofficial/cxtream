@@ -1,46 +1,46 @@
 cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
-project("cxtream")
-set(CXTREAM_VERSION_MAJOR 0)
-set(CXTREAM_VERSION_MINOR 1)
+project(
+  "cxtream"
+  VERSION 0.1
+)
+set(PROJECT_DESCRIPTION "C++17 data pipeline with Python bindings.")
 
 # -------
 # Options
 # -------
 
-OPTION(BUILD_TEST "Build test binaries" ON)
-OPTION(BUILD_PYTHON "Build C++ <-> Python converters" ON)
-OPTION(BUILD_PYTHON_OPENCV "Build C++ <-> Python OpenCV converters (requires BUILD_PYTHON)" ON)
+option(BUILD_TEST "Build test binaries" ON)
+option(BUILD_PYTHON "Build C++ <-> Python converters" ON)
+option(BUILD_PYTHON_OPENCV "Build C++ <-> Python OpenCV converters (requires BUILD_PYTHON)" ON)
 
 # -------------
 # CMake Options
 # -------------
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/lib")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/lib")
 
 # -------------------------------------
 # Dump CMake Options Into a Header File
 # -------------------------------------
 
 configure_file(
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/cxtream/build_config.hpp.in
-  ${CMAKE_BINARY_DIR}/include/cxtream/build_config.hpp
+  "${CMAKE_CURRENT_SOURCE_DIR}/cmake/build_config.hpp.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/include/cxtream/build_config.hpp"
 )
 
 # --------------
 # Compiler Flags
 # --------------
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1z -Wall -Wno-missing-braces -pedantic")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1z -Wall -pedantic")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -ggdb")
 
 # ---------------------
 # Find Common Libraries
 # ---------------------
 
-include_directories("${CMAKE_CURRENT_SOURCE_DIR}/include")
-include_directories("${CMAKE_BINARY_DIR}/include")
 if(BUILD_PYTHON)
   set(Python_ADDITIONAL_VERSIONS "3.X")
   find_package(Boost COMPONENTS python3 REQUIRED)
@@ -51,6 +51,31 @@ if(BUILD_PYTHON)
     find_package(OpenCV COMPONENTS core REQUIRED)
   endif()
 endif()
+
+
+# ------------------
+# Build cxtream core
+# ------------------
+
+add_library(cxtream_core INTERFACE)
+set_target_properties(
+  cxtream_core PROPERTIES EXPORT_NAME Core
+)
+target_compile_options(
+  cxtream_core INTERFACE
+  "-std=c++1z"
+)
+target_link_libraries(
+  cxtream_core INTERFACE
+  "-lpthread"
+  "-lstdc++fs"
+)
+target_include_directories(
+  cxtream_core INTERFACE
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
+  $<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/include>
+)
 
 # ---------------------
 # Build cxtream::python
@@ -67,10 +92,13 @@ if(BUILD_PYTHON)
     "${CMAKE_CURRENT_SOURCE_DIR}/src/python/pyboost_initialize.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/python/utility/pyboost_fs_path_converter.cpp"
   )
+  set_target_properties(
+    cxtream_python PROPERTIES EXPORT_NAME Python
+  )
   target_include_directories(
     cxtream_python
-    PRIVATE ${Boost_INCLUDE_DIRS}
-    PRIVATE ${PYTHON_INCLUDE_DIRS}
+    PUBLIC ${Boost_INCLUDE_DIRS}
+    PUBLIC ${PYTHON_INCLUDE_DIRS}
   )
   target_link_libraries(
     cxtream_python
@@ -78,10 +106,9 @@ if(BUILD_PYTHON)
     ${PYTHON_LIBRARIES}
     stdc++fs
   )
-  set(CXTREAM_VERSION_STRING ${CXTREAM_VERSION_MAJOR}.${CXTREAM_VERSION_MINOR})
   set_target_properties(
     cxtream_python
-    PROPERTIES VERSION ${CXTREAM_VERSION_STRING}
+    PROPERTIES VERSION ${PROJECT_VERSION}
   )
 
   # -----------------------------------------------------
@@ -95,7 +122,7 @@ if(BUILD_PYTHON)
     )
     target_include_directories(
       cxtream_python
-      PRIVATE ${OpenCV_INCLUDE_DIRS}
+      PUBLIC ${OpenCV_INCLUDE_DIRS}
     )
     target_link_libraries(
       cxtream_python
@@ -120,17 +147,25 @@ endif()
 # Install
 # -------
 
+# install core header files
 install(
   DIRECTORY include/ DESTINATION include
-  FILES_MATCHING PATTERN "*.hpp"
 )
 install(
-  DIRECTORY ${CMAKE_BINARY_DIR}/include/ DESTINATION include
-  FILES_MATCHING PATTERN "*.hpp"
+  DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/include/" DESTINATION include
 )
+
+# install core target
+install(
+  TARGETS cxtream_core
+  EXPORT CxtreamTargets
+)
+
+# install python library
 if(BUILD_PYTHON)
   install(
     TARGETS cxtream_python
+    EXPORT CxtreamTargets
     RUNTIME DESTINATION bin
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib
@@ -140,4 +175,50 @@ endif()
 # ---------
 # Uninstall
 # ---------
+
+# TODO
 # cat install_manifest.txt | tr '\n' '\0' | xargs -0 rm
+
+# ------------------------------
+# Cmake Config and Version Files
+# ------------------------------
+
+include(CMakePackageConfigHelpers)
+set(CMAKECFG_INSTALL_DIR lib/cmake/Cxtream)
+
+# configure package files
+write_basic_package_version_file(
+  "${CMAKE_CURRENT_BINARY_DIR}/CxtreamConfigVersion.cmake"
+  VERSION ${PROJECT_VERSION}
+  COMPATIBILITY SameMajorVersion
+)
+configure_package_config_file(
+  "${CMAKE_CURRENT_SOURCE_DIR}/cmake/CxtreamConfig.cmake.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/CxtreamConfig.cmake"
+  INSTALL_DESTINATION "${CMAKECFG_INSTALL_DIR}"
+  NO_SET_AND_CHECK_MACRO # Cxtream only uses interface libraries
+  NO_CHECK_REQUIRED_COMPONENTS_MACRO # Cxtream does not have components
+)
+
+# install the targets file
+install(
+  EXPORT CxtreamTargets
+  FILE CxtreamTargets.cmake
+  NAMESPACE Cxtream::
+  DESTINATION "${CMAKECFG_INSTALL_DIR}"
+)
+
+# export the targets file for local use
+export(
+  TARGETS cxtream_python
+  FILE CxtreamTargets.cmake
+  NAMESPACE Cxtream::
+)
+
+# install the package files
+install(
+  FILES
+    ${CMAKE_CURRENT_BINARY_DIR}/CxtreamConfig.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/CxtreamConfigVersion.cmake
+  DESTINATION ${CMAKECFG_INSTALL_DIR}
+)
