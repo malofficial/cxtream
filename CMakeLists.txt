@@ -74,7 +74,9 @@ target_include_directories(
   cxtream_core INTERFACE
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include> # build_config.hpp is here
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/cxtream/range-v3>
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/include>
+  $<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/include/cxtream/range-v3>
 )
 
 # ---------------------
@@ -146,6 +148,12 @@ endif()
 # -------
 # Install
 # -------
+
+# install built-in range-v3 library
+install(
+  DIRECTORY include/cxtream/range-v3/
+  DESTINATION include/cxtream/range-v3
+)
 
 # install core header files
 install(
