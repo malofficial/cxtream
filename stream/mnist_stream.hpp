@@ -43,7 +43,7 @@ namespace mnist_stream {
   auto to_cvmat(int rows, int cols, int channels)
   {
     return [rows, cols, channels](const std::vector<uint8_t>& src) {
-      assert(src.size() == rows * cols * channels);
+      assert((int)src.size() == rows * cols * channels);
       cv::Mat srcmat{src, true};
       return srcmat.reshape(channels, rows);
     };
