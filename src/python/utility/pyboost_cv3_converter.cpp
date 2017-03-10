@@ -1,11 +1,13 @@
-/*
- * CV3BoostConverter.cpp
+/*********************************************************
+ *  pyboost_cv3_converter.cpp
  *
- *  Created on: May 21, 2015
- *      Author: Gregory Kramida
- *   Copyright: 2015 Gregory Kramida
- *     License: MIT
- */
+ *  Copyright (c) 2015, Gregory Kramida
+ *  Copyright (c) 2017, Filip Matzner
+ *
+ *  This file is distributed under the MIT License.
+ *  See the accompanying file LICENSE.txt for the complete
+ *  license agreement.
+ *********************************************************/
 
 #define NO_IMPORT_ARRAY
 #define PY_ARRAY_UNIQUE_SYMBOL pbcvt_ARRAY_API

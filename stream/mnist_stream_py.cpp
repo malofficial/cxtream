@@ -1,3 +1,13 @@
+/*********************************************************
+ *  cxtream library
+ *
+ *  Copyright (c) 2017, Filip Matzner
+ *
+ *  This file is distributed under the MIT License.
+ *  See the accompanying file LICENSE.txt for the complete
+ *  license agreement.
+ *********************************************************/
+
 #include <cxtream/python.hpp>
 #include "mnist_stream.hpp"
 

@@ -1,11 +1,13 @@
-/*
- * CVBoostConverter.hpp
+/*********************************************************
+ *  pyboost_cv3_converter.hpp
  *
- *  Created on: Mar 20, 2014
- *      Author: Gregory Kramida
- *   Copyright: (c) 2014 Gregory Kramida
- *     License: MIT
- */
+ *  Copyright: (c) 2014, Gregory Kramida
+ *  Copyright: (c) 2017, Filip Matzner
+ *
+ *  This file is distributed under the MIT License.
+ *  See the accompanying file LICENSE.txt for the complete
+ *  license agreement.
+ *********************************************************/
 
 
 #ifndef CXTREAM_PYTHON_UTILITY_PYBOOST_CV3_CONVERTER_HPP
