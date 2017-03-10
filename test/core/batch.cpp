@@ -19,7 +19,7 @@
 #include <range/v3/view/iota.hpp>
 #include <range/v3/view/move.hpp>
 
-#include <cxtream/batch.hpp>
+#include <cxtream/core/batch.hpp>
 
 #include "common.hpp"
 

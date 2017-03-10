@@ -8,12 +8,12 @@
  *  (see http://www.boost.org/LICENSE_1_0.txt)
  *********************************************************/
 
-#ifndef CXTREAM_BATCH_VIEW_HPP
-#define CXTREAM_BATCH_VIEW_HPP
+#ifndef CXTREAM_CORE_BATCH_VIEW_HPP
+#define CXTREAM_CORE_BATCH_VIEW_HPP
 
 #include <range/v3/core.hpp>
 #include <range/v3/view/all.hpp>
-#include <cxtream/utility/tuple.hpp>
+#include <cxtream/core/utility/tuple.hpp>
 
 namespace cxtream {
   

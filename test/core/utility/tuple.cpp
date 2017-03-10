@@ -15,7 +15,7 @@
 #include <vector>
 
 #include <boost/test/unit_test.hpp>
-#include <cxtream/utility/tuple.hpp>
+#include <cxtream/core/utility/tuple.hpp>
 
 using namespace cxtream::utility;
 

@@ -8,33 +8,30 @@
  *  (see http://www.boost.org/LICENSE_1_0.txt)
  *********************************************************/
 
-#ifndef CXTREAM_DROP_HPP
-#define CXTREAM_DROP_HPP
+#ifndef CXTREAM_CORE_CREATE_HPP
+#define CXTREAM_CORE_CREATE_HPP
 
 #include <range/v3/view/transform.hpp>
 
-#include <cxtream/utility/tuple.hpp>
+#include <cxtream/core/utility/tuple.hpp>
 
 namespace cxtream {
 
 
-  /* drop */
+  /* create */
 
 
   template<typename... Columns>
-  constexpr auto drop_fn()
+  constexpr auto create_fn()
   {
-    static_assert(sizeof...(Columns) == 1, "Dropping multiple columns simultaneously is not"
-      " implemented yet. Please drop the columns one by one.");
-
-    return ranges::view::transform([](auto&& source) {
-      return utility::tuple_remove<Columns...>(std::forward<decltype(source)>(source));
+    return ranges::view::transform([](auto&& source){
+      return std::tuple<Columns...>{std::forward<decltype(source)>(source)};
     });
   }
 
   // allow calls without parentheses
   template<typename... Columns>
-  auto drop = drop_fn<Columns...>();
+  auto create = create_fn<Columns...>();
 
 
 } // end namespace cxtream

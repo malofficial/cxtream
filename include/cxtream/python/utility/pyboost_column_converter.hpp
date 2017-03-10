@@ -16,7 +16,7 @@
 
 #include <boost/python.hpp>
 
-#include <cxtream/utility/tuple.hpp>
+#include <cxtream/core/utility/tuple.hpp>
 
 namespace cxtream::python::utility {
 

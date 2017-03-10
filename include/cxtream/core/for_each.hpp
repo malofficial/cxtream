@@ -8,8 +8,8 @@
  *  (see http://www.boost.org/LICENSE_1_0.txt)
  *********************************************************/
 
-#ifndef CXTREAM_FOR_EACH_HPP
-#define CXTREAM_FOR_EACH_HPP
+#ifndef CXTREAM_CORE_FOR_EACH_HPP
+#define CXTREAM_CORE_FOR_EACH_HPP
 
 #include <utility>
 #include <functional>
@@ -17,8 +17,8 @@
 #include <range/v3/view/transform.hpp>
 #include <range/v3/view/zip.hpp>
 
-#include <cxtream/utility/tuple.hpp>
-#include <cxtream/utility/template_arguments.hpp>
+#include <cxtream/core/utility/tuple.hpp>
+#include <cxtream/core/utility/template_arguments.hpp>
 
 namespace cxtream {
 

@@ -6,6 +6,7 @@ function(add_boost_test EXECUTABLE_FILE_NAME SOURCE_FILE_NAME INCLUDES LIBRARIES
 
   target_link_libraries(
     ${EXECUTABLE_FILE_NAME} 
+    cxtream_core
     ${DEPENDENCY_LIB}
     ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
     ${LIBRARIES}

@@ -73,7 +73,7 @@ target_link_libraries(
 target_include_directories(
   cxtream_core INTERFACE
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include> # build_config.hpp is here
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/include>
 )
 
@@ -149,10 +149,18 @@ endif()
 
 # install core header files
 install(
-  DIRECTORY include/ DESTINATION include
+  DIRECTORY include/cxtream/core/
+  DESTINATION include/cxtream/core
 )
 install(
-  DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/include/" DESTINATION include
+  FILES include/cxtream/core.hpp
+  DESTINATION include/cxtream
+)
+
+# install generated files (e.g., build_config.hpp)
+install(
+  DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/include/"
+  DESTINATION include
 )
 
 # install core target
@@ -163,6 +171,14 @@ install(
 
 # install python library
 if(BUILD_PYTHON)
+  install(
+    DIRECTORY include/cxtream/python/
+    DESTINATION include/cxtream/python
+  )
+  install(
+    FILES include/cxtream/python.hpp
+    DESTINATION include/cxtream
+  )
   install(
     TARGETS cxtream_python
     EXPORT CxtreamTargets

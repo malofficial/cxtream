@@ -21,8 +21,8 @@
 #include <range/v3/view/move.hpp>
 #include <range/v3/view/zip.hpp>
 
-#include <cxtream/drop.hpp>
-#include <cxtream/transform.hpp>
+#include <cxtream/core/drop.hpp>
+#include <cxtream/core/transform.hpp>
 
 #include "common.hpp"
 

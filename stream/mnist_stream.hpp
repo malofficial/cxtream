@@ -15,7 +15,7 @@
 #include <random>
 #include <vector>
 
-#include <cxtream.hpp>
+#include <cxtream/core.hpp>
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <range/v3/all.hpp>

@@ -8,8 +8,8 @@
  *  (see http://www.boost.org/LICENSE_1_0.txt)
  *********************************************************/
 
-#ifndef CXTREAM_TUPLE_UTILS_HPP
-#define CXTREAM_TUPLE_UTILS_HPP
+#ifndef CXTREAM_CORE_TUPLE_UTILS_HPP
+#define CXTREAM_CORE_TUPLE_UTILS_HPP
 
 #include <type_traits>
 #include <ostream>

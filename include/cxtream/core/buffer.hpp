@@ -8,8 +8,8 @@
  *  (see http://www.boost.org/LICENSE_1_0.txt)
  *********************************************************/
 
-#ifndef CXTREAM_BUFFER_VIEW_HPP
-#define CXTREAM_BUFFER_VIEW_HPP
+#ifndef CXTREAM_CORE_BUFFER_VIEW_HPP
+#define CXTREAM_CORE_BUFFER_VIEW_HPP
 
 #include <deque>
 #include <future>

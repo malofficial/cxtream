@@ -20,7 +20,7 @@
 #include <range/v3/view/iota.hpp>
 #include <range/v3/view/move.hpp>
 
-#include <cxtream/for_each.hpp>
+#include <cxtream/core/for_each.hpp>
 
 #include "common.hpp"
 

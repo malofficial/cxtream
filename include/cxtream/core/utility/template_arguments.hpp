@@ -8,8 +8,8 @@
  *  (see http://www.boost.org/LICENSE_1_0.txt)
  *********************************************************/
 
-#ifndef CXTREAM_TEMPLATE_ARGUMENTS_HPP
-#define CXTREAM_TEMPLATE_ARGUMENTS_HPP
+#ifndef CXTREAM_CORE_TEMPLATE_ARGUMENTS_HPP
+#define CXTREAM_CORE_TEMPLATE_ARGUMENTS_HPP
 
 #include <functional>
 

@@ -15,7 +15,7 @@
 #include <ostream>
 #include <vector>
 
-#include <cxtream/column.hpp>
+#include <cxtream/core/column.hpp>
 
 
 // make the tuple print visible for boost test

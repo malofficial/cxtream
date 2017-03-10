@@ -8,8 +8,8 @@
  *  (see http://www.boost.org/LICENSE_1_0.txt)
  *********************************************************/
 
-#ifndef CXTREAM_COLUMN_HPP
-#define CXTREAM_COLUMN_HPP
+#ifndef CXTREAM_CORE_COLUMN_HPP
+#define CXTREAM_CORE_COLUMN_HPP
 
 #include <type_traits>
 #include <vector>

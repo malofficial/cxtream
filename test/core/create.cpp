@@ -19,7 +19,7 @@
 #include <range/v3/view/iota.hpp>
 #include <range/v3/view/move.hpp>
 
-#include <cxtream/create.hpp>
+#include <cxtream/core/create.hpp>
 
 #include "common.hpp"
 
