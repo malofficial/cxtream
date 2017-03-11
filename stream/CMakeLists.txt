@@ -12,8 +12,7 @@ find_package(OpenCV COMPONENTS core imgproc highgui REQUIRED)
 # cxtream
 find_package(Cxtream)
 # python .so file suffix
-set(Python_ADDITIONAL_VERSIONS "3.X")
-include("FindPythonSuffix")
+include("FindPython3Suffix")
 
 # --------------
 # Compiler Flags

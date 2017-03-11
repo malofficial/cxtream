@@ -1,5 +1,5 @@
 if(NOT PYTHONINTERP_FOUND)
-  find_package(PythonInterp REQUIRED)
+  find_package(PythonInterp 3 REQUIRED)
 endif()
 
 execute_process(

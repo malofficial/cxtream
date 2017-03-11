@@ -1,7 +1,6 @@
 # we need to know the python version
 if(NOT PYTHONINTERP_FOUND)
-  set(Python_ADDITIONAL_VERSIONS "3.X")
-  find_package(PythonInterp REQUIRED)
+  find_package(PythonInterp 3 REQUIRED)
 endif()
 
 # find the matching boost python implementation
