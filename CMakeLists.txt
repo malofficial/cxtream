@@ -43,9 +43,9 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -ggdb")
 
 if(BUILD_PYTHON)
   set(Python_ADDITIONAL_VERSIONS "3.X")
-  find_package(Boost COMPONENTS python3 REQUIRED)
-  find_package(PythonLibs REQUIRED)
   find_package(PythonInterp REQUIRED)
+  find_package(PythonLibs REQUIRED)
+  find_package(BoostPython3 REQUIRED)
 
   if(BUILD_PYTHON_OPENCV)
     find_package(PythonNumPy REQUIRED)
