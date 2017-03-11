@@ -415,6 +415,6 @@ BOOST_AUTO_TEST_CASE(test_unzip_move_only)
   std::vector<int> va_desired{1, 2, 3};
   BOOST_TEST(va == va_desired);
   for (std::size_t i = 0; i < 3; ++i) {
-    BOOST_TEST(*vb[i] == i + 5);
+    BOOST_TEST(*vb[i] == (int)i + 5);
   }
 }

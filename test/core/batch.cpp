@@ -71,12 +71,12 @@ void check_20_elems_batch_size_2(Data data)
     for (auto&& tuple : rng) {
       // the last batch should be smaller
       if (batch_n == 6) {
-        BOOST_TEST(std::get<0>(tuple).value.size() == 2);
-        BOOST_TEST(std::get<1>(tuple).value.size() == 2);
+        BOOST_TEST(std::get<0>(tuple).value.size() == 2U);
+        BOOST_TEST(std::get<1>(tuple).value.size() == 2U);
       }
       else {
-        BOOST_TEST(std::get<0>(tuple).value.size() == 3);
-        BOOST_TEST(std::get<1>(tuple).value.size() == 3);
+        BOOST_TEST(std::get<0>(tuple).value.size() == 3U);
+        BOOST_TEST(std::get<1>(tuple).value.size() == 3U);
       }
       BOOST_CHECK(is_same_batch_size(tuple));
 
@@ -118,8 +118,8 @@ BOOST_AUTO_TEST_CASE(test_batch_larger_batches)
   int n = 0;
   for (auto&& tuple : rng) {
     // the batch should be only a single element
-    BOOST_TEST(std::get<0>(tuple).value.size() == 1);
-    BOOST_TEST(std::get<1>(tuple).value.size() == 1);
+    BOOST_TEST(std::get<0>(tuple).value.size() == 1U);
+    BOOST_TEST(std::get<1>(tuple).value.size() == 1U);
     // remember the values
     result_unique.push_back(*(std::get<0>(tuple).value[0]));
     result_shared.push_back(*(std::get<1>(tuple).value[0]));
