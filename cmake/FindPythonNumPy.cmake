@@ -6,7 +6,7 @@ cmake_minimum_required(VERSION 3.0)
 # PYTHON_NUMPY_FOUND
 #############################
 
-if(NOT PYTHON_EXECUTABLE)
+if(NOT PYTHONINTERP_FOUND)
   find_package(PythonInterp REQUIRED)
 endif()
 
