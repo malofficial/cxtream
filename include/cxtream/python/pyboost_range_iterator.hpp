@@ -12,6 +12,7 @@
 #define CXTREAM_PYTHON_PYBOOST_RANGE_ITERATOR_HPP
 
 #include <functional>
+#include <mutex>
 #include <string>
 #include <typeinfo>
 
@@ -32,10 +33,27 @@ namespace cxtream::python {
   };
 
 
-  void stop_iteration_translator(const stop_iteration_exception& x) {
-    PyErr_SetNone(PyExc_StopIteration);
-  }
+  namespace detail {
 
+    void stop_iteration_translator(const stop_iteration_exception& x) {
+      PyErr_SetNone(PyExc_StopIteration);
+    }
+
+    // function to register exception for StopIteration
+    // the exception type is only registered once
+    std::once_flag register_stop_iteration_flag;
+    void register_stop_iterator()
+    {
+      namespace py = boost::python;
+      std::call_once(
+        register_stop_iteration_flag,
+        [](){
+          py::register_exception_translator
+            <stop_iteration_exception>(stop_iteration_translator);
+      });
+    }
+
+  }
 
   template<typename Rng>
   class stream_iterator {
@@ -46,26 +64,35 @@ namespace cxtream::python {
     sentinel_t sentinel_;
     Rng rng_;
 
+    // add function to register this type in boost python
+    // make sure the type is registered only once
+    static std::once_flag register_flag;
+    static void register_iterator()
+    {
+      namespace py = boost::python;
+      using this_t = stream_iterator<Rng>;
+
+      detail::register_stop_iterator();
+      std::call_once(
+        register_flag,
+        [](){
+          std::string this_t_name = std::string("cxtream_") + typeid(this_t).name();
+          py::class_<this_t>(this_t_name.c_str(), py::no_init)
+            .def("__iter__", &this_t::iter)
+            .def("__next__", &this_t::next);
+      });
+    }
+
+
     public:
+
       stream_iterator() = default;
 
       explicit stream_iterator(Rng rng)
         : rng_{std::move(rng)}
       {
         initialize_iterators();
-
-        namespace py = boost::python;
-        // TODO call only once!
-
-        // register exception for StopIteration
-        py::register_exception_translator<stop_iteration_exception>(stop_iteration_translator);
-
-        // register python iterator type
-        using this_t = stream_iterator<Rng>;
-        std::string this_t_name = std::string("cxtream_") + typeid(this_t).name();
-        py::class_<this_t>(this_t_name.c_str(), py::no_init)
-          .def("__iter__", &this_t::iter)
-          .def("__next__", &this_t::next);
+        register_iterator();
       }
 
       stream_iterator(const stream_iterator& rhs)
@@ -101,6 +128,9 @@ namespace cxtream::python {
       }
   };
 
+  // provide definition for the static register_flag variable
+  template<typename Rng>
+  std::once_flag stream_iterator<Rng>::register_flag;
 
   // until the compiler has full support for C++17 template argument deduction
   template<typename Rng>
