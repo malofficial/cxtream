@@ -27,9 +27,6 @@ namespace pbcvt{
 using namespace cv;
 
 
-static PyObject* opencv_error = 0;
-
-
 //===================    MACROS    =================================================================
 #define ERRWRAP2(expr) \
 try \
