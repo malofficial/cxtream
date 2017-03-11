@@ -15,7 +15,6 @@
 #include <memory>
 
 #include <boost/test/unit_test.hpp>
-#include <range/v3/to_container.hpp>
 #include <range/v3/view/iota.hpp>
 #include <range/v3/view/move.hpp>
 
@@ -94,9 +93,9 @@ void check_20_elems_batch_size_2(Data data)
     BOOST_TEST(batch_n == 7);
     BOOST_TEST(n == 20);
 
-    auto desired = ranges::view::iota(0, 20) | ranges::to_vector;
-    BOOST_TEST(result_unique == desired, test_tools::per_element{});
-    BOOST_TEST(result_shared == desired, test_tools::per_element{});
+    auto desired = ranges::view::iota(0, 20);
+    test_ranges_equal(result_unique, desired);
+    test_ranges_equal(result_shared, desired);
 }
 
 
@@ -129,9 +128,9 @@ BOOST_AUTO_TEST_CASE(batch_view_test)
     }
     BOOST_TEST(n == 12);
 
-    auto desired = ranges::view::iota(0, 12) | ranges::to_vector;
-    BOOST_TEST(result_unique == desired, test_tools::per_element{});
-    BOOST_TEST(result_shared == desired, test_tools::per_element{});
+    auto desired = ranges::view::iota(0, 12);
+    test_ranges_equal(result_unique, desired);
+    test_ranges_equal(result_shared, desired);
   }
 
   {

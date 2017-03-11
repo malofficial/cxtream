@@ -43,9 +43,7 @@ BOOST_AUTO_TEST_CASE(for_each_test)
       })
     | to_vector;
 
-    auto desired = view::iota(1, 5) | to_vector;
-
-    BOOST_TEST(generated == desired, test_tools::per_element{});
+    test_ranges_equal(generated, view::iota(1, 5));
   }
 
   {
@@ -62,22 +60,20 @@ BOOST_AUTO_TEST_CASE(for_each_test)
       })
     | to_vector;
 
-    auto desired = view::iota(1, 5) | to_vector;
-
-    BOOST_TEST(generated == desired, test_tools::per_element{});
+    test_ranges_equal(generated, view::iota(1, 5));
   }
 
   {
     // for_each of two columns
     std::vector<std::tuple<Int, Double>> data = {{{3},{5.}}, {{1},{2.}}};
+
     auto generated =
         data
-      | for_each(from<Int, Double>, [](const int &v, char c){ })
-      | to_vector;
+      | for_each(from<Int, Double>, [](const int &v, char c){ });
 
     std::vector<std::tuple<Int, Double>> desired = {{{3},{5.}}, {{1},{2.}}};
 
-    BOOST_TEST(generated == desired, test_tools::per_element{});
+    test_ranges_equal(generated, desired);
   }
 
   {
@@ -96,8 +92,7 @@ BOOST_AUTO_TEST_CASE(for_each_test)
       })
     | to_vector;
 
-    std::vector<int> desired = {8, 3};
-    BOOST_TEST(generated == desired, test_tools::per_element{});
+    test_ranges_equal(generated, std::vector<int>{8, 3});
   }
 
 }

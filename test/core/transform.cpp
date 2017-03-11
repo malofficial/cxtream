@@ -41,31 +41,29 @@ BOOST_AUTO_TEST_CASE(transform_test)
       | view::transform(std::make_tuple<int>)
       | partial_transform(from<int>, to<char>, [](std::tuple<int> t){
           return std::make_tuple((char)(std::get<0>(t) - 5));
-        })
-      | to_vector;
+        });
 
     auto desired = 
         view::zip(view::iota((char)'a', (char)'e'),
                   view::iota((int)'f', (int)'j'))
-      | view::transform([](auto t){ return std::tuple<char, int>(t); })
-      | to_vector;
+      | view::transform([](auto t){ return std::tuple<char, int>(t); });
 
-    BOOST_TEST(data == desired, test_tools::per_element{});
+    test_ranges_equal(data, desired);
   }
 
   {
     // transform a single column to itself
     std::vector<std::tuple<Int, Double>> data = {{{3},{5.}}, {{1},{2.}}};
+
     auto generated =
         data
       | transform(from<Int>, to<Int>, [](const int &v){
           return std::make_tuple(v - 1);
-        })
-      | to_vector;
+        });
 
     std::vector<std::tuple<Int, Double>> desired = {{{2},{5.}}, {{0},{2.}}};
 
-    BOOST_TEST(generated == desired, test_tools::per_element{});
+    test_ranges_equal(generated, desired);
   }
 
   {
@@ -93,43 +91,38 @@ BOOST_AUTO_TEST_CASE(transform_test)
     auto to_check =
         generated
       | view::move
-      | drop<Unique>
-      | to_vector;
+      | drop<Unique>;
 
-    std::vector<std::tuple<Double, Int>> desired;
-    desired.emplace_back(5., 3);
-    desired.emplace_back(2., 1);
-    BOOST_TEST(to_check == desired, test_tools::per_element{});
+    std::vector<std::tuple<Double, Int>> desired = {{5., 3}, {2., 1}};
+    test_ranges_equal(to_check, desired);
   }
 
   {
     // transform two columns to a single column
     std::vector<std::tuple<Int, Double>> data = {{{3},{5.}}, {{1},{2.}}};
+
     auto generated =
         data
       | transform(from<Int, Double>, to<Double>, [](int i, double d){
           return std::make_tuple((double)(i + d));
-        })
-      | to_vector;
+        });
 
     std::vector<std::tuple<Double, Int>> desired = {{{3 + 5.}, {3}}, {{1 + 2.}, {1}}};
-
-    BOOST_TEST(generated == desired, test_tools::per_element{});
+    test_ranges_equal(generated, desired);
   }
 
   {
     // transform a single column to two columns
     std::vector<std::tuple<Int>> data = {{{3}}, {{1}}};
+
     auto generated =
         data
       | transform(from<Int>, to<Int, Double>, [](int i){
           return std::make_tuple(i + i, (double)(i * i));
-        })
-      | to_vector;
+        });
 
     std::vector<std::tuple<Int, Double>> desired = {{{6}, {9.}}, {{2}, {1.}}};
-
-    BOOST_TEST(generated == desired, test_tools::per_element{});
+    test_ranges_equal(generated, desired);
   }
 
 }

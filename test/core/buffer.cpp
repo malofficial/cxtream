@@ -15,12 +15,13 @@
 #include <memory>
 
 #include <boost/test/unit_test.hpp>
-#include <range/v3/to_container.hpp>
 #include <range/v3/view/iota.hpp>
 #include <range/v3/view/indirect.hpp>
 #include <range/v3/view/transform.hpp>
 
 #include <cxtream/core/buffer.hpp>
+
+#include "common.hpp"
 
 using namespace cxtream;
 using namespace boost;
@@ -51,11 +52,8 @@ BOOST_AUTO_TEST_CASE(buffer_view_test)
     static_assert(std::is_same<const int&, decltype(*it2)>{});
     BOOST_TEST(*it2 == 1);
 
-    auto generated1 = rng1 | ranges::to_vector;
-    auto generated2 = rng2 | ranges::to_vector;
-
-    BOOST_TEST(generated1 == data, test_tools::per_element{});
-    BOOST_TEST(generated2 == data, test_tools::per_element{});
+    test_ranges_equal(rng1, data);
+    test_ranges_equal(rng2, data);
   }
 
   {
@@ -66,11 +64,9 @@ BOOST_AUTO_TEST_CASE(buffer_view_test)
           return std::make_unique<int>(i);
         })
       | buffer(2)
-      | ranges::view::indirect
-      | ranges::to_vector;
+      | ranges::view::indirect;
 
-    auto desired = ranges::view::iota(1, 6) | ranges::to_vector;
-    BOOST_TEST(rng == desired, test_tools::per_element{});
+    test_ranges_equal(rng, ranges::view::iota(1, 6));
   }
 
   {
@@ -118,9 +114,7 @@ BOOST_AUTO_TEST_CASE(buffer_view_test)
     static_assert(std::is_same<const std::shared_ptr<int>&, decltype(*it)>{});
 
     // check values
-    auto vals = rng | ranges::view::indirect | ranges::to_vector;
-    auto desired = ranges::view::iota(0, 5) | ranges::to_vector;
-    BOOST_TEST(vals == desired, test_tools::per_element{});
+    test_ranges_equal(rng | ranges::view::indirect, ranges::view::iota(0, 5));
   }
 
   {

@@ -15,7 +15,6 @@
 #include <vector>
 
 #include <boost/test/unit_test.hpp>
-#include <range/v3/to_container.hpp>
 #include <range/v3/view/iota.hpp>
 #include <range/v3/view/move.hpp>
 
@@ -37,12 +36,11 @@ BOOST_AUTO_TEST_CASE(create_test)
     // create a new column
     auto generated =
         view::iota(0, 10)
-      | create<Int>
-      | to_vector;
+      | create<Int>;
 
     std::vector<std::tuple<Int>> desired = view::iota(0, 10);
 
-    BOOST_TEST(generated == desired, test_tools::per_element{});
+    test_ranges_equal(generated, desired);
   }
 
   {
@@ -55,12 +53,9 @@ BOOST_AUTO_TEST_CASE(create_test)
         data
       | view::move
       | create<Unique>
-      | view::transform([](auto t){ return *(std::get<0>(std::move(t)).value[0]); })
-      | to_vector;
+      | view::transform([](auto t){ return *(std::get<0>(std::move(t)).value[0]); });
 
-    std::vector<int> desired = {5, 6};
-
-    BOOST_TEST(generated == desired, test_tools::per_element{});
+    test_ranges_equal(generated, std::vector<int>{5, 6});
   }
   
   {
@@ -76,11 +71,8 @@ BOOST_AUTO_TEST_CASE(create_test)
       | view::transform([](auto t){
           return std::make_tuple(*(std::get<0>(std::move(t)).value[0]),
                                  *(std::get<1>(std::move(t)).value[0]));
-        })
-      | to_vector;
+        });
 
-    std::vector<std::tuple<int, int>> desired = {{1, 5}, {2, 6}};
-
-    BOOST_TEST(generated == desired, test_tools::per_element{});
+    test_ranges_equal(generated, std::vector<std::tuple<int, int>>{{1, 5}, {2, 6}});
   }
 }

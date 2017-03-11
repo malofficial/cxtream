@@ -15,7 +15,6 @@
 #include <vector>
 
 #include <boost/test/unit_test.hpp>
-#include <range/v3/to_container.hpp>
 #include <range/v3/view/move.hpp>
 
 #include <cxtream/core/drop.hpp>
@@ -37,12 +36,10 @@ BOOST_AUTO_TEST_CASE(drop_test)
     std::vector<std::tuple<Int, Double>> data = {{{3},{5.}}, {{1},{2.}}};
     auto generated =
         data
-      | drop<Int>
-      | to_vector;
+      | drop<Int>;
 
     std::vector<std::tuple<Double>> desired = {{{5.}}, {{2.}}};
-
-    BOOST_TEST(generated == desired, test_tools::per_element{});
+    test_ranges_equal(generated, desired);
   }
 
   {
@@ -55,12 +52,9 @@ BOOST_AUTO_TEST_CASE(drop_test)
         data
       | view::move
       | drop<Unique>
-      | view::transform([](auto t){ return *(std::get<0>(std::move(t)).value[0]); })
-      | to_vector;
+      | view::transform([](auto t){ return *(std::get<0>(std::move(t)).value[0]); });
 
-    std::vector<int> desired = {5, 6};
-
-    BOOST_TEST(generated == desired, test_tools::per_element{});
+    test_ranges_equal(generated, std::vector<int>{5, 6});
   }
 
   {
@@ -77,9 +71,7 @@ BOOST_AUTO_TEST_CASE(drop_test)
       | view::transform([](auto t){ return *(std::get<0>(std::move(t)).value[0]); })
       | to_vector;
 
-    std::vector<int> desired = {5, 6};
-
-    BOOST_TEST(generated == desired, test_tools::per_element{});
+    test_ranges_equal(generated, std::vector<int>{5, 6});
     */
   }
 }
