@@ -1,6 +1,4 @@
-set(Python_ADDITIONAL_VERSIONS "3.X")
-
-if(NOT PYTHON_EXECUTABLE)
+if(NOT PYTHONINTERP_FOUND)
   find_package(PythonInterp REQUIRED)
 endif()
 
