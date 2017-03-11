@@ -104,6 +104,7 @@ if(BUILD_PYTHON)
   )
   target_link_libraries(
     cxtream_python
+    cxtream_core
     ${Boost_LIBRARIES}
     ${PYTHON_LIBRARIES}
     stdc++fs
