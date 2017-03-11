@@ -10,9 +10,11 @@ set(_python_version ${PYTHONLIBS_VERSION_STRING})
 # remove the minor-most version number until the boost component is found
 while(NOT BoostPython3_FOUND)
 
+  # boost does not separate version numbers with dots
+  STRING(REGEX REPLACE "[^0-9]" "" _boost_python_version ${_python_version})
+
   # find component python-pyXX (Ubuntu, Debian...)
   message(STATUS "Searching for Boost component python-py${_boost_python_version}")
-  STRING(REGEX REPLACE "[^0-9]" "" _boost_python_version ${_python_version})
   find_package(Boost COMPONENTS "python-py${_boost_python_version}")
   set(BoostPython3_FOUND ${Boost_PYTHON-PY${_boost_python_version}_FOUND})
 
