@@ -143,7 +143,7 @@ endif()
 if(BUILD_TEST)
   find_package(Boost COMPONENTS unit_test_framework REQUIRED)
   enable_testing()
-  include("BoostTest")
+  include("AddBoostTest")
   add_subdirectory("test")
 endif()
 

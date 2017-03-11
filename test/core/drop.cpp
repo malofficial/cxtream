@@ -60,7 +60,8 @@ BOOST_AUTO_TEST_CASE(test_move_only_column)
 }
 
 /*
-BOOST_AUTO_TEST_CASE(test_multiple_columns)
+BOOST_AUTO_
+TEST_CASE(test_multiple_columns)
 {
   // drop multiple columns
   std::vector<std::tuple<Int, Unique, Unique2>> data;
