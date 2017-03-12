@@ -39,7 +39,7 @@ make test
 
 __Install__
 ```
-make install
+sudo make install
 ```
 
 ## Example
