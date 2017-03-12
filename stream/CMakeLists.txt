@@ -2,19 +2,17 @@ cmake_minimum_required(VERSION 3.3 FATAL_ERROR)
 
 project("mnist_stream" VERSION 0.1)
 
-# ----------------------
-# Find Cxtream Libraries
-# ----------------------
-
-find_package(Cxtream)
-
-# --------------------
-# Find Other Libraries
-# --------------------
+# --------------
+# Find Libraries
+# --------------
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+# OpenCV
 find_package(OpenCV COMPONENTS core imgproc highgui REQUIRED)
-include("FindPythonSuffix")
+# cxtream
+find_package(Cxtream)
+# python .so file suffix
+include("FindPython3Suffix")
 
 # --------------
 # Compiler Flags

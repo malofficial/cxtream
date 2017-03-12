@@ -1,7 +1,5 @@
-set(Python_ADDITIONAL_VERSIONS "3.X")
-
-if(NOT PYTHON_EXECUTABLE)
-  find_package(PythonInterp REQUIRED)
+if(NOT PYTHONINTERP_FOUND)
+  find_package(PythonInterp 3 REQUIRED)
 endif()
 
 execute_process(

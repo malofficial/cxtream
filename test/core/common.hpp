@@ -15,7 +15,10 @@
 #include <ostream>
 #include <vector>
 
+#include <boost/test/unit_test.hpp>
+
 #include <cxtream/core/column.hpp>
+#include <cxtream/core/utility/tuple.hpp>
 
 
 // make the tuple print visible for boost test
@@ -53,5 +56,21 @@ std::ostream& operator<<(std::ostream& out, const Int& rhs)
 { return out << rhs.value; }
 std::ostream& operator<<(std::ostream& out, const Double& rhs)
 { return out << rhs.value; }
+
+
+template<typename Rng1, typename Rng2>
+void test_ranges_equal(Rng1&& rng1, Rng2&& rng2)
+{
+  // using this function, ranges with different
+  // begin() and end() types can be compared
+  auto it1 = ranges::begin(rng1);
+  auto it2 = ranges::begin(rng2);
+  while (it1 != ranges::end(rng1) && it2 != ranges::end(rng2)) {
+    BOOST_TEST(*it1 == *it2);
+    ++it1; ++it2;
+  }
+  BOOST_CHECK(it1 == ranges::end(rng1));
+  BOOST_CHECK(it2 == ranges::end(rng2));
+}
 
 #endif

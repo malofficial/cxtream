@@ -42,10 +42,9 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -ggdb")
 # ---------------------
 
 if(BUILD_PYTHON)
-  set(Python_ADDITIONAL_VERSIONS "3.X")
-  find_package(Boost COMPONENTS python3 REQUIRED)
-  find_package(PythonLibs REQUIRED)
-  find_package(PythonInterp REQUIRED)
+  find_package(PythonInterp 3 REQUIRED)
+  find_package(PythonLibs 3 REQUIRED)
+  find_package(BoostPython3 REQUIRED)
 
   if(BUILD_PYTHON_OPENCV)
     find_package(PythonNumPy REQUIRED)
@@ -105,6 +104,7 @@ if(BUILD_PYTHON)
   )
   target_link_libraries(
     cxtream_python
+    cxtream_core
     ${Boost_LIBRARIES}
     ${PYTHON_LIBRARIES}
     stdc++fs
@@ -143,7 +143,7 @@ endif()
 if(BUILD_TEST)
   find_package(Boost COMPONENTS unit_test_framework REQUIRED)
   enable_testing()
-  include("BoostTest")
+  include("AddBoostTest")
   add_subdirectory("test")
 endif()
 
