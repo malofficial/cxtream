@@ -202,8 +202,10 @@ endif()
 # Uninstall
 # ---------
 
-# TODO
-# cat install_manifest.txt | tr '\n' '\0' | xargs -0 rm
+add_custom_target(
+  uninstall
+  COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Uninstall.cmake
+)
 
 # ------------------------------
 # Cmake Config and Version Files
