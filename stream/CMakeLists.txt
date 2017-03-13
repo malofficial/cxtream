@@ -10,7 +10,9 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 # OpenCV
 find_package(OpenCV COMPONENTS core imgproc highgui REQUIRED)
 # cxtream
-find_package(Cxtream)
+find_package(Cxtream REQUIRED)
+# yaml-cpp TODO this package contains invalid CMake Config. Fix upstream.
+# find_package(yaml-cpp REQUIRED)
 # python .so file suffix
 include("FindPython3Suffix")
 
@@ -45,6 +47,7 @@ target_include_directories(
 
 target_link_libraries(
   ${PROJECT_NAME}
+  PRIVATE yaml-cpp
   PRIVATE Cxtream::Core
   PRIVATE Cxtream::Python
   PRIVATE ${OpenCV_LIBRARIES}

@@ -19,6 +19,7 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <range/v3/all.hpp>
+#include <yaml-cpp/yaml.h>
 
 #include "mnist/mnist_reader.hpp"
 
@@ -73,7 +74,7 @@ namespace mnist_stream {
     private:
 
 
-      fs::path data_root_;
+      YAML::Node setup_;
       std::mt19937 prng_;
 
       std::vector<cv::Mat> train_images_;
@@ -82,12 +83,19 @@ namespace mnist_stream {
       std::vector<uint8_t> test_labels_;
 
 
+      int train_batch_size_ =
+        setup_["stream"]["train"]["batch_size"].as<int>();
+      int valid_batch_size_ =
+        setup_["stream"]["valid"]["batch_size"].as<int>();
+      int test_batch_size_ =
+        setup_["stream"]["test"]["batch_size"].as<int>();
+
+
     public:
 
 
       Dataset(fs::path setup_path)
-        // TODO parse YAML setup
-        : data_root_{"/tmp"},
+        : setup_{YAML::LoadFile(setup_path)},
           prng_{std::random_device{}()}
       { 
 
@@ -114,7 +122,7 @@ namespace mnist_stream {
           | cxtream::transform(from<images>, to<images>,
               cv_rotate(30, prng_, cv::Scalar(255, 255, 255)))
           | cxtream::buffer(20)
-          | cxtream::batch(100)
+          | cxtream::batch(train_batch_size_)
           | cxtream::buffer(2);
       }
 
@@ -122,14 +130,19 @@ namespace mnist_stream {
       /* valid stream */
 
 
-      auto valid_stream()
+      auto noaug_stream(int batch_size)
       {
         return
             view::zip(test_images_, test_labels_)
           | cxtream::create<images, labels>
           | cxtream::buffer(20)
-          | cxtream::batch(100)
+          | cxtream::batch(batch_size)
           | cxtream::buffer(2);
+      }
+
+      auto valid_stream()
+      {
+        return noaug_stream(valid_batch_size_);
       }
 
 
@@ -138,7 +151,7 @@ namespace mnist_stream {
 
       auto test_stream()
       {
-        return valid_stream();
+        return noaug_stream(test_batch_size_);
       }
 
   };
