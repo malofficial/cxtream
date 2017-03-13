@@ -96,7 +96,7 @@ namespace cxtream {
     auto fun_wrapper = detail::wrap_fun_for_dim<Dim>::impl(std::move(fun));
 
     return partial_transform(f, t, std::move(fun_wrapper), [](auto& column){
-      return std::ref(column.value);
+      return std::ref(column.value());
     });
   }
 

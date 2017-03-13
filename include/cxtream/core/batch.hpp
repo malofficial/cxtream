@@ -26,9 +26,9 @@ namespace cxtream {
   {
     bool same = true;
     if (std::tuple_size<Tuple>{} > 0) {
-      auto bs = std::get<0>(tuple).value.size();
+      auto bs = std::get<0>(tuple).value().size();
       utility::tuple_for_each([bs, &same](const auto& column){
-        same &= (column.value.size() == bs);
+        same &= (column.value().size() == bs);
       }, tuple);
     }
     return same;
@@ -41,7 +41,7 @@ namespace cxtream {
       "Cannot get batch size if there are no columns");
     assert(is_same_batch_size(tuple) &&
       "All the columns have to have equal batch size");
-    return std::get<0>(tuple).value.size();
+    return std::get<0>(tuple).value().size();
   }
 
 
@@ -79,8 +79,8 @@ namespace cxtream {
           template<std::size_t... Is>
           void move_from_subbatch(std::size_t i, std::index_sequence<Is...>)
           {
-            (..., (std::get<Is>(*batch_).value.push_back(
-              std::move(std::get<Is>(*subbatch_).value[i]))));
+            (..., (std::get<Is>(*batch_).value().push_back(
+              std::move(std::get<Is>(*subbatch_).value()[i]))));
           }
 
 

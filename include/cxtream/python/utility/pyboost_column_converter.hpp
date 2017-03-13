@@ -65,7 +65,7 @@ namespace cxtream::python::utility {
   {
     boost::python::dict res;
     cxtream::utility::tuple_for_each([&res](auto& column){
-      res[column.name] = vector_to_py(std::move(column.value));
+      res[column.name()] = vector_to_py(std::move(column.value()));
     }, tuple);
     return res;
   }

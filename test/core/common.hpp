@@ -49,13 +49,13 @@ std::ostream& operator<<(std::ostream& out, const std::vector<T>& vec)
 
 
 bool operator==(const Int& lhs, const Int& rhs)
-{ return lhs.value == rhs.value; }
+{ return lhs.value() == rhs.value(); }
 bool operator==(const Double& lhs, const Double& rhs)
-{ return lhs.value == rhs.value; }
+{ return lhs.value() == rhs.value(); }
 std::ostream& operator<<(std::ostream& out, const Int& rhs)
-{ return out << rhs.value; }
+{ return out << rhs.value(); }
 std::ostream& operator<<(std::ostream& out, const Double& rhs)
-{ return out << rhs.value; }
+{ return out << rhs.value(); }
 
 
 template<typename Rng1, typename Rng2>

@@ -87,7 +87,7 @@ BOOST_AUTO_TEST_CASE(test_move_only)
   // check unique pointers
   std::vector<int> desired_ptr_vals{5, 2};
   for (int i = 0; i < 2; ++i) {
-    BOOST_TEST(*(std::get<0>(generated[i]).value[0]) == desired_ptr_vals[i]);
+    BOOST_TEST(*(std::get<0>(generated[i]).value()[0]) == desired_ptr_vals[i]);
   }
 
   // check other

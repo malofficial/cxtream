@@ -58,9 +58,9 @@ void check_20_elems_batch_size_2(Data data)
     auto rng = data | view::move | batch(3);
     using tuple_type = decltype(*ranges::begin(rng));
     static_assert(std::is_same<std::tuple<Unique, Shared>&, tuple_type>{});
-    using first_type = decltype(std::get<0>(*ranges::begin(rng)).value[0]);
+    using first_type = decltype(std::get<0>(*ranges::begin(rng)).value()[0]);
     static_assert(std::is_same<std::unique_ptr<int>&, first_type>{});
-    using second_type = decltype(std::get<1>(*ranges::begin(rng)).value[0]);
+    using second_type = decltype(std::get<1>(*ranges::begin(rng)).value()[0]);
     static_assert(std::is_same<std::shared_ptr<int>&, second_type>{});
 
     // iterate through batches
@@ -71,21 +71,21 @@ void check_20_elems_batch_size_2(Data data)
     for (auto&& tuple : rng) {
       // the last batch should be smaller
       if (batch_n == 6) {
-        BOOST_TEST(std::get<0>(tuple).value.size() == 2U);
-        BOOST_TEST(std::get<1>(tuple).value.size() == 2U);
+        BOOST_TEST(std::get<0>(tuple).value().size() == 2U);
+        BOOST_TEST(std::get<1>(tuple).value().size() == 2U);
       }
       else {
-        BOOST_TEST(std::get<0>(tuple).value.size() == 3U);
-        BOOST_TEST(std::get<1>(tuple).value.size() == 3U);
+        BOOST_TEST(std::get<0>(tuple).value().size() == 3U);
+        BOOST_TEST(std::get<1>(tuple).value().size() == 3U);
       }
       BOOST_CHECK(is_same_batch_size(tuple));
 
       // iterate through batch values
-      for (auto& elem : std::get<0>(tuple).value) {
+      for (auto& elem : std::get<0>(tuple).value()) {
         result_unique.push_back(*elem);
         ++n;
       }
-      for (auto& elem : std::get<1>(tuple).value) {
+      for (auto& elem : std::get<1>(tuple).value()) {
         result_shared.push_back(*elem);
       }
       ++batch_n;
@@ -107,9 +107,9 @@ BOOST_AUTO_TEST_CASE(test_batch_larger_batches)
   auto rng = data | view::move | batch(1);
   using tuple_type = decltype(*ranges::begin(rng));
   static_assert(std::is_same<std::tuple<Unique, Shared>&, tuple_type>{});
-  using first_type = decltype(std::get<0>(*ranges::begin(rng)).value[0]);
+  using first_type = decltype(std::get<0>(*ranges::begin(rng)).value()[0]);
   static_assert(std::is_same<std::unique_ptr<int>&, first_type>{});
-  using second_type = decltype(std::get<1>(*ranges::begin(rng)).value[0]);
+  using second_type = decltype(std::get<1>(*ranges::begin(rng)).value()[0]);
   static_assert(std::is_same<std::shared_ptr<int>&, second_type>{});
 
   // iterate through batches
@@ -118,11 +118,11 @@ BOOST_AUTO_TEST_CASE(test_batch_larger_batches)
   int n = 0;
   for (auto&& tuple : rng) {
     // the batch should be only a single element
-    BOOST_TEST(std::get<0>(tuple).value.size() == 1U);
-    BOOST_TEST(std::get<1>(tuple).value.size() == 1U);
+    BOOST_TEST(std::get<0>(tuple).value().size() == 1U);
+    BOOST_TEST(std::get<1>(tuple).value().size() == 1U);
     // remember the values
-    result_unique.push_back(*(std::get<0>(tuple).value[0]));
-    result_shared.push_back(*(std::get<1>(tuple).value[0]));
+    result_unique.push_back(*(std::get<0>(tuple).value()[0]));
+    result_shared.push_back(*(std::get<1>(tuple).value()[0]));
     ++n;
   }
   BOOST_TEST(n == 12);

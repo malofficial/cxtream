@@ -54,7 +54,7 @@ BOOST_AUTO_TEST_CASE(test_move_only_column)
       data
     | view::move
     | create<Unique>
-    | view::transform([](auto t){ return *(std::get<0>(std::move(t)).value[0]); });
+    | view::transform([](auto t){ return *(std::get<0>(std::move(t)).value()[0]); });
 
   test_ranges_equal(generated, std::vector<int>{5, 6});
 }
@@ -72,8 +72,8 @@ BOOST_AUTO_TEST_CASE(test_multiple_columns)
     | view::move
     | create<Unique, Unique2>
     | view::transform([](auto t){
-        return std::make_tuple(*(std::get<0>(std::move(t)).value[0]),
-                               *(std::get<1>(std::move(t)).value[0]));
+        return std::make_tuple(*(std::get<0>(std::move(t)).value()[0]),
+                               *(std::get<1>(std::move(t)).value()[0]));
       });
 
   test_ranges_equal(generated, std::vector<std::tuple<int, int>>{{1, 5}, {2, 6}});

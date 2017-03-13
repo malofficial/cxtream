@@ -17,28 +17,49 @@
 namespace cxtream {
 
 
-  /* column definition macro */
+  /* column base class */
 
 
   template<typename T, bool = std::is_copy_constructible<T>{}>
-  struct column_base
+  class column_base
   {
-    std::vector<T> value;
+    private:
+      std::vector<T> value_;
 
-    column_base() = default;
-    column_base(T&& rhs)
-    {
-      value.emplace_back(std::move(rhs));
-    }
-    column_base(const T& rhs)
-      : value{rhs}
-    { }
-    column_base(std::vector<T>&& rhs)
-      : value{std::move(rhs)}
-    { }
-    column_base(const std::vector<T>& rhs)
-      : value{rhs}
-    { }
+    public:
+
+
+      /* constructors */
+
+
+      column_base() = default;
+      column_base(T&& rhs)
+      {
+        value_.emplace_back(std::move(rhs));
+      }
+      column_base(const T& rhs)
+        : value_{rhs}
+      { }
+      column_base(std::vector<T>&& rhs)
+        : value_{std::move(rhs)}
+      { }
+      column_base(const std::vector<T>& rhs)
+        : value_{rhs}
+      { }
+
+
+      /* value accessors */
+
+
+      std::vector<T>& value()
+      {
+        return value_;
+      }
+
+      const std::vector<T>& value() const
+      {
+        return value_;
+      }
   };
 
   template<typename T>
@@ -54,10 +75,14 @@ namespace cxtream {
 } // end namespace cxtream
 
 
+/* column definition macro */
+
+
 #define CXTREAM_DEFINE_COLUMN(col_name, col_type) \
 struct col_name : cxtream::column_base<col_type> { \
   using cxtream::column_base<col_type>::column_base; \
-  static constexpr const char* name = #col_name; \
+  static constexpr const char* name() \
+  { return #col_name; } \
 };
 
 
