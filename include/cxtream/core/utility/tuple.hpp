@@ -23,11 +23,25 @@ namespace cxtream::utility {
   /* tuple_for_each */
 
 
-  template<typename Fun, typename... Ts>
-  constexpr Fun&& tuple_for_each_impl(Fun&& fun, Ts&&... args)
-  {
-    (..., fun(std::forward<Ts>(args)));
-    return std::forward<Fun>(fun);
+  namespace detail {
+
+    struct tuple_for_each_adl{};
+
+    template<typename Adl, typename Fun>
+    constexpr Fun&& tuple_for_each_impl(Adl, Fun&& fun)
+    {
+      return std::forward<Fun>(fun);
+    }
+
+    template<typename Adl, typename Fun, typename Head, typename... Tail>
+    constexpr Fun&& tuple_for_each_impl(Adl adl, Fun&& fun, Head&& head, Tail&&... tail)
+    {
+      fun(std::forward<Head>(head));
+      return tuple_for_each_impl(adl,
+                                 std::forward<Fun>(fun),
+                                 std::forward<Tail>(tail)...);
+    }
+
   }
 
 
@@ -36,8 +50,9 @@ namespace cxtream::utility {
   {
     return std::experimental::apply(
       [fun=std::forward<Fun>(fun)](auto&&... args) mutable {
-        return tuple_for_each_impl(std::forward<Fun>(fun),
-                                   std::forward<decltype(args)>(args)...); },
+        return detail::tuple_for_each_impl(detail::tuple_for_each_adl{},
+                                           std::forward<Fun>(fun),
+                                           std::forward<decltype(args)>(args)...); },
       std::forward<Tuple>(tuple));
   }
 
@@ -119,7 +134,7 @@ namespace cxtream::utility {
     struct make_unique_adl{};
 
     template<typename Adl, typename Tuple>
-    constexpr Tuple make_unique_tuple_impl(Adl _, Tuple&& tuple)
+    constexpr Tuple make_unique_tuple_impl(Adl, Tuple&& tuple)
     {
       return std::forward<Tuple>(tuple);
     }

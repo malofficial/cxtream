@@ -281,6 +281,18 @@ BOOST_AUTO_TEST_CASE(test_tuple_for_each)
 }
 
 
+BOOST_AUTO_TEST_CASE(test_tuple_for_each_order)
+{
+  // test whether tuple_for_each keeps the application order left-to-right
+  auto tuple = std::make_tuple(1, 2, 3);
+  std::vector<int> tuple_clone;
+
+  tuple_for_each([&tuple_clone](int i){ tuple_clone.push_back(i); }, tuple);
+  std::vector<int> desired = std::vector<int>{1, 2, 3};
+  BOOST_TEST(tuple_clone == desired);
+}
+
+
 BOOST_AUTO_TEST_CASE(test_tuple_for_mutable)
 {
   // tuple_for_each
