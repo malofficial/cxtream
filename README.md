@@ -1,8 +1,7 @@
-# cxtream
+# cxtream ![Build Status](https://gitlab.com/Cognexa/cxtream/badges/master/build.svg)
 C++17 data pipeline with Python bindings.
 
 ## Development Status
-![Build Status](https://gitlab.com/Cognexa/cxtream/badges/master/build.svg)
 This project is under heavy development. The API is continuously changing without regard to backward compatibility.
 
 ## Requirements
