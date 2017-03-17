@@ -1,4 +1,4 @@
-test:ubuntu16.10:
+test:ubuntu16.10-gcc:
   image: ubuntu:rolling
   before_script: 
     - apt update
@@ -11,7 +11,7 @@ test:ubuntu16.10:
     - make
     - make test
 
-test:arch:
+test:arch-gcc:
   image: pritunl/archlinux
   before_script: 
     - pacman -S --noconfirm base-devel cmake
@@ -19,5 +19,17 @@ test:arch:
   script: 
     - mkdir build && cd build
     - cmake -DCMAKE_BUILD_TYPE=Debug ..
+    - make
+    - make test
+
+test:arch-clang:
+  image: pritunl/archlinux
+  before_script:
+    - pacman -S --noconfirm base-devel cmake clang
+    - pacman -S --noconfirm opencv boost python python-numpy
+  script:
+    - mkdir build && cd build
+    - cmake -DCMAKE_BUILD_TYPE=Debug
+            -DCMAKE_CXX_COMPILER=clang++ ..
     - make
     - make test
