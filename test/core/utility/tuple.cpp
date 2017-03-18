@@ -17,6 +17,8 @@
 #include <boost/test/unit_test.hpp>
 #include <cxtream/core/utility/tuple.hpp>
 
+#include "../common.hpp"
+
 using namespace cxtream::utility;
 
 
@@ -429,4 +431,19 @@ BOOST_AUTO_TEST_CASE(test_unzip_move_only)
   for (std::size_t i = 0; i < 3; ++i) {
     BOOST_TEST(*vb[i] == (int)i + 5);
   }
+}
+
+
+BOOST_AUTO_TEST_CASE(test_range_to_tuple)
+{
+  std::vector<std::unique_ptr<int>> data;
+  data.emplace_back(std::make_unique<int>(5));
+  data.emplace_back(std::make_unique<int>(6));
+  data.emplace_back(std::make_unique<int>(7));
+
+  auto tpl = range_to_tuple<3>(std::move(data));
+  auto tpl_values = tuple_transform([](auto& ptr){ return *ptr; }, tpl);
+
+  std::tuple<int, int, int> tpl_desired{5, 6, 7};
+  BOOST_TEST(tpl_values == tpl_desired);
 }

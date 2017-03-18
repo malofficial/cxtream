@@ -257,6 +257,7 @@ namespace cxtream::utility {
 
   namespace detail {
 
+    // wrap each type of Tuple in std::vector
     template<typename Tuple, std::size_t... Is>
     auto vectorize_tuple(std::size_t size, std::index_sequence<Is...>)
     {
@@ -288,6 +289,30 @@ namespace cxtream::utility {
     }
 
     return tuple_of_ranges;
+  }
+
+
+  /* range to tuple */
+
+
+  namespace detail {
+
+    template<typename Rng, std::size_t... Is>
+    constexpr auto range_to_tuple_impl(Rng rng, std::index_sequence<Is...>)
+    {
+      return std::make_tuple(std::move(ranges::at(std::forward<Rng>(rng), Is))...);
+    }
+
+  }
+
+  template<std::size_t N, typename RARng>
+  constexpr auto range_to_tuple(RARng&& rng)
+  {
+    assert(ranges::size(rng) >= N);
+    return detail::range_to_tuple_impl(
+      std::forward<RARng>(rng),
+      std::make_index_sequence<N>{}
+    );
   }
 
 
