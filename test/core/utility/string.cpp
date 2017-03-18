@@ -66,3 +66,15 @@ BOOST_AUTO_TEST_CASE(test_float__to_string)
   static_assert(std::is_same<std::string, decltype(str)>{});
   BOOST_TEST(std::stof(str) == 0.25);
 }
+
+
+BOOST_AUTO_TEST_CASE(test_trim)
+{
+  BOOST_TEST(trim("") == "");
+  BOOST_TEST(trim("hello") == "hello");
+  BOOST_TEST(trim(" hello") == "hello");
+  BOOST_TEST(trim("hello ") == "hello");
+  BOOST_TEST(trim(" hello ") == "hello");
+  BOOST_TEST(trim("\t\n hello\n\t ") == "hello");
+  BOOST_TEST(trim("\t\t\n\n   hello \t\t\n\n  ") == "hello");
+}

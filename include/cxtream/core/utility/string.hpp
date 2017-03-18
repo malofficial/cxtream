@@ -11,6 +11,8 @@
 #ifndef CXTREAM_CORE_UTILITY_STRING_HPP
 #define CXTREAM_CORE_UTILITY_STRING_HPP
 
+#include <algorithm>
+#include <locale>
 #include <locale>
 #include <sstream>
 #include <string>
@@ -60,6 +62,23 @@ namespace cxtream::utility {
   std::string to_string(std::string str)
   {
     return str;
+  }
+
+
+  /* trim */
+
+
+  // this one could be taken from boost, but it would be the only
+  // dependency in the entire project
+
+  std::string trim(const std::string& str)
+  {
+     auto isspace = [](char c){ return std::isspace(c, std::locale::classic()); };
+     auto begin = std::find_if_not(str.begin(),  str.end(),  isspace);
+     auto end   = std::find_if_not(str.rbegin(), str.rend(), isspace).base();
+     if (begin < end)
+       return std::string(begin, end);
+     return std::string{};
   }
 
 }
