@@ -3,8 +3,8 @@ test:ubuntu16.10-gcc:
   before_script: 
     - apt update
     - apt -y install build-essential cmake
-    - apt -y install libopencv-dev libboost-python-dev libboost-test-dev
-    - apt -y install python3-dev python3-numpy
+        libopencv-dev libboost-python-dev libboost-test-dev
+        python3-dev python3-numpy
   script: 
     - mkdir build && cd build
     - cmake -DCMAKE_BUILD_TYPE=Debug ..
@@ -15,7 +15,7 @@ test:arch-gcc:
   image: pritunl/archlinux
   before_script: 
     - pacman -S --noconfirm base-devel cmake
-    - pacman -S --noconfirm opencv boost python python-numpy
+        opencv boost python python-numpy
   script: 
     - mkdir build && cd build
     - cmake -DCMAKE_BUILD_TYPE=Debug ..
@@ -26,7 +26,7 @@ test:arch-clang:
   image: pritunl/archlinux
   before_script:
     - pacman -S --noconfirm base-devel cmake clang
-    - pacman -S --noconfirm opencv boost python python-numpy
+        opencv boost python python-numpy
   script:
     - mkdir build && cd build
     - cmake -DCMAKE_BUILD_TYPE=Debug
