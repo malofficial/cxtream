@@ -15,6 +15,8 @@
 #include <vector>
 
 #include <boost/test/unit_test.hpp>
+#include <range/v3/view/indirect.hpp>
+
 #include <cxtream/core/utility/tuple.hpp>
 
 #include "../common.hpp"
@@ -446,4 +448,46 @@ BOOST_AUTO_TEST_CASE(test_range_to_tuple)
 
   std::tuple<int, int, int> tpl_desired{5, 6, 7};
   BOOST_TEST(tpl_values == tpl_desired);
+}
+
+
+BOOST_AUTO_TEST_CASE(test_tuple_range_transform)
+{
+  std::vector<std::unique_ptr<int>> r1;
+  r1.emplace_back(std::make_unique<int>(1));
+  r1.emplace_back(std::make_unique<int>(2));
+
+  std::vector<std::shared_ptr<int>> r2;
+  r2.emplace_back(std::make_shared<int>(3));
+  r2.emplace_back(std::make_shared<int>(4));
+
+  auto fn1 = [](auto& ptr){ return *ptr; };
+  auto fn2 = [](auto ptr){ return *ptr + 1; };
+
+  auto rtpl = std::make_tuple(std::move(r1), r2);
+  auto ftpl = std::make_tuple(fn1, fn2);
+
+  auto tpl_values = tuple_range_transform(ftpl, rtpl);
+
+  std::vector<int> r1_desired{1, 2};
+  std::vector<int> r2_desired{4, 5};
+  test_ranges_equal(std::get<0>(tpl_values), r1_desired);
+  test_ranges_equal(std::get<1>(tpl_values), r2_desired);
+}
+
+
+BOOST_AUTO_TEST_CASE(test_tuple_range_transform_writethrough)
+{
+  std::vector<std::unique_ptr<int>> data;
+  data.emplace_back(std::make_unique<int>(1));
+  data.emplace_back(std::make_unique<int>(2));
+  data.emplace_back(std::make_unique<int>(3));
+
+  auto rtpl = std::make_tuple(std::ref(data));
+  auto ftpl = std::make_tuple([](auto& ptr) -> int& { return *ptr; });
+
+  auto tpl_values = tuple_range_transform(ftpl, rtpl);
+  std::get<0>(tpl_values)[1] = 5;
+
+  test_ranges_equal(data | ranges::view::indirect, std::vector<int>{1, 5, 3});
 }

@@ -16,6 +16,7 @@
 #include <experimental/tuple>
 #include <range/v3/size.hpp>
 #include <range/v3/core.hpp>
+#include <range/v3/view/transform.hpp>
 
 namespace cxtream::utility {
 
@@ -312,6 +313,38 @@ namespace cxtream::utility {
     return detail::range_to_tuple_impl(
       std::forward<RARng>(rng),
       std::make_index_sequence<N>{}
+    );
+  }
+
+
+  /* transform a tuple of ranges using a tuple of functions */
+
+  namespace detail {
+
+    template<typename FTuple, typename RTuple, std::size_t... Is>
+    constexpr auto tuple_range_transform_impl(
+      FTuple&& ftuple,
+      RTuple&& rtuple,
+      std::index_sequence<Is...>)
+    {
+      return std::make_tuple(
+          std::get<Is>(std::forward<RTuple>(rtuple))
+        | ranges::view::transform(std::get<Is>(std::forward<FTuple>(ftuple)))...
+      );
+    }
+
+  }
+
+  template<typename FTuple, typename RTuple>
+  constexpr auto tuple_range_transform(FTuple&& ftuple, RTuple&& rtuple)
+  {
+    constexpr std::size_t ftuple_size = std::tuple_size<std::decay_t<FTuple>>{}();
+    constexpr std::size_t rtuple_size = std::tuple_size<std::decay_t<RTuple>>{}();
+    static_assert(ftuple_size == rtuple_size);
+    return detail::tuple_range_transform_impl(
+      std::forward<FTuple>(ftuple),
+      std::forward<RTuple>(rtuple),
+      std::make_index_sequence<rtuple_size>{}
     );
   }
 
