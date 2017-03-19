@@ -369,6 +369,42 @@ namespace cxtream {
       }
 
 
+      /* typed indexed multiple row access */
+
+
+      template<typename IndexT, typename... Ts>
+      std::unordered_map<IndexT, std::tuple<Ts...>>
+      index_irows(std::size_t indexed_col_index,
+                  std::vector<std::size_t> col_indexes,
+                  std::function<IndexT(std::string)> indexed_cvt =
+                    utility::string_to<IndexT>,
+                  std::tuple<std::function<Ts(std::string)>...> cvts =
+                    std::make_tuple(utility::string_to<Ts>...)) const
+      {
+        auto index_col = icol<IndexT>(indexed_col_index, std::move(indexed_cvt));
+        auto rows = irows<Ts...>(std::move(col_indexes), std::move(cvts));
+        return view::zip(index_col, rows);
+      }
+
+
+      template<typename IndexT, typename... Ts>
+      std::unordered_map<IndexT, std::tuple<Ts...>>
+      index_rows(const std::string& indexed_col_name,
+                 const std::vector<std::string>& col_names,
+                 std::function<IndexT(std::string)> indexed_cvt =
+                   utility::string_to<IndexT>,
+                 std::tuple<std::function<Ts(std::string)>...> cvts =
+                   std::make_tuple(utility::string_to<Ts>...)) const
+      {
+        return index_irows(
+          header_.val2idx(indexed_col_name),
+          colnames2idxs(col_names),
+          std::move(indexed_cvt),
+          std::move(cvts)
+        );
+      }
+
+
       /* shape functions */
 
 

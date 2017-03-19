@@ -247,3 +247,17 @@ BOOST_AUTO_TEST_CASE(test_no_header)
   BOOST_TEST(df.header().size() == 0);
   test_ranges_equal(df.raw_rows()[0], std::vector<std::string>{"1", "a1", "1.1"});
 }
+
+
+BOOST_AUTO_TEST_CASE(test_index_rows)
+{
+  const dataframe<> df{simple_df};
+  auto indexed_rows = df.index_rows<int, std::string, double>("Id", {"A", "B"});
+  std::tuple<std::string, double> desired;
+  desired = {"a1", 1.1};
+  BOOST_TEST(indexed_rows[1] == desired);
+  desired = {"a2", 1.2};
+  BOOST_TEST(indexed_rows[2] == desired);
+  desired = {"a3", 1.3};
+  BOOST_TEST(indexed_rows[3] == desired);
+}
