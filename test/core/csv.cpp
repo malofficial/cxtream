@@ -12,6 +12,7 @@
 #define BOOST_TEST_MODULE csv_test
 
 #include <iostream>
+#include <experimental/filesystem>
 #include <sstream>
 #include <vector>
 
@@ -25,6 +26,7 @@
 using namespace ranges;
 using namespace cxtream;
 using namespace boost;
+namespace fs = std::experimental::filesystem;
 
 
 const std::string simple_csv{
@@ -81,8 +83,8 @@ BOOST_AUTO_TEST_CASE(test_read_quoted_csv_from_istream)
 
 BOOST_AUTO_TEST_CASE(test_write_quoted_to_ostream)
 {
-  std::istringstream simple_csv_ss{quoted_csv};
-  const dataframe<> df = read_csv(simple_csv_ss);
+  std::istringstream quoted_csv_ss{quoted_csv};
+  const dataframe<> df = read_csv(quoted_csv_ss);
 
   std::ostringstream oss;
   write_csv(oss, df);
@@ -96,12 +98,28 @@ BOOST_AUTO_TEST_CASE(test_write_quoted_to_ostream)
 
 BOOST_AUTO_TEST_CASE(test_compare_after_write_and_read)
 {
-  std::istringstream simple_csv_ss{quoted_csv};
-  const dataframe<> df1 = read_csv(simple_csv_ss);
+  std::istringstream quoted_csv_ss{quoted_csv};
+  const dataframe<> df1 = read_csv(quoted_csv_ss);
 
   std::stringstream oss;
   write_csv(oss, df1);
   const dataframe<> df2 = read_csv(oss);
+  test_ranges_equal(df1.header(), df2.header());
+  std::vector<std::vector<std::string>> df1_cols = df1.raw_cols();
+  std::vector<std::vector<std::string>> df2_cols = df2.raw_cols();
+  BOOST_CHECK(df1_cols == df2_cols);
+}
+
+
+BOOST_AUTO_TEST_CASE(test_file_write_and_read)
+{
+  std::istringstream quoted_csv_ss{quoted_csv};
+  const dataframe<> df1 = read_csv(quoted_csv_ss);
+
+  fs::path csv_file{"test_file_write_and_read.csv"};
+  write_csv(csv_file, df1);
+  const dataframe<> df2 = read_csv(csv_file);
+  fs::remove(csv_file);
   test_ranges_equal(df1.header(), df2.header());
   std::vector<std::vector<std::string>> df1_cols = df1.raw_cols();
   std::vector<std::vector<std::string>> df2_cols = df2.raw_cols();

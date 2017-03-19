@@ -135,7 +135,7 @@ namespace cxtream {
     char separator = ',')
   {
     std::ifstream fin{file};
-    fin.exceptions(std::ifstream::failbit);
+    fin.exceptions(std::ifstream::badbit);
     return read_csv(fin, drop, header, separator);
   }
 
@@ -198,7 +198,7 @@ namespace cxtream {
     char separator = ',')
   {
     std::ofstream fout{file};
-    fout.exceptions(std::ofstream::failbit);
+    fout.exceptions(std::ofstream::badbit);
     write_csv(fout, df, separator);
   }
 
