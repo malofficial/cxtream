@@ -29,7 +29,6 @@
 namespace cxtream {
 
   namespace {
-    namespace fs = std::experimental::filesystem;
     namespace view = ranges::view;
   }
 
@@ -129,7 +128,7 @@ namespace cxtream {
 
 
   dataframe<> read_csv(
-    const fs::path& file,
+    const std::experimental::filesystem::path& file,
     int drop = 0,
     bool header = true,
     char separator = ',')
@@ -193,7 +192,7 @@ namespace cxtream {
 
   template<typename DataTable>
   void write_csv(
-    const fs::path& file,
+    const std::experimental::filesystem::path& file,
     const dataframe<DataTable>& df,
     char separator = ',')
   {
