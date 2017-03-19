@@ -43,13 +43,13 @@ namespace cxtream::utility {
         "> from string \"" + ss.str() + "\"");
     }
     return val;
-  };
+  }
 
   template<>
   std::string string_to<std::string>(std::string str)
   {
     return str;
-  };
+  }
 
 
   /* to_string */
