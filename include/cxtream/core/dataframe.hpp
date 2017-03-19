@@ -18,6 +18,7 @@
 #include <unordered_map>
 #include <vector>
 
+#include <range/v3/to_container.hpp>
 #include <range/v3/view/iota.hpp>
 #include <range/v3/view/shared.hpp>
 #include <range/v3/view/transform.hpp>
@@ -369,38 +370,76 @@ namespace cxtream {
       }
 
 
+      /* typed indexed single row access */
+
+
+      template<typename IndexT, typename ColT>
+      std::unordered_map<IndexT, ColT>
+      index_irow(std::size_t index_col_index,
+                 std::size_t col_index,
+                 std::function<IndexT(std::string)> index_cvt =
+                   utility::string_to<IndexT>,
+                 std::function<ColT(std::string)> col_cvt =
+                   utility::string_to<ColT>) const
+      {
+        auto index_col = icol<IndexT>(index_col_index, std::move(index_cvt));
+        auto col = icol<ColT>(col_index, std::move(col_cvt));
+        return view::zip(index_col, col);
+      }
+
+
+      template<typename IndexT, typename ColT>
+      std::unordered_map<IndexT, ColT>
+      index_row(const std::string& index_col_name,
+                const std::string& col_name,
+                std::function<IndexT(std::string)> index_cvt =
+                  utility::string_to<IndexT>,
+                std::function<ColT(std::string)> col_cvt =
+                  utility::string_to<ColT>) const
+      {
+        assert(header_.size() && "Dataframe has no header, cannot index by column name.");
+        return index_irow(
+          header_.val2idx(index_col_name),
+          header_.val2idx(col_name),
+          std::move(index_cvt),
+          std::move(col_cvt)
+        );
+      }
+
+
       /* typed indexed multiple row access */
 
 
       template<typename IndexT, typename... Ts>
       std::unordered_map<IndexT, std::tuple<Ts...>>
-      index_irows(std::size_t indexed_col_index,
+      index_irows(std::size_t index_col_index,
                   std::vector<std::size_t> col_indexes,
-                  std::function<IndexT(std::string)> indexed_cvt =
+                  std::function<IndexT(std::string)> index_cvt =
                     utility::string_to<IndexT>,
-                  std::tuple<std::function<Ts(std::string)>...> cvts =
+                  std::tuple<std::function<Ts(std::string)>...> col_cvts =
                     std::make_tuple(utility::string_to<Ts>...)) const
       {
-        auto index_col = icol<IndexT>(indexed_col_index, std::move(indexed_cvt));
-        auto rows = irows<Ts...>(std::move(col_indexes), std::move(cvts));
+        auto index_col = icol<IndexT>(index_col_index, std::move(index_cvt));
+        auto rows = irows<Ts...>(std::move(col_indexes), std::move(col_cvts));
         return view::zip(index_col, rows);
       }
 
 
       template<typename IndexT, typename... Ts>
       std::unordered_map<IndexT, std::tuple<Ts...>>
-      index_rows(const std::string& indexed_col_name,
+      index_rows(const std::string& index_col_name,
                  const std::vector<std::string>& col_names,
-                 std::function<IndexT(std::string)> indexed_cvt =
+                 std::function<IndexT(std::string)> index_cvt =
                    utility::string_to<IndexT>,
-                 std::tuple<std::function<Ts(std::string)>...> cvts =
+                 std::tuple<std::function<Ts(std::string)>...> col_cvts =
                    std::make_tuple(utility::string_to<Ts>...)) const
       {
+        assert(header_.size() && "Dataframe has no header, cannot index by column name.");
         return index_irows(
-          header_.val2idx(indexed_col_name),
+          header_.val2idx(index_col_name),
           colnames2idxs(col_names),
-          std::move(indexed_cvt),
-          std::move(cvts)
+          std::move(index_cvt),
+          std::move(col_cvts)
         );
       }
 

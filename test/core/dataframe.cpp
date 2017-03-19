@@ -249,15 +249,31 @@ BOOST_AUTO_TEST_CASE(test_no_header)
 }
 
 
+BOOST_AUTO_TEST_CASE(test_index_row)
+{
+  const dataframe<> df{simple_df};
+  auto indexed_irow = df.index_irow<int, double>(0, 2);
+  auto indexed_row = df.index_row<int, double>("Id", "B");
+  std::unordered_map<int, double> desired{
+    {1, 1.1},
+    {2, 1.2},
+    {3, 1.3},
+  };
+  BOOST_CHECK(indexed_irow == desired);
+  BOOST_CHECK(indexed_row == desired);
+}
+
+
 BOOST_AUTO_TEST_CASE(test_index_rows)
 {
   const dataframe<> df{simple_df};
+  auto indexed_irows = df.index_irows<int, std::string, double>(0, {1, 2});
   auto indexed_rows = df.index_rows<int, std::string, double>("Id", {"A", "B"});
-  std::tuple<std::string, double> desired;
-  desired = {"a1", 1.1};
-  BOOST_TEST(indexed_rows[1] == desired);
-  desired = {"a2", 1.2};
-  BOOST_TEST(indexed_rows[2] == desired);
-  desired = {"a3", 1.3};
-  BOOST_TEST(indexed_rows[3] == desired);
+  std::unordered_map<int, std::tuple<std::string, double>> desired{
+    {1, {"a1", 1.1}},
+    {2, {"a2", 1.2}},
+    {3, {"a3", 1.3}},
+  };
+  BOOST_CHECK(indexed_irows == desired);
+  BOOST_CHECK(indexed_rows == desired);
 }
