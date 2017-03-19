@@ -15,6 +15,8 @@
 #include <cxtream/core/buffer.hpp>
 #include <cxtream/core/column.hpp>
 #include <cxtream/core/create.hpp>
+#include <cxtream/core/csv.hpp>
+#include <cxtream/core/dataframe.hpp>
 #include <cxtream/core/drop.hpp>
 #include <cxtream/core/for_each.hpp>
 #include <cxtream/core/transform.hpp>
