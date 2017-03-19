@@ -16,7 +16,6 @@
 #include <experimental/tuple>
 #include <range/v3/size.hpp>
 #include <range/v3/core.hpp>
-#include <range/v3/view/transform.hpp>
 
 namespace cxtream::utility {
 
@@ -60,6 +59,7 @@ namespace cxtream::utility {
 
   /* tuple_transform */
 
+  // beware, the order of application is unspecified
 
   namespace detail {
 
@@ -284,6 +284,7 @@ namespace cxtream::utility {
     auto range_size = ranges::size(range_of_tuples);
 
     auto tuple_of_ranges = detail::vectorize_tuple<tuple_type>(range_size, indexes);
+    tuple_for_each([range_size](auto& rng){ rng.reserve(range_size); }, tuple_of_ranges);
 
     for (std::size_t i = 0; i < range_size; ++i) {
       detail::unzip_impl(tuple_of_ranges, i, std::move(range_of_tuples[i]), indexes);
@@ -317,37 +318,100 @@ namespace cxtream::utility {
   }
 
 
-  /* transform a tuple of ranges using a tuple of functions */
+  /* times with index */
+
 
   namespace detail {
 
-    template<typename FTuple, typename RTuple, std::size_t... Is>
-    constexpr auto tuple_range_transform_impl(
-      FTuple&& ftuple,
-      RTuple&& rtuple,
-      std::index_sequence<Is...>)
+    struct times_with_index_adl{};
+
+    template<typename Adl, typename Fun, std::size_t I>
+    constexpr auto times_with_index_impl(
+      Adl,
+      Fun&& fun,
+      std::index_sequence<I>)
     {
-      return std::make_tuple(
-          std::get<Is>(std::forward<RTuple>(rtuple))
-        | ranges::view::transform(std::get<Is>(std::forward<FTuple>(ftuple)))...
+      std::invoke(fun, std::integral_constant<std::size_t, I>{});
+      return fun;
+    }
+
+    template<
+      typename Adl, typename Fun,
+      std::size_t IHead, std::size_t IHead2, std::size_t... ITail>
+    constexpr auto times_with_index_impl(
+      Adl adl,
+      Fun&& fun,
+      std::index_sequence<IHead, IHead2, ITail...>)
+    {
+      std::invoke(fun, std::integral_constant<std::size_t, IHead>{});
+      return times_with_index_impl(
+        adl,
+        std::forward<Fun>(fun),
+        std::index_sequence<IHead2, ITail...>{}
       );
     }
 
-  }
+  } // end namespace detail
 
-  template<typename FTuple, typename RTuple>
-  constexpr auto tuple_range_transform(FTuple&& ftuple, RTuple&& rtuple)
+
+  template<std::size_t N, typename Fun>
+  constexpr auto times_with_index(Fun&& fun)
   {
-    constexpr std::size_t ftuple_size = std::tuple_size<std::decay_t<FTuple>>{}();
-    constexpr std::size_t rtuple_size = std::tuple_size<std::decay_t<RTuple>>{}();
-    static_assert(ftuple_size == rtuple_size);
-    return detail::tuple_range_transform_impl(
-      std::forward<FTuple>(ftuple),
-      std::forward<RTuple>(rtuple),
-      std::make_index_sequence<rtuple_size>{}
+    return detail::times_with_index_impl(
+      detail::times_with_index_adl{},
+      std::forward<Fun>(fun),
+      std::make_index_sequence<N>{}
     );
   }
 
+
+  /* for_each with index */
+
+
+  template<typename Fun, typename Tuple>
+  constexpr auto tuple_for_each_with_index(Fun&& fun, Tuple&& tuple)
+  {
+    times_with_index<std::tuple_size<std::decay_t<Tuple>>{}>(
+      [&fun, &tuple](auto index){
+        std::invoke(fun, std::get<index>(tuple), index);
+      }
+    );
+  }
+
+
+  /* transform with index */
+
+  // beware, the order of application is unspecified
+
+  namespace detail {
+
+    template<typename Fun, typename Tuple, std::size_t... Is>
+    constexpr auto tuple_transform_with_index_impl(
+      Fun&& fun,
+      Tuple&& tuple,
+      std::index_sequence<Is...>)
+    {
+      return std::make_tuple(
+        std::invoke(
+          fun,
+          std::get<Is>(std::forward<Tuple>(tuple)),
+          std::integral_constant<std::size_t, Is>{}
+        )...
+      );
+    }
+
+  } // end namespace detail
+
+
+  template<typename Fun, typename Tuple>
+  constexpr auto tuple_transform_with_index(Fun&& fun, Tuple&& tuple)
+  {
+    return detail::tuple_transform_with_index_impl(
+      std::forward<Fun>(fun),
+      std::forward<Tuple>(tuple),
+      std::make_index_sequence<std::tuple_size<std::decay_t<Tuple>>{}>{}
+    );
+  }
 
 } // end namespace cxtream::utility
 

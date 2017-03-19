@@ -71,6 +71,7 @@ BOOST_AUTO_TEST_CASE(test_float__to_string)
 BOOST_AUTO_TEST_CASE(test_trim)
 {
   BOOST_TEST(trim("") == "");
+  BOOST_TEST(trim(" \t\n\t  ") == "");
   BOOST_TEST(trim("hello") == "hello");
   BOOST_TEST(trim(" hello") == "hello");
   BOOST_TEST(trim("hello ") == "hello");

@@ -297,7 +297,7 @@ BOOST_AUTO_TEST_CASE(test_tuple_for_each_order)
 }
 
 
-BOOST_AUTO_TEST_CASE(test_tuple_for_mutable)
+BOOST_AUTO_TEST_CASE(test_tuple_for_each_mutable)
 {
   // tuple_for_each
   // assign to pointers increasing values
@@ -451,43 +451,68 @@ BOOST_AUTO_TEST_CASE(test_range_to_tuple)
 }
 
 
-BOOST_AUTO_TEST_CASE(test_tuple_range_transform)
+BOOST_AUTO_TEST_CASE(test_times_with_index)
 {
-  std::vector<std::unique_ptr<int>> r1;
-  r1.emplace_back(std::make_unique<int>(1));
-  r1.emplace_back(std::make_unique<int>(2));
+  auto tpl = std::make_tuple(1, 0.25, 'a');
 
-  std::vector<std::shared_ptr<int>> r2;
-  r2.emplace_back(std::make_shared<int>(3));
-  r2.emplace_back(std::make_shared<int>(4));
+  times_with_index<3>([&tpl](auto index){
+    ++std::get<index>(tpl);
+  });
 
-  auto fn1 = [](auto& ptr){ return *ptr; };
-  auto fn2 = [](auto ptr){ return *ptr + 1; };
-
-  auto rtpl = std::make_tuple(std::move(r1), r2);
-  auto ftpl = std::make_tuple(fn1, fn2);
-
-  auto tpl_values = tuple_range_transform(ftpl, rtpl);
-
-  std::vector<int> r1_desired{1, 2};
-  std::vector<int> r2_desired{4, 5};
-  test_ranges_equal(std::get<0>(tpl_values), r1_desired);
-  test_ranges_equal(std::get<1>(tpl_values), r2_desired);
+  auto tpl_desired = std::make_tuple(2, 1.25, 'b');
+  BOOST_TEST(tpl == tpl_desired);
 }
 
 
-BOOST_AUTO_TEST_CASE(test_tuple_range_transform_writethrough)
+BOOST_AUTO_TEST_CASE(test_times_with_index_mutable)
 {
-  std::vector<std::unique_ptr<int>> data;
-  data.emplace_back(std::make_unique<int>(1));
-  data.emplace_back(std::make_unique<int>(2));
-  data.emplace_back(std::make_unique<int>(3));
+  auto tpl = std::make_tuple(1, 0.25, 'a');
 
-  auto rtpl = std::make_tuple(std::ref(data));
-  auto ftpl = std::make_tuple([](auto& ptr) -> int& { return *ptr; });
+  int called = 0;
+  times_with_index<3>([&tpl, &called](auto index){
+    std::get<index>(tpl) += ++called;
+  });
 
-  auto tpl_values = tuple_range_transform(ftpl, rtpl);
-  std::get<0>(tpl_values)[1] = 5;
+  auto tpl_desired = std::make_tuple(2, 2.25, 'd');
+  BOOST_TEST(tpl == tpl_desired);
+}
 
-  test_ranges_equal(data | ranges::view::indirect, std::vector<int>{1, 5, 3});
+
+BOOST_AUTO_TEST_CASE(test_tuple_for_each_with_index)
+{
+  // tuple_for_each
+  auto tpl = std::make_tuple(1, 2.);
+
+  tuple_for_each_with_index([](auto& val, auto index){
+    val += index;
+  }, tpl);
+
+  BOOST_TEST(tpl == std::make_tuple(1, 3.));
+}
+
+
+BOOST_AUTO_TEST_CASE(test_transform_with_index)
+{
+  auto tpl = std::make_tuple(1, 0.25, 'a');
+
+  auto tpl2 = tuple_transform_with_index([](auto&& elem, auto index){
+    return elem + index;
+  }, tpl);
+
+  auto tpl2_desired = std::make_tuple(1, 1.25, 'c');
+  BOOST_TEST(tpl2 == tpl2_desired);
+}
+
+
+BOOST_AUTO_TEST_CASE(test_transform_with_index_move_only)
+{
+  auto tpl = std::make_tuple(std::make_unique<int>(1), std::make_unique<int>(2));
+
+  auto tpl2 = tuple_transform_with_index([](auto ptr, auto index){
+    return std::make_unique<int>(*ptr + index);
+  }, std::move(tpl));
+
+  auto tpl2_values = std::make_tuple(*std::get<0>(tpl2), *std::get<1>(tpl2));
+  auto tpl2_desired = std::make_tuple(1, 3);
+  BOOST_TEST(tpl2_values == tpl2_desired);
 }
