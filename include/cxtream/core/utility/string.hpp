@@ -64,6 +64,17 @@ namespace cxtream::utility {
     return str;
   }
 
+  std::string to_string(const char* str)
+  {
+    return str;
+  }
+
+  // add bool to string specialization
+  std::string to_string(bool b)
+  {
+    return b ? "true" : "false";
+  }
+
 
   /* trim */
 
