@@ -18,7 +18,6 @@
 #include <unordered_map>
 #include <vector>
 
-#include <range/v3/to_container.hpp>
 #include <range/v3/view/iota.hpp>
 #include <range/v3/view/shared.hpp>
 #include <range/v3/view/transform.hpp>
