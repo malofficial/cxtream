@@ -34,7 +34,7 @@ namespace cxtream {
   }
 
 
-  /* stream csv parser */
+  /* istream csv row parser */
 
   // beware, escaping double quotes is allowed using backslash, not another double quote
   // escaping is only allowed if the first character is double quote
@@ -60,6 +60,9 @@ namespace cxtream {
     }
     return csv_row;
   }
+
+
+  /* istream csv parser */
 
 
   dataframe<> read_csv(
@@ -122,6 +125,9 @@ namespace cxtream {
   }
 
 
+  /* file csv parser */
+
+
   dataframe<> read_csv(
     const fs::path& file,
     int drop = 0,
@@ -131,6 +137,69 @@ namespace cxtream {
     std::ifstream fin{file};
     fin.exceptions(std::ifstream::failbit);
     return read_csv(fin, drop, header, separator);
+  }
+
+
+  /* ostream csv row writer */
+
+
+  template<typename Row>
+  std::ostream& write_csv_row(
+    std::ostream& out,
+    Row&& row,
+    char separator = ',')
+  {
+    for(std::size_t i = 0; i < ranges::size(row); ++i) {
+      auto& field = row[i];
+      // output quoted string if it contains separator, double quote or
+      // starts or ends with a whitespace
+      if (ranges::find_first_of(field, {separator, '"'}) != ranges::end(field)
+          || field != utility::trim(field)) {
+        out << std::quoted(field);
+      } else {
+        out << field;
+      }
+
+      // output separator or newline
+      if (i + 1 < ranges::size(row)) {
+        out << separator;
+      } else {
+        out << '\n';
+      }
+    }
+    return out;
+  }
+
+
+  /* ostream csv writer */
+
+
+  template<typename DataTable>
+  std::ostream& write_csv(
+    std::ostream& out,
+    const dataframe<DataTable>& df,
+    char separator = ',')
+  {
+    write_csv_row(out, df.header(), separator);
+    for(auto&& row : df.raw_rows()) {
+      write_csv_row(out, row, separator);
+    }
+    return out;
+  }
+
+
+  /* file csv writer */
+
+
+  template<typename DataTable>
+  void write_csv(
+    const fs::path& file,
+    const dataframe<DataTable>& df,
+    char separator = ',')
+  {
+    std::ofstream fout{file};
+    fout.exceptions(std::ofstream::failbit);
+    write_csv(fout, df, separator);
   }
 
 
