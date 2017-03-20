@@ -9,6 +9,8 @@ project("mnist_stream" VERSION 0.1)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 # OpenCV
 find_package(OpenCV COMPONENTS core imgproc highgui REQUIRED)
+# Boost
+find_package(Boost COMPONENTS iostreams REQUIRED)
 # cxtream
 find_package(Cxtream REQUIRED)
 # yaml-cpp TODO this package contains invalid CMake Config. Fix upstream.
@@ -55,6 +57,7 @@ set_target_properties(
 target_include_directories(
   ${PROJECT_NAME}
   PRIVATE ${OpenCV_INCLUDE_DIRS}
+  PRIVATE ${Boost_INCLUDE_DIRS}
 )
 
 target_link_libraries(
@@ -63,4 +66,5 @@ target_link_libraries(
   PRIVATE Cxtream::Core
   PRIVATE Cxtream::Python
   PRIVATE ${OpenCV_LIBRARIES}
+  PRIVATE ${Boost_LIBRARIES}
 )
