@@ -15,7 +15,9 @@
 #include <vector>
 
 #include <range/v3/action/shuffle.hpp>
+#include <range/v3/algorithm/copy.hpp>
 #include <range/v3/numeric/accumulate.hpp>
+#include <range/v3/view/concat.hpp>
 #include <range/v3/view/drop.hpp>
 #include <range/v3/view/iota.hpp>
 #include <range/v3/view/take.hpp>
@@ -36,10 +38,13 @@ namespace cxtream {
   template<typename Prng = std::mt19937>
   std::vector<std::size_t> make_labels(
     std::size_t size,
-    const std::vector<double>& ratio,
-    Prng gen = Prng{std::random_device{}()})
+    std::vector<double> ratio,
+    Prng&& gen = Prng{std::random_device{}()})
   {
-    assert(ranges::accumulate(ratio, 0.) <= 1.);
+    // scale to [0, 1]
+    double ratio_sum = ranges::accumulate(ratio, 0.);
+    for (auto& r : ratio) r /= ratio_sum;
+
     std::vector<std::size_t> labels(size);
     std::vector<std::size_t> indexes = view::iota(0, size);
     action::shuffle(indexes, gen);
@@ -57,6 +62,48 @@ namespace cxtream {
 
     return labels;
   }
+
+
+  /* make many sets of random labels */
+
+
+  // fixed labels - those are the same for all sets (test in machine learning)
+  // volatile labels - those are changing in each set (train, valid in machine learning)
+
+  template<typename Prng = std::mt19937>
+  std::vector<std::vector<std::size_t>> make_many_labels(
+    std::size_t n,
+    std::size_t size,
+    const std::vector<double>& fixed_ratio,
+    const std::vector<double>& volatile_ratio,
+    Prng&& gen = Prng{std::random_device{}()})
+  {
+    std::size_t fixed_size = fixed_ratio.size();
+    auto full_ratio = view::concat(fixed_ratio, volatile_ratio);
+
+    std::vector<std::vector<std::size_t>> all_labels;
+    std::vector<std::size_t> initial_labels = make_labels(size, full_ratio, gen);
+
+    for (std::size_t i = 0; i < n; ++i) {
+      auto labels = initial_labels;
+      // select those labels, which are volatile (those will be replaced)
+      auto labels_volatile =
+          labels
+        | view::filter([fixed_size](std::size_t l){ return l >= fixed_size; });
+      // count the number of volatile labels
+      std::size_t volatile_count = ranges::distance(labels_volatile);
+      // generate the replacement
+      auto labels_volatile_new = make_labels(volatile_count, volatile_ratio, gen);
+      for (std::size_t& l : labels_volatile_new) l += fixed_size;
+      // replace
+      ranges::copy(labels_volatile_new, labels_volatile.begin());
+      // store
+      all_labels.emplace_back(std::move(labels));
+    }
+
+    return all_labels;
+  }
+
 
 } // end namespace cxtream
 #endif

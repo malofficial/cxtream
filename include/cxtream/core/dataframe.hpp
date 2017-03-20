@@ -11,7 +11,6 @@
 #ifndef CXTREAM_CORE_DATAFRAME_HPP
 #define CXTREAM_CORE_DATAFRAME_HPP
 
-#include <deque>
 #include <functional>
 #include <iomanip>
 #include <iostream>
@@ -91,7 +90,7 @@ namespace cxtream {
   };
 
 
-  template<typename DataTable = std::vector<std::deque<std::string>>>
+  template<typename DataTable = std::vector<std::vector<std::string>>>
   class dataframe
   {
     public:
@@ -520,7 +519,7 @@ namespace cxtream {
       /* data storage */
 
 
-      // deque
+      // data
       DataTable data_;
 
       using header_t = index_mapper<std::string>;

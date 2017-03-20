@@ -73,7 +73,7 @@ namespace cxtream {
     // header
     std::vector<std::string> header;
     // data
-    std::vector<std::deque<std::string>> data;
+    std::vector<std::vector<std::string>> data;
 
     // load csv line by line
     auto csv_rows =
