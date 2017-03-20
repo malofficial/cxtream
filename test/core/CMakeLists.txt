@@ -2,6 +2,8 @@ add_subdirectory("utility")
 
 add_boost_test("test.core.batch" "batch.cpp" "")
 
+add_boost_test("test.core.base64" "base64.cpp" "")
+
 add_boost_test("test.core.buffer" "buffer.cpp" "-lpthread")
 
 add_boost_test("test.core.create" "create.cpp" "")
