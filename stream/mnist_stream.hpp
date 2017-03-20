@@ -74,7 +74,7 @@ namespace mnist_stream {
     private:
 
 
-      YAML::Node setup_;
+      YAML::Node config_;
       std::mt19937 prng_;
 
       std::vector<cv::Mat> train_images_;
@@ -84,18 +84,18 @@ namespace mnist_stream {
 
 
       int train_batch_size_ =
-        setup_["stream"]["train"]["batch_size"].as<int>();
+        config_["stream"]["train"]["batch_size"].as<int>();
       int valid_batch_size_ =
-        setup_["stream"]["valid"]["batch_size"].as<int>();
+        config_["stream"]["valid"]["batch_size"].as<int>();
       int test_batch_size_ =
-        setup_["stream"]["test"]["batch_size"].as<int>();
+        config_["stream"]["test"]["batch_size"].as<int>();
 
 
     public:
 
 
-      Dataset(fs::path setup_path)
-        : setup_{YAML::LoadFile(setup_path)},
+      Dataset(fs::path config_path)
+        : config_{YAML::LoadFile(config_path)},
           prng_{std::random_device{}()}
       { 
 
@@ -152,6 +152,26 @@ namespace mnist_stream {
       auto test_stream()
       {
         return noaug_stream(test_batch_size_);
+      }
+
+
+      /* split dataset */
+
+
+      void split(
+        long num_splits,
+        double train_ratio,
+        double valid_ratio,
+        double test_ratio)
+      {
+        auto labels = cxtream::make_many_labels(
+          num_splits,
+          train_images_.size() + test_images_.size(),
+          {test_ratio},
+          {valid_ratio, train_ratio}
+        );
+        cxtream::dataframe<> labels_df{labels};
+        cxtream::write_csv<>(config_["dataset"]["labels"].as<std::string>(), labels_df);
       }
 
   };
