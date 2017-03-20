@@ -92,18 +92,24 @@ namespace cxtream {
     public:
 
 
-      /* default and data constructors */
+      /* default constructor */
 
 
       dataframe() = default;
 
-      dataframe(DataTable data, std::vector<std::string> header = {})
-        : data_{std::move(data)},
-          header_{std::move(header)}
-      { }
-
 
       /* typed column constructor */
+
+
+      template<typename T>
+      dataframe(std::vector<std::vector<T>> columns, std::vector<std::string> header = {})
+      {
+        assert(header.empty() || header.size() == columns.size());
+        for (std::size_t i = 0; i < columns.size(); ++i) {
+          std::string col_name = header.empty() ? "" : std::move(header[i]);
+          col_insert(std::move(columns[i]), std::move(col_name));
+        }
+      }
 
 
       template<typename... Ts>
