@@ -75,13 +75,15 @@ namespace mnist_stream {
 
 
       YAML::Node config_;
-      std::mt19937 prng_;
+      std::mt19937 prng_{std::random_device{}()};
 
       std::vector<cv::Mat> train_images_;
       std::vector<cv::Mat> test_images_;
       std::vector<uint8_t> train_labels_;
       std::vector<uint8_t> test_labels_;
 
+      fs::path labels_file_ =
+        config_["dataset"]["labels"].as<std::string>();
 
       int train_batch_size_ =
         config_["stream"]["train"]["batch_size"].as<int>();
@@ -90,15 +92,16 @@ namespace mnist_stream {
       int test_batch_size_ =
         config_["stream"]["test"]["batch_size"].as<int>();
 
+      double rotate_deg_ =
+        config_["stream"]["train"]["rotate"].as<double>();
+
 
     public:
 
 
       Dataset(fs::path config_path)
-        : config_{YAML::LoadFile(config_path)},
-          prng_{std::random_device{}()}
+        : config_{YAML::LoadFile(config_path)}
       { 
-
         // TODO add path support to this function
         // read the MNIST dataset using external library
         auto data = mnist::read_dataset<std::vector, std::vector, uint8_t, uint8_t>();
@@ -116,11 +119,12 @@ namespace mnist_stream {
 
       auto train_stream()
       {
+        assert(fs::exists(labels_file_) && "Labels file does not exist");
         return
             view::zip(train_images_, train_labels_)
           | cxtream::create<images, labels>
           | cxtream::transform(from<images>, to<images>,
-              cv_rotate(30, prng_, cv::Scalar(255, 255, 255)))
+              cv_rotate(rotate_deg_, prng_, cv::Scalar(255, 255, 255)))
           | cxtream::buffer(20)
           | cxtream::batch(train_batch_size_)
           | cxtream::buffer(2);
@@ -132,6 +136,7 @@ namespace mnist_stream {
 
       auto noaug_stream(int batch_size)
       {
+        assert(fs::exists(labels_file_) && "Labels file does not exist");
         return
             view::zip(test_images_, test_labels_)
           | cxtream::create<images, labels>
@@ -171,7 +176,7 @@ namespace mnist_stream {
           {valid_ratio, train_ratio}
         );
         cxtream::dataframe<> labels_df{labels};
-        cxtream::write_csv<>(config_["dataset"]["labels"].as<std::string>(), labels_df);
+        cxtream::write_csv<>(labels_file_, labels_df);
       }
 
   };
