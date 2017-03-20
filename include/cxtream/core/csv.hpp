@@ -18,6 +18,7 @@
 #include <iostream>
 #include <vector>
 
+#include <range/v3/algorithm/find_first_of.hpp>
 #include <range/v3/getlines.hpp>
 #include <range/v3/view/drop.hpp>
 #include <range/v3/view/transform.hpp>

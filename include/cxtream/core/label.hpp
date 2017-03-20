@@ -19,6 +19,7 @@
 #include <range/v3/numeric/accumulate.hpp>
 #include <range/v3/view/concat.hpp>
 #include <range/v3/view/drop.hpp>
+#include <range/v3/view/filter.hpp>
 #include <range/v3/view/iota.hpp>
 #include <range/v3/view/take.hpp>
 

@@ -55,4 +55,5 @@ BOOST_PYTHON_MODULE(mnist_stream)
     .def("create_train_stream", &DatasetPy::create_train_stream_py)
     .def("create_valid_stream", &DatasetPy::create_valid_stream_py)
     .def("create_test_stream", &DatasetPy::create_valid_stream_py);
+    .def("split", &DatasetPy::split);
 }
