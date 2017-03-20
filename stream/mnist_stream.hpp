@@ -62,6 +62,7 @@ namespace mnist_stream {
   auto cv_rotate(double angle, Prng& prng, cv::Scalar border = cv::Scalar{0, 0, 0})
   {
     return [angle, &prng, border](const cv::Mat& src) {
+      if (angle == 0.) return std::make_tuple(src);
       std::uniform_real_distribution<> dis(-angle, angle);
       cv::Mat rot_mat = cv::getRotationMatrix2D(
           cv::Point2f(src.cols/2, src.rows/2), dis(prng), 1);
@@ -197,7 +198,7 @@ namespace mnist_stream {
         // similar to train_stream, but does not shuffle and rotate
         // and uses a different batch size
         return
-            get_ids(0)
+            get_ids(split_id)
           | view::shared
           | cxtream::create<id>
           | cxtream::transform(from<id>, to<images, labels>,
