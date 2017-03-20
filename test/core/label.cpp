@@ -64,7 +64,7 @@ BOOST_AUTO_TEST_CASE(test_make_labels_zero_ratio)
 BOOST_AUTO_TEST_CASE(test_make_many_labels)
 {
   std::vector<std::vector<std::size_t>> labels =
-    make_many_labels(2, 20, {0.2, 0.2}, {0.3, 0.3});
+    make_many_labels(2, 20, {0.3, 0.3}, {0.2, 0.2});
 
   BOOST_TEST(labels.size() == 2UL);
   BOOST_TEST(labels[0].size() == 20UL);
@@ -72,15 +72,15 @@ BOOST_AUTO_TEST_CASE(test_make_many_labels)
 
   // check that the labels have correct ratio
   for (std::size_t j = 0; j < 2; ++j) {
-    BOOST_TEST(n_labels(labels[j], 0) == 4UL);
-    BOOST_TEST(n_labels(labels[j], 1) == 4UL);
-    BOOST_TEST(n_labels(labels[j], 2) == 6UL);
-    BOOST_TEST(n_labels(labels[j], 3) == 6UL);
+    BOOST_TEST(n_labels(labels[j], 0) == 6UL);
+    BOOST_TEST(n_labels(labels[j], 1) == 6UL);
+    BOOST_TEST(n_labels(labels[j], 2) == 4UL);
+    BOOST_TEST(n_labels(labels[j], 3) == 4UL);
   }
 
-  // check that all the fixed labels (i.e., 0 and 1) are the same
+  // check that all the fixed labels (i.e., 2+) are the same
   for (std::size_t i = 0; i < 10; ++i) {
-    if (labels[0][i] <= 1UL)
+    if (labels[0][i] >= 2UL)
       BOOST_TEST(labels[0][i] == labels[0][i]);
   }
   
@@ -92,7 +92,7 @@ BOOST_AUTO_TEST_CASE(test_make_many_labels)
 BOOST_AUTO_TEST_CASE(test_make_many_labels_zero_ratio)
 {
   std::vector<std::vector<std::size_t>> labels =
-    make_many_labels(2, 20, {0.2, 0, 0, 0.2}, {0.3, 0, 0, 0.3});
+    make_many_labels(2, 20, {0.3, 0, 0, 0.3}, {0.2, 0, 0, 0.2});
 
   BOOST_TEST(labels.size() == 2UL);
   BOOST_TEST(labels[0].size() == 20UL);
@@ -100,15 +100,15 @@ BOOST_AUTO_TEST_CASE(test_make_many_labels_zero_ratio)
 
   // check that the labels have correct ratio
   for (std::size_t j = 0; j < 2; ++j) {
-    BOOST_TEST(n_labels(labels[j], 0) == 4UL);
-    BOOST_TEST(n_labels(labels[j], 3) == 4UL);
-    BOOST_TEST(n_labels(labels[j], 4) == 6UL);
-    BOOST_TEST(n_labels(labels[j], 7) == 6UL);
+    BOOST_TEST(n_labels(labels[j], 0) == 6UL);
+    BOOST_TEST(n_labels(labels[j], 3) == 6UL);
+    BOOST_TEST(n_labels(labels[j], 4) == 4UL);
+    BOOST_TEST(n_labels(labels[j], 7) == 4UL);
   }
 
-  // check that all the fixed labels (i.e., 0 and 1) are the same
+  // check that all the fixed labels (i.e., 4+) are the same
   for (std::size_t i = 0; i < 10; ++i) {
-    if (labels[0][i] <= 3UL)
+    if (labels[0][i] >= 4UL)
       BOOST_TEST(labels[0][i] == labels[0][i]);
   }
   

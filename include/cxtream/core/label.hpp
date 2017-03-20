@@ -72,14 +72,14 @@ namespace cxtream {
   std::vector<std::vector<std::size_t>> make_many_labels(
     std::size_t n,
     std::size_t size,
-    const std::vector<double>& fixed_ratio,
     const std::vector<double>& volatile_ratio,
+    const std::vector<double>& fixed_ratio,
     Prng&& gen = Prng{std::random_device{}()})
   {
     namespace view = ranges::view;
 
-    std::size_t fixed_size = fixed_ratio.size();
-    auto full_ratio = view::concat(fixed_ratio, volatile_ratio);
+    std::size_t volatile_size = volatile_ratio.size();
+    auto full_ratio = view::concat(volatile_ratio, fixed_ratio);
 
     std::vector<std::vector<std::size_t>> all_labels;
     std::vector<std::size_t> initial_labels = make_labels(size, full_ratio, gen);
@@ -89,12 +89,11 @@ namespace cxtream {
       // select those labels, which are volatile (those will be replaced)
       auto labels_volatile =
           labels
-        | view::filter([fixed_size](std::size_t l){ return l >= fixed_size; });
+        | view::filter([volatile_size](std::size_t l){ return l < volatile_size; });
       // count the number of volatile labels
       std::size_t volatile_count = ranges::distance(labels_volatile);
       // generate the replacement
       auto labels_volatile_new = make_labels(volatile_count, volatile_ratio, gen);
-      for (std::size_t& l : labels_volatile_new) l += fixed_size;
       // replace
       ranges::copy(labels_volatile_new, labels_volatile.begin());
       // store
