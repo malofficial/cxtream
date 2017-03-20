@@ -26,11 +26,6 @@
 
 namespace cxtream {
 
-  namespace {
-    namespace view = ranges::view;
-    namespace action = ranges::action;
-  }
-
 
   /* make a single set of random labels */
 
@@ -41,13 +36,15 @@ namespace cxtream {
     std::vector<double> ratio,
     Prng&& gen = Prng{std::random_device{}()})
   {
+    namespace view = ranges::view;
+
     // scale to [0, 1]
     double ratio_sum = ranges::accumulate(ratio, 0.);
     for (auto& r : ratio) r /= ratio_sum;
 
     std::vector<std::size_t> labels(size);
-    std::vector<std::size_t> indexes = view::iota(0, size);
-    action::shuffle(indexes, gen);
+    std::vector<std::size_t> indexes = view::iota(0UL, size);
+    ranges::action::shuffle(indexes, gen);
 
     std::size_t label = 0;
     std::size_t done = 0;
@@ -78,6 +75,8 @@ namespace cxtream {
     const std::vector<double>& volatile_ratio,
     Prng&& gen = Prng{std::random_device{}()})
   {
+    namespace view = ranges::view;
+
     std::size_t fixed_size = fixed_ratio.size();
     auto full_ratio = view::concat(fixed_ratio, volatile_ratio);
 

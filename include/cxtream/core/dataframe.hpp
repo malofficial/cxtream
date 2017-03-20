@@ -27,10 +27,6 @@
 
 namespace cxtream {
 
-  namespace {
-    namespace view = ranges::view;
-  }
-
 
   /* bidirectional index mapper */
 
@@ -139,7 +135,7 @@ namespace cxtream {
           "The dataframe has a header, please provide the name of column.");
         if (col_name.size())
           header_.insert(col_name);
-        data_.emplace_back(rng | view::transform(cvt));
+        data_.emplace_back(rng | ranges::view::transform(cvt));
         return n_cols() - 1;
       }
 
@@ -205,12 +201,12 @@ namespace cxtream {
 
       auto raw_icol(std::size_t col_index)
       {
-        return raw_cols()[col_index] | view::all;
+        return raw_cols()[col_index] | ranges::view::all;
       }
 
       auto raw_icol(std::size_t col_index) const
       {
-        return raw_cols()[col_index] | view::all;
+        return raw_cols()[col_index] | ranges::view::all;
       }
 
 
@@ -234,7 +230,7 @@ namespace cxtream {
       auto icol(std::size_t col_index,
           std::function<T(std::string)> cvt = utility::string_to<T>) const
       {
-        return raw_icol(col_index) | view::transform(cvt);
+        return raw_icol(col_index) | ranges::view::transform(cvt);
       }
 
       template<typename T>
@@ -251,12 +247,12 @@ namespace cxtream {
 
       auto raw_cols()
       {
-        return data_ | view::transform(view::all);
+        return data_ | ranges::view::transform(ranges::view::all);
       }
 
       auto raw_cols() const
       {
-        return data_ | view::transform(view::all);
+        return data_ | ranges::view::transform(ranges::view::all);
       }
 
       auto raw_icols(std::vector<std::size_t> col_indexes)
@@ -353,7 +349,7 @@ namespace cxtream {
                    std::make_tuple(utility::string_to<Ts>...)) const
       {
         return std::experimental::apply(
-          view::zip,
+          ranges::view::zip,
           icols<Ts...>(std::move(col_indexes), std::move(cvts))
         );
       }
@@ -382,7 +378,7 @@ namespace cxtream {
       {
         auto index_col = icol<IndexT>(index_col_index, std::move(index_cvt));
         auto col = icol<ColT>(col_index, std::move(col_cvt));
-        return view::zip(index_col, col);
+        return ranges::view::zip(index_col, col);
       }
 
 
@@ -419,7 +415,7 @@ namespace cxtream {
       {
         auto index_col = icol<IndexT>(index_col_index, std::move(index_cvt));
         auto rows = irows<Ts...>(std::move(col_indexes), std::move(col_cvts));
-        return view::zip(index_col, rows);
+        return ranges::view::zip(index_col, rows);
       }
 
 
@@ -473,6 +469,7 @@ namespace cxtream {
       template<typename This>
       static auto raw_irows_impl(This this_ptr, std::vector<std::size_t> col_indexes)
       {
+        namespace view = ranges::view;
         return view::iota(0UL, this_ptr->n_rows())
           | view::transform([this_ptr, col_indexes=std::move(col_indexes)](std::size_t i) {
               return this_ptr->raw_icols(col_indexes)
@@ -486,6 +483,7 @@ namespace cxtream {
       template<typename This>
       static auto raw_rows_impl(This this_ptr)
       {
+        namespace view = ranges::view;
         return view::iota(0UL, this_ptr->n_rows())
           | view::transform([this_ptr](std::size_t i) {
               return view::iota(0UL, this_ptr->n_cols())
@@ -500,7 +498,7 @@ namespace cxtream {
       std::vector<std::size_t> colnames2idxs(const std::vector<std::string>& col_names) const
       {
         return col_names
-          | view::transform([this](const std::string& name){
+          | ranges::view::transform([this](const std::string& name){
               return this->header_.val2idx(name);
         });
       }
@@ -509,8 +507,8 @@ namespace cxtream {
       static auto raw_icols_impl(This this_ptr, std::vector<std::size_t> col_indexes)
       {
         return std::move(col_indexes)
-          | view::shared
-          | view::transform([this_ptr](std::size_t idx){
+          | ranges::view::shared
+          | ranges::view::transform([this_ptr](std::size_t idx){
               return this_ptr->raw_cols()[idx];
             });
       }
@@ -531,6 +529,7 @@ namespace cxtream {
   template<typename DataTable>
   std::ostream& operator<<(std::ostream& out, const dataframe<DataTable>& df)
   {
+    namespace view = ranges::view;
     // calculate the width of the columns using their longest field
     std::vector<std::size_t> col_widths =
         df.raw_cols()

@@ -20,17 +20,12 @@
 
 #include <range/v3/getlines.hpp>
 #include <range/v3/view/drop.hpp>
-#include <range/v3/view/split.hpp>
 #include <range/v3/view/transform.hpp>
 
 #include <cxtream/core/dataframe.hpp>
 #include <cxtream/core/utility/string.hpp>
 
 namespace cxtream {
-
-  namespace {
-    namespace view = ranges::view;
-  }
 
 
   /* istream csv row parser */
@@ -78,8 +73,8 @@ namespace cxtream {
     // load csv line by line
     auto csv_rows =
        ranges::getlines(in)
-     | view::drop(drop)
-     | view::transform([separator](std::string line){
+     | ranges::view::drop(drop)
+     | ranges::view::transform([separator](std::string line){
          return parse_csv_row(std::move(line), separator);
        });
 
