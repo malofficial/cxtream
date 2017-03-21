@@ -143,7 +143,7 @@ if(BUILD_PYTHON)
     )
     target_link_libraries(
       cxtream_python
-      ${OpenCV_LIBRARIES}
+      ${OpenCV_LIBS}
     )
   endif()
 
