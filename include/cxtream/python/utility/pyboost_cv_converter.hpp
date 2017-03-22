@@ -10,8 +10,8 @@
  *********************************************************/
 
 
-#ifndef CXTREAM_PYTHON_UTILITY_PYBOOST_CV3_CONVERTER_HPP
-#define CXTREAM_PYTHON_UTILITY_PYBOOST_CV3_CONVERTER_HPP
+#ifndef CXTREAM_PYTHON_UTILITY_PYBOOST_CV_CONVERTER_HPP
+#define CXTREAM_PYTHON_UTILITY_PYBOOST_CV_CONVERTER_HPP
 
 #define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
 
@@ -22,7 +22,7 @@
 #include <opencv2/core/core.hpp>
 #include <Python.h>
 
-namespace pbcvt{
+namespace pbcvt {
 
 using namespace cv;
 
@@ -89,5 +89,6 @@ struct matFromNDArrayBoostConverter {
 	static void construct(PyObject* object,
 			boost::python::converter::rvalue_from_python_stage1_data* data);
 };
+
 } // end namespace pbcvt
 #endif
