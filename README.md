@@ -1,8 +1,13 @@
-# cxtream ![Build Status](https://gitlab.com/Cognexa/cxtream/badges/master/build.svg)
+# cxtream
 C++17 data pipeline with Python bindings.
 
 ## Development Status
-This project is under heavy development. The API is continuously changing without regard to backward compatibility.
+
+- [![Build Status](https://gitlab.com/Cognexa/cxtream/badges/master/build.svg)](https://gitlab.com/Cognexa/cxtream/builds/)
+- [![Development Status](https://img.shields.io/badge/status-CX%20PoC-yellow.svg?style=flat)]()
+- [![Master Developer](https://img.shields.io/badge/master-Filip%20Matzner-lightgrey.svg?style=flat)]()
+
+**This project is under heavy development. The API is continuously changing without regard to backward compatibility.**
 
 ## Requirements
 The cxtream core is a header-only C++ library with no requirements. However,
