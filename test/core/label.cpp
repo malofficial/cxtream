@@ -11,6 +11,7 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE label_test
 
+#include <random>
 #include <vector>
 
 #include <boost/test/unit_test.hpp>
@@ -25,6 +26,11 @@ using namespace ranges;
 using namespace cxtream;
 using namespace boost;
 
+
+// test with a seeded random generator
+std::mt19937 prng{1000003};
+
+
 std::size_t n_labels(const std::vector<std::size_t>& labels, std::size_t label)
 {
   return
@@ -36,7 +42,7 @@ std::size_t n_labels(const std::vector<std::size_t>& labels, std::size_t label)
 
 BOOST_AUTO_TEST_CASE(test_make_labels)
 {
-  std::vector<std::size_t> labels = make_labels(10, {1.5, 1.5});
+  std::vector<std::size_t> labels = make_labels(10, {1.5, 1.5}, prng);
   BOOST_TEST(labels.size() == 10UL);
   BOOST_TEST(n_labels(labels, 0) == 5UL);
   BOOST_TEST(n_labels(labels, 1) == 5UL);
@@ -49,7 +55,7 @@ BOOST_AUTO_TEST_CASE(test_make_labels)
 
 BOOST_AUTO_TEST_CASE(test_make_labels_zero_ratio)
 {
-  std::vector<std::size_t> labels = make_labels(10, {1.5, 0, 1.5});
+  std::vector<std::size_t> labels = make_labels(10, {1.5, 0, 1.5}, prng);
   BOOST_TEST(labels.size() == 10UL);
   BOOST_TEST(n_labels(labels, 0) == 5UL);
   BOOST_TEST(n_labels(labels, 1) == 0UL);
@@ -64,7 +70,7 @@ BOOST_AUTO_TEST_CASE(test_make_labels_zero_ratio)
 BOOST_AUTO_TEST_CASE(test_make_many_labels)
 {
   std::vector<std::vector<std::size_t>> labels =
-    make_many_labels(2, 20, {0.3, 0.3}, {0.2, 0.2});
+    make_many_labels(2, 20, {0.3, 0.3}, {0.2, 0.2}, prng);
 
   BOOST_TEST(labels.size() == 2UL);
   BOOST_TEST(labels[0].size() == 20UL);
@@ -92,7 +98,7 @@ BOOST_AUTO_TEST_CASE(test_make_many_labels)
 BOOST_AUTO_TEST_CASE(test_make_many_labels_zero_ratio)
 {
   std::vector<std::vector<std::size_t>> labels =
-    make_many_labels(2, 20, {0.3, 0, 0, 0.3}, {0.2, 0, 0, 0.2});
+    make_many_labels(2, 20, {0.3, 0, 0, 0.3}, {0.2, 0, 0, 0.2}, prng);
 
   BOOST_TEST(labels.size() == 2UL);
   BOOST_TEST(labels[0].size() == 20UL);
