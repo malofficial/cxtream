@@ -16,7 +16,7 @@
 
 #ifdef CXTREAM_BUILD_PYTHON_OPENCV
 #define PY_ARRAY_UNIQUE_SYMBOL pbcvt_ARRAY_API
-#include <cxtream/python/utility/pyboost_cv3_converter.hpp>
+#include <cxtream/python/utility/pyboost_cv_converter.hpp>
 #endif
 
 #include <cxtream/python/utility/pyboost_fs_path_converter.hpp>
