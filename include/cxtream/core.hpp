@@ -20,7 +20,7 @@
 #include <cxtream/core/dataframe.hpp>
 #include <cxtream/core/drop.hpp>
 #include <cxtream/core/for_each.hpp>
-#include <cxtream/core/label.hpp>
+#include <cxtream/core/groups.hpp>
 #include <cxtream/core/transform.hpp>
 
 #endif

@@ -16,6 +16,6 @@ add_boost_test("test.core.drop" "drop.cpp" "")
 
 add_boost_test("test.core.for_each" "for_each.cpp" "")
 
-add_boost_test("test.core.label" "label.cpp" "")
+add_boost_test("test.core.groups" "groups.cpp" "")
 
 add_boost_test("test.core.transform" "transform.cpp" "")
