@@ -11,9 +11,11 @@
 #ifndef CXTREAM_CORE_BATCH_VIEW_HPP
 #define CXTREAM_CORE_BATCH_VIEW_HPP
 
+#include <cxtream/core/utility/tuple.hpp>
+
 #include <range/v3/core.hpp>
 #include <range/v3/view/all.hpp>
-#include <cxtream/core/utility/tuple.hpp>
+#include <range/v3/view/view.hpp>
 
 namespace cxtream {
   

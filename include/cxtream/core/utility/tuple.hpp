@@ -11,11 +11,13 @@
 #ifndef CXTREAM_CORE_TUPLE_UTILS_HPP
 #define CXTREAM_CORE_TUPLE_UTILS_HPP
 
-#include <type_traits>
-#include <ostream>
-#include <experimental/tuple>
-#include <range/v3/size.hpp>
 #include <range/v3/core.hpp>
+#include <range/v3/size.hpp>
+
+#include <experimental/tuple>
+#include <ostream>
+#include <vector>
+#include <type_traits>
 
 namespace cxtream::utility {
 

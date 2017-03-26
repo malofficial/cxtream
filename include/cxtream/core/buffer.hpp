@@ -11,11 +11,13 @@
 #ifndef CXTREAM_CORE_BUFFER_VIEW_HPP
 #define CXTREAM_CORE_BUFFER_VIEW_HPP
 
-#include <deque>
-#include <future>
-#include <climits>
 #include <range/v3/core.hpp>
 #include <range/v3/view/all.hpp>
+#include <range/v3/view/view.hpp>
+
+#include <climits>
+#include <deque>
+#include <future>
 
 namespace cxtream {
   
