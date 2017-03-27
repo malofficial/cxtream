@@ -11,28 +11,29 @@
 #ifndef CXTREAM_CORE_CREATE_HPP
 #define CXTREAM_CORE_CREATE_HPP
 
-#include <range/v3/view/transform.hpp>
-
 #include <cxtream/core/utility/tuple.hpp>
+
+#include <range/v3/view/transform.hpp>
 
 namespace cxtream {
 
-
-  /* create */
-
-
-  template<typename... Columns>
-  constexpr auto create_fn()
-  {
-    return ranges::view::transform([](auto&& source){
+template<typename... Columns>
+constexpr auto create_fn()
+{
+  return ranges::view::transform([](auto&& source) {
       return std::tuple<Columns...>{std::forward<decltype(source)>(source)};
-    });
-  }
+  });
+}
 
-  // allow calls without parentheses
-  template<typename... Columns>
-  auto create = create_fn<Columns...>();
-
+/// Converts a range to a range of tuples of columns.
+///
+/// Example:
+/// \code
+///     CXTREAM_DEFINE_COLUMN(id, int)
+///     auto rng = ranges::view::iota(0, 10) | cxtream::create<id>;
+/// \endcode
+template<typename... Columns>
+auto create = create_fn<Columns...>();
 
 } // end namespace cxtream
 #endif
