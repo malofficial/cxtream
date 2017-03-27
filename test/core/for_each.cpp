@@ -72,7 +72,7 @@ BOOST_AUTO_TEST_CASE(test_for_each_of_two)
 
   auto generated =
       data
-    | for_each(from<Int, Double>, [](const int &v, char c){ });
+    | for_each(from<Int, Double>, [](const int &v, double c){ });
 
   std::vector<std::tuple<Int, Double>> desired = {{{3},{5.}}, {{1},{2.}}};
 
