@@ -11,52 +11,51 @@
 #ifndef CXTREAM_PYTHON_PYBOOST_RANGE_ITERATOR_HPP
 #define CXTREAM_PYTHON_PYBOOST_RANGE_ITERATOR_HPP
 
+#include <cxtream/python/utility/pyboost_column_converter.hpp>
+
+#include <boost/python.hpp>
+#include <range/v3/core.hpp>
+#include <range/v3/view/transform.hpp>
+
 #include <functional>
 #include <mutex>
 #include <string>
 #include <typeinfo>
 
-#include <range/v3/core.hpp>
-#include <range/v3/view/transform.hpp>
-#include <boost/python.hpp>
-
-#include <cxtream/python/utility/pyboost_column_converter.hpp>
-
 namespace cxtream::python {
 
-
-  struct stop_iteration_exception: public std::runtime_error
-  {
+struct stop_iteration_exception : public std::runtime_error {
     stop_iteration_exception()
       : std::runtime_error{"stop iteration"}
-    {}
-  };
+    { }
+};
 
+namespace detail {
 
-  namespace detail {
+void stop_iteration_translator(const stop_iteration_exception& x)
+{
+    PyErr_SetNone(PyExc_StopIteration);
+}
 
-    void stop_iteration_translator(const stop_iteration_exception& x) {
-      PyErr_SetNone(PyExc_StopIteration);
-    }
+// function to register exception for StopIteration
+// the exception type is only registered once
+std::once_flag register_stop_iteration_flag;
+void register_stop_iterator()
+{
+    namespace py = boost::python;
+    std::call_once(register_stop_iteration_flag, []() {
+        py::register_exception_translator<stop_iteration_exception>(stop_iteration_translator);
+    });
+}
 
-    // function to register exception for StopIteration
-    // the exception type is only registered once
-    std::once_flag register_stop_iteration_flag;
-    void register_stop_iterator()
-    {
-      namespace py = boost::python;
-      std::call_once(
-        register_stop_iteration_flag,
-        [](){
-          py::register_exception_translator
-            <stop_iteration_exception>(stop_iteration_translator);
-      });
-    }
+}  // namespace detail
 
-  }
-
-  template<typename Rng>
-  class stream_iterator {
+/// Python adapter for C++ ranges.
+///
+/// This class provides __next__ and __iter__ methods emulating python iterators.
+template<typename Rng>
+class iterator {
+private:
     using iterator_t = decltype(ranges::begin(std::declval<Rng&>()));
     using sentinel_t = decltype(ranges::end(std::declval<Rng&>()));
 
@@ -64,90 +63,85 @@ namespace cxtream::python {
     sentinel_t sentinel_;
     Rng rng_;
 
-    // add function to register this type in boost python
-    // make sure the type is registered only once
+    // function to register the type of this class in boost::python
+    // makes sure the type is registered only once
     static std::once_flag register_flag;
     static void register_iterator()
     {
-      namespace py = boost::python;
-      using this_t = stream_iterator<Rng>;
+        namespace py = boost::python;
+        using this_t = iterator<Rng>;
 
-      detail::register_stop_iterator();
-      std::call_once(
-        register_flag,
-        [](){
-          std::string this_t_name = std::string("cxtream_") + typeid(this_t).name();
-          py::class_<this_t>(this_t_name.c_str(), py::no_init)
-            .def("__iter__", &this_t::iter)
-            .def("__next__", &this_t::next);
-      });
+        detail::register_stop_iterator();
+        std::call_once(register_flag, []() {
+            std::string this_t_name = std::string("cxtream_") + typeid(this_t).name();
+            py::class_<this_t>(this_t_name.c_str(), py::no_init)
+              .def("__iter__", &this_t::iter)
+              .def("__next__", &this_t::next);
+        });
     }
 
+public:
+    iterator() = default;
 
-    public:
-
-      stream_iterator() = default;
-
-      explicit stream_iterator(Rng rng)
-        : rng_{std::move(rng)}
-      {
+    explicit iterator(Rng rng)
+      : rng_{std::move(rng)}
+    {
         initialize_iterators();
         register_iterator();
-      }
+    }
 
-      stream_iterator(const stream_iterator& rhs)
-        : rng_{rhs.rng_}
-      {
+    iterator(const iterator& rhs)
+      : rng_{rhs.rng_}
+    {
         initialize_iterators();
-      }
+    }
 
-      stream_iterator<Rng> & operator=(const stream_iterator& rhs)
-      {
+    iterator<Rng>& operator=(const iterator& rhs)
+    {
         rng_ = rhs.rng_;
         initialize_iterators();
-      }
+    }
 
-      void initialize_iterators()
-      {
+    void initialize_iterators()
+    {
         iterator_ = ranges::begin(rng_);
         sentinel_ = ranges::end(rng_);
-      }
+    }
 
-      auto iter()
-      {
+    auto iter()
+    {
         return *this;
-      }
+    }
 
-      auto next()
-      {
-        if (iterator_ == sentinel_)
-          throw stop_iteration_exception();
+    auto next()
+    {
+        if (iterator_ == sentinel_) throw stop_iteration_exception();
         auto val = *iterator_;
         ++iterator_;
         return val;
-      }
-  };
+    }
 
-  // provide definition for the static register_flag variable
-  template<typename Rng>
-  std::once_flag stream_iterator<Rng>::register_flag;
+};  // class iterator
 
-  // until the compiler has full support for C++17 template argument deduction
-  template<typename Rng>
-  auto make_iterator(Rng&& rng)
-  {
+// provide definition for the static register_flag variable
+template <typename Rng>
+std::once_flag iterator<Rng>::register_flag;
+
+/// Make Python iterator for a given range.
+template <typename Rng>
+auto make_iterator(Rng&& rng)
+{
     // transform the range of columns to a range of python types
     auto range_of_python_types =
-        std::forward<Rng&&>(rng)
-      | ranges::view::transform([](auto&& tuple){
-          return utility::column_tuple_to_py(std::forward<decltype(tuple)>(tuple));
+      std::forward<Rng&&>(rng)
+      | ranges::view::transform([](auto&& tuple) {
+            return utility::column_tuple_to_py(std::forward<decltype(tuple)>(tuple));
         });
 
     // make python iterator out of the range of python types
     using PyRng = decltype(range_of_python_types);
-    return stream_iterator<PyRng>{std::move(range_of_python_types)};
-  }
-
+    return iterator<PyRng>{std::move(range_of_python_types)};
+}
 
 } // end namespace cxtream::python
 #endif
