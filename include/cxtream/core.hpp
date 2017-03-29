@@ -11,8 +11,8 @@
 #ifndef CXTREAM_CORE_HPP
 #define CXTREAM_CORE_HPP
 
-#include <cxtream/core/batch.hpp>
 #include <cxtream/core/base64.hpp>
+#include <cxtream/core/batch.hpp>
 #include <cxtream/core/buffer.hpp>
 #include <cxtream/core/column.hpp>
 #include <cxtream/core/create.hpp>
