@@ -13,9 +13,8 @@
 
 namespace cxtream::python {
 
+/// Initialize Python module, register OpenCV converters, exceptions, etc.
+void initialize();
 
-  void initialize();
-
-
-} //end namespace cxtream::python
+}  // namespace cxtream::python
 #endif
