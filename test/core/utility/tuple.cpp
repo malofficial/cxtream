@@ -122,6 +122,14 @@ BOOST_AUTO_TEST_CASE(test_tuple_reverse_move_only)
 }
 
 
+BOOST_AUTO_TEST_CASE(test_make_unique_tuple)
+{
+  auto tpl = make_unique_tuple(0, 1, '1', 'a', 2, 'b');
+  static_assert(std::is_same<std::tuple<int, char>, decltype(tpl)>{});
+  BOOST_TEST(tpl == std::make_tuple(0, '1'));
+}
+
+
 BOOST_AUTO_TEST_CASE(test_tuple_cat_unique_single)
 {
   // cat_unique add existing type
