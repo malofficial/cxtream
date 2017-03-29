@@ -11,31 +11,28 @@
 #ifndef CXTREAM_CORE_TRANSFORM_HPP
 #define CXTREAM_CORE_TRANSFORM_HPP
 
-#include <utility>
-#include <functional>
+#include <cxtream/core/utility/template_arguments.hpp>
+#include <cxtream/core/utility/tuple.hpp>
 
 #include <range/v3/view/transform.hpp>
 #include <range/v3/view/zip.hpp>
 
-#include <cxtream/core/utility/tuple.hpp>
-#include <cxtream/core/utility/template_arguments.hpp>
+#include <functional>
+#include <utility>
 
 namespace cxtream {
 
-
-  /* partial_transform */
-
-
-  template<typename... FromTypes, typename... ToTypes,
-           typename Fun, typename Projection = ref_wrap_t>
-  constexpr auto partial_transform(from_t<FromTypes...>, to_t<ToTypes...>,
-                                   Fun fun, Projection proj = Projection{})
-  {
+/// Transform a subset of tuple elements for each tuple in a range.
+template<typename... FromTypes, typename... ToTypes,
+         typename Fun, typename Projection = ref_wrap_t>
+constexpr auto partial_transform(from_t<FromTypes...>, to_t<ToTypes...>,
+                                 Fun fun, Projection proj = Projection{})
+{
     static_assert(sizeof...(ToTypes) > 0, "For non-transforming operations, please"
-        " use the partial_for_each.");
+                                          " use the partial_for_each.");
 
-    return ranges::view::transform([fun=std::move(fun), proj=std::move(proj)]
-      (auto&& source){
+    return ranges::view::transform([fun = std::move(fun), proj = std::move(proj)]
+      (auto&& source) mutable {
         // build the view for the transformer, i.e., slice and project
         const auto slice_view =
           utility::tuple_transform(proj, utility::tuple_type_view<FromTypes...>(source));
@@ -44,62 +41,65 @@ namespace cxtream {
         // replace the corresponding fields
         return utility::tuple_cat_unique(std::move(result), std::forward<decltype(source)>(source));
     });
-  }
+}
 
+namespace detail {
 
-  /* transform */
-
-
-  namespace detail {
-
-    // apply fun to some dimension
-    template<int Dim>
-    struct wrap_fun_for_dim
-    {
-      template<typename Fun>
-      static constexpr auto impl(Fun fun)
-      {
-        return [fun=std::move(fun)](auto&& tuple_of_ranges){
-          auto range_of_tuples =
-              std::experimental::apply(
-                  ranges::view::zip,
-                  std::forward<decltype(tuple_of_ranges)>(tuple_of_ranges))
-            | ranges::view::transform(wrap_fun_for_dim<Dim - 1>::impl(fun));
-          return utility::unzip(std::move(range_of_tuples));
-        };
-      }
-    };
-
-    // apply fun to the entire batch
-    template<>
-    struct wrap_fun_for_dim<0>
-    {
-      template<typename Fun>
-      static constexpr auto impl(Fun fun)
-      {
-        return [fun=std::move(fun)](auto&& tuple){
-          return std::experimental::apply(fun, std::forward<decltype(tuple)>(tuple));
-        };
-      }
-    };
-
-  } // end namespace detail
-
-
-  template<typename... FromColumns, typename... ToColumns, typename Fun, int Dim = 1>
-  constexpr auto transform(from_t<FromColumns...> f,
-                           to_t<ToColumns...> t,
-                           Fun fun,
-                           dim_t<Dim> d = dim_t<1>{})
+// apply fun to each element in tuple of ranges in the given dimension
+template<int Dim>
+struct wrap_fun_for_dim
+{
+  template<typename Fun>
+  static constexpr auto impl(Fun fun)
   {
+    return [fun=std::move(fun)](auto&& tuple_of_ranges) {
+      auto range_of_tuples =
+          std::experimental::apply(
+              ranges::view::zip,
+              std::forward<decltype(tuple_of_ranges)>(tuple_of_ranges))
+        | ranges::view::transform(wrap_fun_for_dim<Dim - 1>::impl(fun));
+      return utility::unzip(std::move(range_of_tuples));
+    };
+  }
+};
+
+template<>
+struct wrap_fun_for_dim<0>
+{
+  template<typename Fun>
+  static constexpr auto impl(Fun fun)
+  {
+    return [fun=std::move(fun)](auto&& tuple){
+      return std::experimental::apply(fun, std::forward<decltype(tuple)>(tuple));
+    };
+  }
+};
+
+} // namespace detail
+
+/// Transform a subset of cxtream columns to a subset of cxtream columns.
+///
+/// Example:
+/// \code
+///     CXTREAM_DEFINE_COLUMN(id, int)
+///     CXTREAM_DEFINE_COLUMN(value, double)
+///     std::vector<std::tuple<int, double>> data = {{{3},{5.}}, {{1},{2.}}};
+///     auto rng = data
+///       | create<id, value>
+///       | transform(from<id>, to<value>, [](int id){ return id * 5. + 1.; });
+/// \endcode
+template<typename... FromColumns, typename... ToColumns, typename Fun, int Dim = 1>
+constexpr auto transform(from_t<FromColumns...> f,
+                         to_t<ToColumns...> t,
+                         Fun fun,
+                         dim_t<Dim> d = dim_t<1>{})
+{
     // wrap the function to be applied in the appropriate dimension
     auto fun_wrapper = detail::wrap_fun_for_dim<Dim>::impl(std::move(fun));
 
-    return partial_transform(f, t, std::move(fun_wrapper), [](auto& column){
-      return std::ref(column.value());
-    });
-  }
+    return partial_transform(f, t, std::move(fun_wrapper),
+                             [](auto& column) { return std::ref(column.value()); });
+}
 
-
-} // end namespace cxtream
+} // namespace cxtream
 #endif

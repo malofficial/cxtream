@@ -22,11 +22,14 @@
 
 namespace cxtream {
 
-/// Transform a range of tuples by applying a function to a subset of tuple elements.
+/// Apply a function to a subset of tuple elements for each tuple in a range.
+///
+/// The transformed range is the same as the input range, no elements are actually changed.
+/// The function is applied lazily, i.e., only when the range is iterated.
 template<typename... FromTypes, typename Fun, typename Projection = ref_wrap_t>
 constexpr auto partial_for_each(from_t<FromTypes...>, Fun fun, Projection proj = Projection{})
 {
-    return ranges::view::transform([fun=std::move(fun), proj=std::move(proj)]
+    return ranges::view::transform([fun = std::move(fun), proj = std::move(proj)]
       (auto&& source) mutable {
           // build the view for the transformer, i.e., slice and project
           const auto slice_view =

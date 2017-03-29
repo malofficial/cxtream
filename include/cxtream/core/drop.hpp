@@ -33,8 +33,9 @@ constexpr auto drop_fn()
 /// Example:
 /// \code
 ///     CXTREAM_DEFINE_COLUMN(id, int)
-///     auto rng = ranges::view::iota(0, 10) | cxtream::create<id> | cxtream::drop<id>;
-///     // rng is a range of empty tuples
+///     CXTREAM_DEFINE_COLUMN(value, double)
+///     std::vector<std::tuple<int, double>> data = {{{3},{5.}}, {{1},{2.}}};
+///     auto rng = data | cxtream::create<id, value> | cxtream::drop<id>;
 /// \endcode
 template <typename... Columns>
 auto drop = drop_fn<Columns...>();
