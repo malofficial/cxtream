@@ -35,7 +35,7 @@ BOOST_AUTO_TEST_CASE(test_partial_for_each)
   
     view::iota(1, 5)
       | view::transform(std::make_tuple<int>)
-      | partial_for_each(from<int>, [&generated](const std::tuple<int> &t){
+      | partial_for_each(from<int>, [&generated](const std::tuple<int> &t) {
             generated.push_back(std::get<0>(t));
             return 42;
         })
@@ -50,11 +50,11 @@ BOOST_AUTO_TEST_CASE(test_partial_for_each_move_only)
     std::vector<int> generated;
   
     view::iota(1, 5)
-      | view::transform([](int i){
+      | view::transform([](int i) {
             return std::make_tuple(std::make_unique<int>(i));
         })
       | partial_for_each(from<std::unique_ptr<int>>,
-          [&generated](const std::tuple<std::unique_ptr<int>&>& t){
+          [&generated](const std::tuple<std::unique_ptr<int>&>& t) {
               generated.push_back(*std::get<0>(t));
         })
       | to_vector;
@@ -83,7 +83,7 @@ BOOST_AUTO_TEST_CASE(test_for_each_move_only)
     data
       | view::move
       | for_each(from<Int, Unique>,
-          [&generated](const int& v, const std::unique_ptr<int>& p){
+          [&generated](const int& v, const std::unique_ptr<int>& p) {
               generated.push_back(v + *p);
         })
       | to_vector;
