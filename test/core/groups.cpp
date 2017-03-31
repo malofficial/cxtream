@@ -26,98 +26,92 @@ using namespace ranges;
 using namespace cxtream;
 using namespace boost;
 
-
 // test with a seeded random generator
 std::mt19937 prng{1000003};
 
-
 std::size_t n_groups(const std::vector<std::size_t>& groups, std::size_t group)
 {
-  return
-    (groups
-     | view::filter([group](std::size_t l){ return l == group; }) 
-     | to_vector
-    ).size();
+    return
+      (groups
+         | view::filter([group](std::size_t l){ return l == group; }) 
+         | to_vector
+      ).size();
 }
 
 BOOST_AUTO_TEST_CASE(test_generate_groups)
 {
-  std::vector<std::size_t> groups = generate_groups(10, {1.5, 1.5}, prng);
-  BOOST_TEST(groups.size() == 10UL);
-  BOOST_TEST(n_groups(groups, 0) == 5UL);
-  BOOST_TEST(n_groups(groups, 1) == 5UL);
-
-  auto sorted_groups = groups;
-  sorted_groups |= action::sort;
-  BOOST_CHECK(sorted_groups != groups);
+    std::vector<std::size_t> groups = generate_groups(10, {1.5, 1.5}, prng);
+    BOOST_TEST(groups.size() == 10UL);
+    BOOST_TEST(n_groups(groups, 0) == 5UL);
+    BOOST_TEST(n_groups(groups, 1) == 5UL);
+  
+    auto sorted_groups = groups;
+    sorted_groups |= action::sort;
+    BOOST_CHECK(sorted_groups != groups);
 }
-
 
 BOOST_AUTO_TEST_CASE(test_generate_groups_zero_ratio)
 {
-  std::vector<std::size_t> groups = generate_groups(10, {1.5, 0, 1.5}, prng);
-  BOOST_TEST(groups.size() == 10UL);
-  BOOST_TEST(n_groups(groups, 0) == 5UL);
-  BOOST_TEST(n_groups(groups, 1) == 0UL);
-  BOOST_TEST(n_groups(groups, 2) == 5UL);
-
-  auto sorted_groups = groups;
-  sorted_groups |= action::sort;
-  BOOST_CHECK(sorted_groups != groups);
+    std::vector<std::size_t> groups = generate_groups(10, {1.5, 0, 1.5}, prng);
+    BOOST_TEST(groups.size() == 10UL);
+    BOOST_TEST(n_groups(groups, 0) == 5UL);
+    BOOST_TEST(n_groups(groups, 1) == 0UL);
+    BOOST_TEST(n_groups(groups, 2) == 5UL);
+  
+    auto sorted_groups = groups;
+    sorted_groups |= action::sort;
+    BOOST_CHECK(sorted_groups != groups);
 }
 
 
 BOOST_AUTO_TEST_CASE(test_generate_many_groups)
 {
-  std::vector<std::vector<std::size_t>> groups =
-    generate_many_groups(2, 20, {0.3, 0.3}, {0.2, 0.2}, prng);
+    std::vector<std::vector<std::size_t>> groups =
+      generate_many_groups(2, 20, {0.3, 0.3}, {0.2, 0.2}, prng);
 
-  BOOST_TEST(groups.size() == 2UL);
-  BOOST_TEST(groups[0].size() == 20UL);
-  BOOST_TEST(groups[1].size() == 20UL);
+    BOOST_TEST(groups.size() == 2UL);
+    BOOST_TEST(groups[0].size() == 20UL);
+    BOOST_TEST(groups[1].size() == 20UL);
 
-  // check that the groups have correct ratio
-  for (std::size_t j = 0; j < 2; ++j) {
-    BOOST_TEST(n_groups(groups[j], 0) == 6UL);
-    BOOST_TEST(n_groups(groups[j], 1) == 6UL);
-    BOOST_TEST(n_groups(groups[j], 2) == 4UL);
-    BOOST_TEST(n_groups(groups[j], 3) == 4UL);
-  }
+    // check that the groups have correct ratio
+    for (std::size_t j = 0; j < 2; ++j) {
+        BOOST_TEST(n_groups(groups[j], 0) == 6UL);
+        BOOST_TEST(n_groups(groups[j], 1) == 6UL);
+        BOOST_TEST(n_groups(groups[j], 2) == 4UL);
+        BOOST_TEST(n_groups(groups[j], 3) == 4UL);
+    }
 
-  // check that all the fixed groups (i.e., 2+) are the same
-  for (std::size_t i = 0; i < 10; ++i) {
-    if (groups[0][i] >= 2UL)
-      BOOST_TEST(groups[0][i] == groups[0][i]);
-  }
-  
-  // check that the groups differ
-  BOOST_CHECK(groups[0] != groups[1]);
+    // check that all the fixed groups (i.e., 2+) are the same
+    for (std::size_t i = 0; i < 10; ++i) {
+        if (groups[0][i] >= 2UL) BOOST_TEST(groups[0][i] == groups[0][i]);
+    }
+
+    // check that the groups differ
+    BOOST_CHECK(groups[0] != groups[1]);
 }
-
 
 BOOST_AUTO_TEST_CASE(test_generate_many_groups_zero_ratio)
 {
-  std::vector<std::vector<std::size_t>> groups =
-    generate_many_groups(2, 20, {0.3, 0, 0, 0.3}, {0.2, 0, 0, 0.2}, prng);
+    std::vector<std::vector<std::size_t>> groups =
+      generate_many_groups(2, 20, {0.3, 0, 0, 0.3}, {0.2, 0, 0, 0.2}, prng);
 
-  BOOST_TEST(groups.size() == 2UL);
-  BOOST_TEST(groups[0].size() == 20UL);
-  BOOST_TEST(groups[1].size() == 20UL);
+    BOOST_TEST(groups.size() == 2UL);
+    BOOST_TEST(groups[0].size() == 20UL);
+    BOOST_TEST(groups[1].size() == 20UL);
 
-  // check that the groups have correct ratio
-  for (std::size_t j = 0; j < 2; ++j) {
-    BOOST_TEST(n_groups(groups[j], 0) == 6UL);
-    BOOST_TEST(n_groups(groups[j], 3) == 6UL);
-    BOOST_TEST(n_groups(groups[j], 4) == 4UL);
-    BOOST_TEST(n_groups(groups[j], 7) == 4UL);
-  }
+    // check that the groups have correct ratio
+    for (std::size_t j = 0; j < 2; ++j) {
+        BOOST_TEST(n_groups(groups[j], 0) == 6UL);
+        BOOST_TEST(n_groups(groups[j], 3) == 6UL);
+        BOOST_TEST(n_groups(groups[j], 4) == 4UL);
+        BOOST_TEST(n_groups(groups[j], 7) == 4UL);
+    }
 
-  // check that all the fixed groups (i.e., 4+) are the same
-  for (std::size_t i = 0; i < 10; ++i) {
-    if (groups[0][i] >= 4UL)
-      BOOST_TEST(groups[0][i] == groups[0][i]);
-  }
-  
-  // check that the groups differ
-  BOOST_CHECK(groups[0] != groups[1]);
+    // check that all the fixed groups (i.e., 4+) are the same
+    for (std::size_t i = 0; i < 10; ++i) {
+        if (groups[0][i] >= 4UL) BOOST_TEST(groups[0][i] == groups[0][i]);
+    }
+
+    // check that the groups differ
+    BOOST_CHECK(groups[0] != groups[1]);
 }
