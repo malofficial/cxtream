@@ -11,16 +11,15 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE base64_test
 
-#include <vector>
+#include <cxtream/core/base64.hpp>
 
 #include <boost/test/unit_test.hpp>
 #include <range/v3/view/all.hpp>
 
-#include <cxtream/core/base64.hpp>
+#include <vector>
 
 using namespace cxtream;
 using namespace boost;
-
 
 std::vector<std::vector<unsigned char>> data{
   {},
@@ -46,19 +45,16 @@ std::vector<std::string> base64_data{
  "AHgPCgAAAAA="
 };
 
-#include <iostream>
-
 BOOST_AUTO_TEST_CASE(test_b64_encode)
 {
-  for (std::size_t i = 0; i < data.size(); ++i) {
-    BOOST_TEST(base64_encode(data[i]) == base64_data[i]);
-  }
+    for (std::size_t i = 0; i < data.size(); ++i) {
+        BOOST_TEST(base64_encode(data[i]) == base64_data[i]);
+    }
 }
-
 
 BOOST_AUTO_TEST_CASE(test_b64_decode)
 {
-  for (std::size_t i = 0; i < data.size(); ++i) {
-    BOOST_TEST(base64_decode(base64_data[i]) == data[i]);
-  }
+    for (std::size_t i = 0; i < data.size(); ++i) {
+        BOOST_TEST(base64_decode(base64_data[i]) == data[i]);
+    }
 }
