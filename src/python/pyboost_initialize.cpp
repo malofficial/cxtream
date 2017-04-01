@@ -12,7 +12,7 @@
 #include <cxtream/python/pyboost_initialize.hpp>
 
 #ifdef CXTREAM_BUILD_PYTHON_OPENCV
-#define PY_ARRAY_UNIQUE_SYMBOL pbcvt_ARRAY_API
+#define PY_ARRAY_UNIQUE_SYMBOL CXTREAM_PYTHON_UTILITY_PYBOOST_CV_CONVERTER
 #include <cxtream/python/utility/pyboost_cv_converter.hpp>
 #endif
 
@@ -42,8 +42,8 @@ void initialize()
     init_array();
 
     // register OpenCV converters
-    py::to_python_converter<cv::Mat, pbcvt::matToNDArrayBoostConverter>();
-    pbcvt::matFromNDArrayBoostConverter();
+    py::to_python_converter<cv::Mat, utility::matToNDArrayBoostConverter>();
+    utility::matFromNDArrayBoostConverter();
 #endif
 
     // register fs::path converter

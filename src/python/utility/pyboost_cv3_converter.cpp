@@ -9,16 +9,14 @@
  *  license agreement.
  *********************************************************/
 
+#if CV_VERSION_MAJOR == 3
+
 #define NO_IMPORT_ARRAY
-#define PY_ARRAY_UNIQUE_SYMBOL pbcvt_ARRAY_API
+#define PY_ARRAY_UNIQUE_SYMBOL CXTREAM_PYTHON_UTILITY_PYBOOST_CV_CONVERTER
 
 #include <cxtream/python/utility/pyboost_cv_converter.hpp>
 
-#if CV_VERSION_MAJOR == 3
-
-namespace pbcvt {
-
-using namespace cv;
+namespace cxtream::python::utility {
 
 //===================   ERROR HANDLING     =========================================================
 
@@ -38,7 +36,7 @@ static int failmsg(const char* fmt, ...)
 }
 
 /*
-static PyObject* failmsgp(const char *fmt, ...)
+static PyObject* failmsgp(const char* fmt, ...)
 {
     char str[1000];
 
@@ -58,7 +56,7 @@ class PyAllowThreads {
 public:
     PyAllowThreads()
       : _state(PyEval_SaveThread())
-    { }
+    {}
     ~PyAllowThreads()
     {
         PyEval_RestoreThread(_state);
@@ -72,8 +70,7 @@ class PyEnsureGIL {
 public:
     PyEnsureGIL()
       : _state(PyGILState_Ensure())
-    {
-    }
+    {}
     ~PyEnsureGIL()
     {
         PyGILState_Release(_state);
@@ -85,16 +82,16 @@ private:
 
 enum {ARG_NONE = 0, ARG_MAT = 1, ARG_SCALAR = 2};
 
-class NumpyAllocator : public MatAllocator {
+class NumpyAllocator : public cv::MatAllocator {
 public:
     NumpyAllocator()
     {
-        stdAllocator = Mat::getStdAllocator();
+        stdAllocator = cv::Mat::getStdAllocator();
     }
 
-    UMatData* allocate(PyObject* o, int dims, const int* sizes, int type, size_t* step) const
+    cv::UMatData* allocate(PyObject* o, int dims, const int* sizes, int type, size_t* step) const
     {
-        UMatData* u = new UMatData(this);
+        cv::UMatData* u = new cv::UMatData(this);
         u->data = u->origdata = (uchar*)PyArray_DATA((PyArrayObject*)o);
         npy_intp* _strides = PyArray_STRIDES((PyArrayObject*)o);
         for (int i = 0; i < dims - 1; i++) step[i] = (size_t)_strides[i];
@@ -104,11 +101,11 @@ public:
         return u;
     }
 
-    UMatData* allocate(int dims0, const int* sizes, int type, void* data, size_t* step, int flags,
-                       UMatUsageFlags usageFlags) const
+    cv::UMatData* allocate(int dims0, const int* sizes, int type, void* data, size_t* step, int flags,
+                       cv::UMatUsageFlags usageFlags) const
     {
         if (data != 0) {
-            CV_Error(Error::StsAssert, "The data should normally be NULL!");
+            CV_Error(cv::Error::StsAssert, "The data should normally be NULL!");
             // probably this is safe to do in such extreme case
             return stdAllocator->allocate(dims0, sizes, type, data, step, flags, usageFlags);
         }
@@ -133,17 +130,17 @@ public:
         PyObject* o = PyArray_SimpleNew(dims, _sizes, typenum);
         if (!o)
             CV_Error_(
-              Error::StsError,
+              cv::Error::StsError,
               ("The numpy array of typenum=%d, ndims=%d can not be created", typenum, dims));
         return allocate(o, dims0, sizes, type, step);
     }
 
-    bool allocate(UMatData* u, int accessFlags, UMatUsageFlags usageFlags) const
+    bool allocate(cv::UMatData* u, int accessFlags, cv::UMatUsageFlags usageFlags) const
     {
         return stdAllocator->allocate(u, accessFlags, usageFlags);
     }
 
-    void deallocate(UMatData* u) const
+    void deallocate(cv::UMatData* u) const
     {
         if (u) {
             PyEnsureGIL gil;
@@ -153,7 +150,7 @@ public:
         }
     }
 
-    const MatAllocator* stdAllocator;
+    const cv::MatAllocator* stdAllocator;
 };
 
 //===================   ALLOCATOR INITIALIZTION   ==================================================
@@ -162,10 +159,10 @@ NumpyAllocator g_numpyAllocator;
 
 //===================   STANDALONE CONVERTER FUNCTIONS     =========================================
 
-PyObject* fromMatToNDArray(const Mat& m)
+PyObject* fromMatToNDArray(const cv::Mat& m)
 {
     if (!m.data) Py_RETURN_NONE;
-    Mat temp, *p = (Mat *)&m;
+    cv::Mat temp, *p = (cv::Mat *)&m;
     if (!p->u || p->allocator != &g_numpyAllocator) {
         temp.allocator = &g_numpyAllocator;
         ERRWRAP2(m.copyTo(temp));
@@ -176,7 +173,7 @@ PyObject* fromMatToNDArray(const Mat& m)
     return o;
 }
 
-Mat fromNDArrayToMat(PyObject* o) {
+cv::Mat fromNDArrayToMat(PyObject* o) {
     cv::Mat m;
     bool allowND = true;
     if (!PyArray_Check(o)) {
@@ -270,7 +267,7 @@ Mat fromNDArrayToMat(PyObject* o) {
         if (ndims > 2 && !allowND) {
             failmsg("%s has more than 2 dimensions");
         } else {
-            m = Mat(ndims, size, type, PyArray_DATA(oarr), step);
+            m = cv::Mat(ndims, size, type, PyArray_DATA(oarr), step);
             m.u = g_numpyAllocator.allocate(o, ndims, size, type, step);
             m.addref();
 
@@ -285,10 +282,10 @@ Mat fromNDArrayToMat(PyObject* o) {
 
 //===================   BOOST CONVERTERS     =======================================================
 
-PyObject* matToNDArrayBoostConverter::convert(Mat const& m)
+PyObject* matToNDArrayBoostConverter::convert(cv::Mat const& m)
 {
     if (!m.data) Py_RETURN_NONE;
-    Mat temp, *p = (Mat *)&m;
+    cv::Mat temp, *p = (cv::Mat *)&m;
     if (!p->u || p->allocator != &g_numpyAllocator) {
         temp.allocator = &g_numpyAllocator;
         ERRWRAP2(m.copyTo(temp));
@@ -302,7 +299,7 @@ PyObject* matToNDArrayBoostConverter::convert(Mat const& m)
 matFromNDArrayBoostConverter::matFromNDArrayBoostConverter()
 {
     boost::python::converter::registry::push_back(convertible, construct,
-                                                  boost::python::type_id<Mat>());
+                                                  boost::python::type_id<cv::Mat>());
 }
 
 // check if PyObject is an array and can be converted to OpenCV matrix.
@@ -338,7 +335,7 @@ void matFromNDArrayBoostConverter::construct(
 
     // Obtain a handle to the memory block that the converter has allocated
     // for the C++ type.
-    typedef python::converter::rvalue_from_python_storage<Mat> storage_type;
+    typedef python::converter::rvalue_from_python_storage<cv::Mat> storage_type;
     void* storage = reinterpret_cast<storage_type*>(data)->storage.bytes;
 
     // Allocate the C++ type into the converter's memory block, and assign
@@ -425,5 +422,5 @@ void matFromNDArrayBoostConverter::construct(
     data->convertible = storage;
 }
 
-}  // namespace pbcvt
+}  // namespace cxtream::python::utility
 #endif

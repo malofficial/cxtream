@@ -22,10 +22,7 @@
 
 #include <cstdio>
 
-namespace pbcvt {
-
-using namespace cv;
-
+namespace cxtream::python::utility {
 
 //===================    MACROS    =================================================================
 #define ERRWRAP2(expr) \
@@ -68,13 +65,13 @@ class NumpyAllocator;
 
 //===================   STANDALONE CONVERTER FUNCTIONS     =========================================
 
-PyObject* fromMatToNDArray(const Mat& m);
-Mat fromNDArrayToMat(PyObject* o);
+PyObject* fromMatToNDArray(const cv::Mat& m);
+cv::Mat fromNDArrayToMat(PyObject* o);
 
 //===================   BOOST CONVERTERS     =======================================================
 
 struct matToNDArrayBoostConverter {
-	static PyObject* convert(Mat const& m);
+	static PyObject* convert(cv::Mat const& m);
 };
 
 struct matFromNDArrayBoostConverter {
@@ -89,5 +86,5 @@ struct matFromNDArrayBoostConverter {
 			boost::python::converter::rvalue_from_python_stage1_data* data);
 };
 
-}  // namespace pbcvt
+}  // namespace cxtream::python::utility
 #endif
