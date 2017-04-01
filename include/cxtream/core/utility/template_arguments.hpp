@@ -23,7 +23,7 @@ struct from_t {
 template <typename... Columns>
 auto from = from_t<Columns...>{};
 
-/// Helper type representing columns serving as transformation destination.
+/// Helper type representing columns to which should a transformation save the result.
 template <typename... Columns>
 struct to_t {
 };

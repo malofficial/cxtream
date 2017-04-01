@@ -79,15 +79,20 @@ namespace detail {
 
 /// Apply a function to a range of tuples of cxtream columns.
 ///
+/// The given function is applied to a subset of columns given by FromColumns.
+/// The transformed range is the same as the input range, no elements are actually changed.
+/// The function is applied lazily, i.e., only when the range is iterated.
+///
 /// Example:
 /// \code
 ///     std::vector<std::tuple<Int, Double>> data = {{{3},{5.}}, {{1},{2.}}};
 ///     auto rng = data | for_each(from<Int, Double>, [](int& v, double& d) { std::cout << c + d; });
 /// \endcode
 ///
-/// The given function is applied to a subset of columns given by FromColumns.
-/// The transformed range is the same as the input range, no elements are actually changed.
-/// The function is applied lazily, i.e., only when the range is iterated.
+/// \param f The columns to be exctracted out of the tuple of columns and passed to fun.
+/// \param fun The function to be applied.
+/// \param d The dimension in which the function is applied. Choose 0 for the function to
+///          be applied to the whole batch.
 template<typename... FromColumns, typename Fun, int Dim = 1>
 constexpr auto for_each(from_t<FromColumns...> f, Fun fun, dim_t<Dim> d = dim_t<1>{})
 {

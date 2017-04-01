@@ -77,7 +77,7 @@ namespace detail {
 
 } // namespace detail
 
-/// Transform a subset of cxtream columns to a subset of cxtream columns.
+/// Transform a subset of cxtream columns to a different subset of cxtream columns.
 ///
 /// Example:
 /// \code
@@ -88,6 +88,14 @@ namespace detail {
 ///       | create<id, value>
 ///       | transform(from<id>, to<value>, [](int id) { return id * 5. + 1.; });
 /// \endcode
+///
+/// \param f The columns to be exctracted out of the tuple of columns and passed to fun.
+/// \param t The columns where the result will be saved. If the stream does not contain
+///          the selected columns, they are added to the stream. This parameter can
+///          overlap with the parameter f.
+/// \param fun The function to be applied.
+/// \param d The dimension in which the function is applied. Choose 0 for the function to
+///          be applied to the whole batch.
 template<typename... FromColumns, typename... ToColumns, typename Fun, int Dim = 1>
 constexpr auto transform(from_t<FromColumns...> f,
                          to_t<ToColumns...> t,
