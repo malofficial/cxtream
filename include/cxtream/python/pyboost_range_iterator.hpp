@@ -32,21 +32,21 @@ struct stop_iteration_exception : public std::runtime_error {
 
 namespace detail {
 
-void stop_iteration_translator(const stop_iteration_exception& x)
-{
-    PyErr_SetNone(PyExc_StopIteration);
-}
+    void stop_iteration_translator(const stop_iteration_exception& x)
+    {
+        PyErr_SetNone(PyExc_StopIteration);
+    }
 
-// function to register exception for StopIteration
-// the exception type is only registered once
-std::once_flag register_stop_iteration_flag;
-void register_stop_iterator()
-{
-    namespace py = boost::python;
-    std::call_once(register_stop_iteration_flag, []() {
-        py::register_exception_translator<stop_iteration_exception>(stop_iteration_translator);
-    });
-}
+    // function to register exception for StopIteration
+    // the exception type is only registered once
+    std::once_flag register_stop_iteration_flag;
+    void register_stop_iterator()
+    {
+        namespace py = boost::python;
+        std::call_once(register_stop_iteration_flag, []() {
+            py::register_exception_translator<stop_iteration_exception>(stop_iteration_translator);
+        });
+    }
 
 }  // namespace detail
 

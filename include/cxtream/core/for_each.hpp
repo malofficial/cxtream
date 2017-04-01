@@ -44,36 +44,36 @@ constexpr auto partial_for_each(from_t<FromTypes...>, Fun fun, Projection proj =
 
 namespace detail {
 
-// apply fun to each element in tuple of ranges in given dimension
-// the return value of the function is ignored
-template<int Dim>
-struct wrap_void_fun_for_dim {
-    template<typename Fun>
-    static constexpr auto impl(Fun fun)
-    {
-        return [fun = std::move(fun)](auto&& tuple_of_ranges)
+    // apply fun to each element in tuple of ranges in given dimension
+    // the return value of the function is ignored
+    template<int Dim>
+    struct wrap_void_fun_for_dim {
+        template<typename Fun>
+        static constexpr auto impl(Fun fun)
         {
-            auto range_of_tuples = std::experimental::apply(
-              ranges::view::zip, std::forward<decltype(tuple_of_ranges)>(tuple_of_ranges));
+            return [fun = std::move(fun)](auto&& tuple_of_ranges)
+            {
+                auto range_of_tuples = std::experimental::apply(
+                  ranges::view::zip, std::forward<decltype(tuple_of_ranges)>(tuple_of_ranges));
 
-            for (auto&& tuple : range_of_tuples) {
-                wrap_void_fun_for_dim<Dim - 1>::impl(fun)(std::forward<decltype(tuple)>(tuple));
-            }
-        };
-    }
-};
+                for (auto&& tuple : range_of_tuples) {
+                    wrap_void_fun_for_dim<Dim - 1>::impl(fun)(std::forward<decltype(tuple)>(tuple));
+                }
+            };
+        }
+    };
 
-template<>
-struct wrap_void_fun_for_dim<0> {
-    template<typename Fun>
-    static constexpr auto impl(Fun fun)
-    {
-        return [fun = std::move(fun)](auto&& tuple)
+    template<>
+    struct wrap_void_fun_for_dim<0> {
+        template<typename Fun>
+        static constexpr auto impl(Fun fun)
         {
-            std::experimental::apply(fun, std::forward<decltype(tuple)>(tuple));
-        };
-    }
-};
+            return [fun = std::move(fun)](auto&& tuple)
+            {
+                std::experimental::apply(fun, std::forward<decltype(tuple)>(tuple));
+            };
+        }
+    };
 
 }  // namespace detail
 
