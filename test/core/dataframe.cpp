@@ -228,11 +228,11 @@ BOOST_AUTO_TEST_CASE(test_no_header)
     test_ranges_equal(df.raw_rows()[0], std::vector<std::string>{"1", "a1", "1.1"});
 }
 
-BOOST_AUTO_TEST_CASE(test_index_row)
+BOOST_AUTO_TEST_CASE(test_index_col)
 {
     const dataframe<> df{simple_df};
-    auto indexed_irow = df.index_irow<int, double>(0, 2);
-    auto indexed_row = df.index_row<int, double>("Id", "B");
+    auto indexed_irow = df.index_icol<int, double>(0, 2);
+    auto indexed_row = df.index_col<int, double>("Id", "B");
     std::unordered_map<int, double> desired{
       {1, 1.1},
       {2, 1.2},
@@ -242,11 +242,11 @@ BOOST_AUTO_TEST_CASE(test_index_row)
     BOOST_CHECK(indexed_row == desired);
 }
 
-BOOST_AUTO_TEST_CASE(test_index_rows)
+BOOST_AUTO_TEST_CASE(test_index_cols)
 {
     const dataframe<> df{simple_df};
-    auto indexed_irows = df.index_irows<int, std::string, double>(0, {1, 2});
-    auto indexed_rows = df.index_rows<int, std::string, double>("Id", {"A", "B"});
+    auto indexed_irows = df.index_icols<int, std::string, double>(0, {1, 2});
+    auto indexed_rows = df.index_cols<int, std::string, double>("Id", {"A", "B"});
     std::unordered_map<int, std::tuple<std::string, double>> desired{
       {1, {"a1", 1.1}},
       {2, {"a2", 1.2}},

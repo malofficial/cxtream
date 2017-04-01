@@ -401,86 +401,86 @@ public:
         return irows<Ts...>(colnames2idxs(col_names), std::move(cvts));
     }
 
-    // typed indexed single row access //
+    // typed indexed single column access //
 
     /// Return an indexed typed view of a single column.
     ///
-    /// This function returns a hashmap indexed by a given column with values of another column.
+    /// This function returns a hashmap indexed by a given key column with values of another column.
     ///
     /// Example:
     /// \code
-    ///     std::unordered_map<int, double> mapper = df.index_irow<int, double>(0, 1);
+    ///     std::unordered_map<int, double> mapper = df.index_icol<int, double>(0, 1);
     /// \endcode
     ///
-    /// \param index_col_index Index of the column to be used as index.
-    /// \param col_index Index of the column to be used as value.
+    /// \param key_col_index Index of the column to be used as key.
+    /// \param val_col_index Index of the column to be used as value.
     /// \returns A hashmap.
     template <typename IndexT, typename ColT>
     std::unordered_map<IndexT, ColT>
-    index_irow(std::size_t index_col_index,
-               std::size_t col_index,
-               std::function<IndexT(std::string)> index_cvt = utility::string_to<IndexT>,
-               std::function<ColT(std::string)> col_cvt = utility::string_to<ColT>) const
+    index_icol(std::size_t key_col_index,
+               std::size_t val_col_index,
+               std::function<IndexT(std::string)> key_col_cvt = utility::string_to<IndexT>,
+               std::function<ColT(std::string)> val_col_cvt = utility::string_to<ColT>) const
     {
-        auto index_col = icol<IndexT>(index_col_index, std::move(index_cvt));
-        auto col = icol<ColT>(col_index, std::move(col_cvt));
-        return ranges::view::zip(index_col, col);
+        auto key_col = icol<IndexT>(key_col_index, std::move(key_col_cvt));
+        auto val_col = icol<ColT>(val_col_index, std::move(val_col_cvt));
+        return ranges::view::zip(key_col, val_col);
     }
 
     /// Return an indexed typed view of a single column.
     ///
-    /// This function is the same as index_irow, but columns are selected by name.
+    /// This function is the same as index_icol, but columns are selected by name.
     template<typename IndexT, typename ColT>
     std::unordered_map<IndexT, ColT>
-    index_row(const std::string& index_col_name,
-              const std::string& col_name,
-              std::function<IndexT(std::string)> index_cvt = utility::string_to<IndexT>,
-              std::function<ColT(std::string)> col_cvt = utility::string_to<ColT>) const
+    index_col(const std::string& key_col_name,
+              const std::string& val_col_name,
+              std::function<IndexT(std::string)> key_col_cvt = utility::string_to<IndexT>,
+              std::function<ColT(std::string)> val_col_cvt = utility::string_to<ColT>) const
     {
         assert(header_.size() && "Dataframe has no header, cannot index by column name.");
-        return index_irow(header_.val2idx(index_col_name),
-                          header_.val2idx(col_name),
-                          std::move(index_cvt),
-                          std::move(col_cvt));
+        return index_icol(header_.val2idx(key_col_name),
+                          header_.val2idx(val_col_name),
+                          std::move(key_col_cvt),
+                          std::move(val_col_cvt));
     }
 
-    // typed indexed multiple row access //
+    // typed indexed multiple column access //
 
     /// Return an indexed typed view of multiple columns.
     ///
-    /// This function is similar to index_irow, but value type is a tuple of Ts.
+    /// This function is similar to index_icol, but value type is a tuple of Ts.
     template<typename IndexT, typename... Ts>
     std::unordered_map<IndexT, std::tuple<Ts...>>
-    index_irows(std::size_t index_col_index,
-                std::vector<std::size_t> col_indexes,
-                std::function<IndexT(std::string)> index_cvt =
+    index_icols(std::size_t key_col_index,
+                std::vector<std::size_t> val_col_indexes,
+                std::function<IndexT(std::string)> key_col_cvt =
                   utility::string_to<IndexT>,
-                std::tuple<std::function<Ts(std::string)>...> col_cvts =
+                std::tuple<std::function<Ts(std::string)>...> val_col_cvts =
                   std::make_tuple(utility::string_to<Ts>...)) const
     {
-        auto index_col = icol<IndexT>(index_col_index, std::move(index_cvt));
-        auto rows = irows<Ts...>(std::move(col_indexes), std::move(col_cvts));
-        return ranges::view::zip(index_col, rows);
+        auto key_col = icol<IndexT>(key_col_index, std::move(key_col_cvt));
+        auto val_cols = irows<Ts...>(std::move(val_col_indexes), std::move(val_col_cvts));
+        return ranges::view::zip(key_col, val_cols);
     }
 
 
     /// Return an indexed typed view of multiple columns.
     ///
-    /// This function is similar to index_irows, columns are selected by name.
+    /// This function is similar to index_icols, columns are selected by name.
     template<typename IndexT, typename... Ts>
     std::unordered_map<IndexT, std::tuple<Ts...>>
-    index_rows(const std::string& index_col_name,
-               const std::vector<std::string>& col_names,
-               std::function<IndexT(std::string)> index_cvt =
+    index_cols(const std::string& key_col_name,
+               const std::vector<std::string>& val_col_names,
+               std::function<IndexT(std::string)> key_col_cvt =
                  utility::string_to<IndexT>,
-               std::tuple<std::function<Ts(std::string)>...> col_cvts =
+               std::tuple<std::function<Ts(std::string)>...> val_col_cvts =
                  std::make_tuple(utility::string_to<Ts>...)) const
     {
         assert(header_.size() && "Dataframe has no header, cannot index by column name.");
-        return index_irows(header_.val2idx(index_col_name),
-                           colnames2idxs(col_names),
-                           std::move(index_cvt),
-                           std::move(col_cvts));
+        return index_icols(header_.val2idx(key_col_name),
+                           colnames2idxs(val_col_names),
+                           std::move(key_col_cvt),
+                           std::move(val_col_cvts));
     }
 
     // shape functions //
