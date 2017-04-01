@@ -15,12 +15,12 @@
 
 #define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
 
-#include <cstdio>
-
+#include <Python.h>
 #include <boost/python.hpp>
 #include <numpy/ndarrayobject.h>
 #include <opencv2/core/core.hpp>
-#include <Python.h>
+
+#include <cstdio>
 
 namespace pbcvt {
 
@@ -50,7 +50,7 @@ class PyAllowThreads;
 class PyEnsureGIL;
 
 static size_t REFCOUNT_OFFSET = (size_t)&(((PyObject*)0)->ob_refcnt) +
-    (0x12345678 != *(const size_t*)"\x78\x56\x34\x12\0\0\0\0\0")*sizeof(int);
+  (0x12345678 != *(const size_t*)"\x78\x56\x34\x12\0\0\0\0\0")*sizeof(int);
 
 static inline PyObject* pyObjectFromRefcount(const int* refcount)
 {
@@ -77,7 +77,6 @@ struct matToNDArrayBoostConverter {
 	static PyObject* convert(Mat const& m);
 };
 
-
 struct matFromNDArrayBoostConverter {
 
 	matFromNDArrayBoostConverter();
@@ -90,5 +89,5 @@ struct matFromNDArrayBoostConverter {
 			boost::python::converter::rvalue_from_python_stage1_data* data);
 };
 
-} // end namespace pbcvt
+}  // namespace pbcvt
 #endif

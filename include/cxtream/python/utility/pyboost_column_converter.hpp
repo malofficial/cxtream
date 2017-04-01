@@ -11,65 +11,64 @@
 #ifndef CXTREAM_PYTHON_UTILITY_PYBOOST_COLUMN_CONVERTER_HPP
 #define CXTREAM_PYTHON_UTILITY_PYBOOST_COLUMN_CONVERTER_HPP
 
-#include <string>
-#include <vector>
+#include <cxtream/core/utility/tuple.hpp>
 
 #include <boost/python.hpp>
 
-#include <cxtream/core/utility/tuple.hpp>
+#include <string>
+#include <vector>
 
 namespace cxtream::python::utility {
 
+// recursive transformation from a multidimensional vector to a python list //
 
-  /* recursive transformation from a multidimensional vector to a python list */
+namespace detail {
 
-  namespace detail {
-
-    template<typename T>
-    struct vector_to_py_impl
+template <typename T>
+struct vector_to_py_impl {
+    template <typename U>
+    static U&& impl(U&& val)
     {
-      template<typename U>
-      static U&& impl(U&& val)
-      {
         return std::forward<U>(val);
-      }
-    };
+    }
+};
 
-    template<typename T>
-    struct vector_to_py_impl<std::vector<T>>
+template <typename T>
+struct vector_to_py_impl<std::vector<T>> {
+    static boost::python::list impl(std::vector<T> vec)
     {
-      static boost::python::list impl(std::vector<T> vec)
-      {
         boost::python::list res;
-        for (auto& val : vec) {
-          res.append(vector_to_py_impl<T>::impl(std::move(val)));
-        }
+        for (auto& val : vec) res.append(vector_to_py_impl<T>::impl(std::move(val)));
         return res;
-      }
-    };
+    }
+};
 
-  } // end namespace
+}  // namespace detail
 
-  template<typename Vector>
-  boost::python::list vector_to_py(Vector&& v)
-  {
-    return detail::vector_to_py_impl<std::decay_t<Vector>>::impl(
-      std::forward<Vector>(v));
-  }
+/// Create a python list out of std::vector.
+///
+/// If the vector is multidimensional, i.e., std::vector<std::vector<...>>,
+/// the conversion is applied recursively.
+template <typename Vector>
+boost::python::list vector_to_py(Vector&& v)
+{
+    return detail::vector_to_py_impl<std::decay_t<Vector>>::impl(std::forward<Vector>(v));
+}
 
-  /* transformation from a column tuple to a python dict */
-
-
-  template<typename Tuple>
-  boost::python::dict column_tuple_to_py(Tuple tuple)
-  {
+/// Convert a tuple of cxtream columns into python dict.
+///
+/// The dict is indexed by column.name and the value is column.value.
+/// Batches are converted to python lists. If the batch value is a multidimensional
+/// std::vector<std::vector<...>>, it is converted to multidimensional python list.
+template <typename Tuple>
+boost::python::dict column_tuple_to_py(Tuple tuple)
+{
     boost::python::dict res;
-    cxtream::utility::tuple_for_each([&res](auto& column){
-      res[column.name()] = vector_to_py(std::move(column.value()));
+    cxtream::utility::tuple_for_each([&res](auto& column) {
+        res[column.name()] = vector_to_py(std::move(column.value()));
     }, tuple);
     return res;
-  }
+}
 
-
-} //end namespace cxtream::python::utility
+}  // namespace cxtream::python::utility
 #endif

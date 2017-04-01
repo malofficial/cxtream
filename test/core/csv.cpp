@@ -11,23 +11,22 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE csv_test
 
-#include <iostream>
-#include <experimental/filesystem>
-#include <sstream>
-#include <vector>
+#include "common.hpp"
+
+#include <cxtream/core/csv.hpp>
 
 #include <boost/test/unit_test.hpp>
 #include <range/v3/algorithm/find_first_of.hpp>
 
-#include <cxtream/core/csv.hpp>
-
-#include "common.hpp"
+#include <experimental/filesystem>
+#include <iostream>
+#include <sstream>
+#include <vector>
 
 using namespace ranges;
 using namespace cxtream;
 using namespace boost;
 namespace fs = std::experimental::filesystem;
-
 
 const std::string simple_csv{
   "Id,  A,   B \n"
@@ -42,86 +41,80 @@ const std::string quoted_csv{
   R"("Field 1",   "Field, 2 " ,    " Field 3 "    )""\n"
 };
 
-
 BOOST_AUTO_TEST_CASE(test_read_csv_from_istream)
 {
-  std::istringstream simple_csv_ss{simple_csv};
-  const dataframe<> df = read_csv(simple_csv_ss);
-  BOOST_TEST(df.n_cols() == 3);
-  BOOST_TEST(df.n_rows() == 3);
-  test_ranges_equal(df.header(), std::vector<std::string>{"Id", "A", "B"});
-  test_ranges_equal(df.raw_cols()[0], std::vector<std::string>{"1", "2", "3"});
-  test_ranges_equal(df.raw_cols()[1], std::vector<std::string>{"a1", "a2", "a3"});
-  test_ranges_equal(df.raw_cols()[2], std::vector<std::string>{"1.1", "1.2", "1.3"});
+    std::istringstream simple_csv_ss{simple_csv};
+    const dataframe<> df = read_csv(simple_csv_ss);
+    BOOST_TEST(df.n_cols() == 3);
+    BOOST_TEST(df.n_rows() == 3);
+    test_ranges_equal(df.header(), std::vector<std::string>{"Id", "A", "B"});
+    test_ranges_equal(df.raw_cols()[0], std::vector<std::string>{"1", "2", "3"});
+    test_ranges_equal(df.raw_cols()[1], std::vector<std::string>{"a1", "a2", "a3"});
+    test_ranges_equal(df.raw_cols()[2], std::vector<std::string>{"1.1", "1.2", "1.3"});
 }
-
 
 BOOST_AUTO_TEST_CASE(test_read_csv_from_istream_no_header)
 {
-  std::istringstream simple_csv_ss{simple_csv};
-  const dataframe<> df = read_csv(simple_csv_ss, 1, false);
-  BOOST_TEST(df.n_cols() == 3);
-  BOOST_TEST(df.n_rows() == 3);
-  BOOST_TEST(df.header().empty());
-  test_ranges_equal(df.raw_cols()[0], std::vector<std::string>{"1", "2", "3"});
-  test_ranges_equal(df.raw_cols()[1], std::vector<std::string>{"a1", "a2", "a3"});
-  test_ranges_equal(df.raw_cols()[2], std::vector<std::string>{"1.1", "1.2", "1.3"});
+    std::istringstream simple_csv_ss{simple_csv};
+    const dataframe<> df = read_csv(simple_csv_ss, 1, false);
+    BOOST_TEST(df.n_cols() == 3);
+    BOOST_TEST(df.n_rows() == 3);
+    BOOST_TEST(df.header().empty());
+    test_ranges_equal(df.raw_cols()[0], std::vector<std::string>{"1", "2", "3"});
+    test_ranges_equal(df.raw_cols()[1], std::vector<std::string>{"a1", "a2", "a3"});
+    test_ranges_equal(df.raw_cols()[2], std::vector<std::string>{"1.1", "1.2", "1.3"});
 }
-
 
 BOOST_AUTO_TEST_CASE(test_read_quoted_csv_from_istream)
 {
-  std::istringstream quoted_csv_ss{quoted_csv};
-  const dataframe<> df = read_csv(quoted_csv_ss);
-  BOOST_TEST(df.n_cols() == 3);
-  BOOST_TEST(df.n_rows() == 2);
-  test_ranges_equal(df.header(), std::vector<std::string>{"Column, 1", "Column, 2", " Column \"3\" "});
-  test_ranges_equal(df.raw_rows()[0], std::vector<std::string>{"Field 1", "Field, 2", " Field 3 "});
-  test_ranges_equal(df.raw_rows()[1], std::vector<std::string>{"Field 1", "Field, 2 ", " Field 3 "});
+    std::istringstream quoted_csv_ss{quoted_csv};
+    const dataframe<> df = read_csv(quoted_csv_ss);
+    BOOST_TEST(df.n_cols() == 3);
+    BOOST_TEST(df.n_rows() == 2);
+    test_ranges_equal(df.header(), std::vector<std::string>{"Column, 1", "Column, 2", " Column \"3\" "});
+    test_ranges_equal(df.raw_rows()[0], std::vector<std::string>{"Field 1", "Field, 2", " Field 3 "});
+    test_ranges_equal(df.raw_rows()[1], std::vector<std::string>{"Field 1", "Field, 2 ", " Field 3 "});
 }
-
 
 BOOST_AUTO_TEST_CASE(test_write_quoted_to_ostream)
 {
-  std::istringstream quoted_csv_ss{quoted_csv};
-  const dataframe<> df = read_csv(quoted_csv_ss);
-
-  std::ostringstream oss;
-  write_csv(oss, df);
-  BOOST_TEST(oss.str() == 
-    R"("Column, 1","Column, 2"," Column \"3\" ")""\n"
-    R"(Field 1,"Field, 2"," Field 3 ")""\n"
-    R"(Field 1,"Field, 2 "," Field 3 ")""\n"
-  );
+    std::istringstream quoted_csv_ss{quoted_csv};
+    const dataframe<> df = read_csv(quoted_csv_ss);
+  
+    std::ostringstream oss;
+    write_csv(oss, df);
+    BOOST_TEST(oss.str() == 
+      R"("Column, 1","Column, 2"," Column \"3\" ")""\n"
+      R"(Field 1,"Field, 2"," Field 3 ")""\n"
+      R"(Field 1,"Field, 2 "," Field 3 ")""\n"
+    );
 }
-
 
 BOOST_AUTO_TEST_CASE(test_compare_after_write_and_read)
 {
-  std::istringstream quoted_csv_ss{quoted_csv};
-  const dataframe<> df1 = read_csv(quoted_csv_ss);
-
-  std::stringstream oss;
-  write_csv(oss, df1);
-  const dataframe<> df2 = read_csv(oss);
-  test_ranges_equal(df1.header(), df2.header());
-  std::vector<std::vector<std::string>> df1_cols = df1.raw_cols();
-  std::vector<std::vector<std::string>> df2_cols = df2.raw_cols();
-  BOOST_CHECK(df1_cols == df2_cols);
+    std::istringstream quoted_csv_ss{quoted_csv};
+    const dataframe<> df1 = read_csv(quoted_csv_ss);
+  
+    std::stringstream oss;
+    write_csv(oss, df1);
+    const dataframe<> df2 = read_csv(oss);
+    test_ranges_equal(df1.header(), df2.header());
+    std::vector<std::vector<std::string>> df1_cols = df1.raw_cols();
+    std::vector<std::vector<std::string>> df2_cols = df2.raw_cols();
+    BOOST_CHECK(df1_cols == df2_cols);
 }
-
 
 BOOST_AUTO_TEST_CASE(test_file_write_and_read)
 {
-  std::istringstream quoted_csv_ss{quoted_csv};
-  const dataframe<> df1 = read_csv(quoted_csv_ss);
+    std::istringstream quoted_csv_ss{quoted_csv};
+    const dataframe<> df1 = read_csv(quoted_csv_ss);
 
-  fs::path csv_file{"test_file_write_and_read.csv"};
-  write_csv(csv_file, df1);
-  const dataframe<> df2 = read_csv(csv_file);
-  fs::remove(csv_file);
-  test_ranges_equal(df1.header(), df2.header());
-  std::vector<std::vector<std::string>> df1_cols = df1.raw_cols();
-  std::vector<std::vector<std::string>> df2_cols = df2.raw_cols();
-  BOOST_CHECK(df1_cols == df2_cols);
+    fs::path csv_file{"test_file_write_and_read.csv"};
+    write_csv(csv_file, df1);
+    const dataframe<> df2 = read_csv(csv_file);
+    fs::remove(csv_file);
+    test_ranges_equal(df1.header(), df2.header());
+    std::vector<std::vector<std::string>> df1_cols = df1.raw_cols();
+    std::vector<std::vector<std::string>> df2_cols = df2.raw_cols();
+    BOOST_CHECK(df1_cols == df2_cols);
 }

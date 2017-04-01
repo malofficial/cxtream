@@ -15,56 +15,51 @@
 
 namespace cxtream {
 
-  using namespace ranges;
+/// Helper type representing columns which should be transformed.
+template <typename... Columns>
+struct from_t {
+};
 
+template <typename... Columns>
+auto from = from_t<Columns...>{};
 
-  /* helper types */
+/// Helper type representing columns to which should a transformation save the result.
+template <typename... Columns>
+struct to_t {
+};
 
+template <typename... Columns>
+auto to = to_t<Columns...>{};
 
-  template<typename... Columns>
-  struct from_t {};
+/// Helper type representing dimension.
+template <int Dim>
+struct dim_t {
+};
 
-  template<typename... Columns>
-  auto from = from_t<Columns...>{};
+template <int Dim>
+auto dim = dim_t<Dim>{};
 
-  template<typename... Columns>
-  struct to_t {};
-
-  template<typename... Columns>
-  auto to = to_t<Columns...>{};
-
-  template<int Dim>
-  struct dim_t {};
-
-  template<int Dim>
-  auto dim = dim_t<Dim>{};
-
-
-  /* helper projections */
-
-
-  struct identity_t
-  {
-    template<typename T>
+/// Function object type forwarding the given object back to the caller.
+struct identity_t {
+    template <typename T>
     constexpr T&& operator()(T&& val) const noexcept
     {
-      return std::forward<T>(val);
+        return std::forward<T>(val);
     }
-  };
+};
 
-  auto identity = identity_t{};
+auto identity = identity_t{};
 
-  struct ref_wrap_t
-  {
-    template<typename T>
+/// Function object type wrapping the given object in std::reference_wrapper.
+struct ref_wrap_t {
+    template <typename T>
     constexpr decltype(auto) operator()(T& val) const noexcept
     {
-      return std::ref(val);
+        return std::ref(val);
     }
-  };
+};
 
-  auto ref_wrap = ref_wrap_t{};
+auto ref_wrap = ref_wrap_t{};
 
-
-} // end namespace cxtream
+}  // namespace cxtream
 #endif

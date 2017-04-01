@@ -16,74 +16,57 @@
 
 namespace cxtream {
 
+/// Base class for cxtream columns.
+///
+/// Stores a vector of given types and provides convenient constructors.
+template <typename T, bool = std::is_copy_constructible<T>{}>
+class column_base {
+private:
+    std::vector<T> value_;
 
-  /* column base class */
+public:
 
+    // constructors //
 
-  template<typename T, bool = std::is_copy_constructible<T>{}>
-  class column_base
-  {
-    private:
-      std::vector<T> value_;
+    column_base() = default;
+    column_base(T&& rhs) { value_.emplace_back(std::move(rhs)); }
+    column_base(const T& rhs)
+      : value_{rhs}
+    {}
 
-    public:
+    column_base(std::vector<T>&& rhs)
+      : value_{std::move(rhs)}
+    {}
 
+    column_base(const std::vector<T>& rhs)
+      : value_{rhs}
+    {}
 
-      /* constructors */
+    // value accessors //
 
+    std::vector<T>& value() { return value_; }
+    const std::vector<T>& value() const { return value_; }
+};
 
-      column_base() = default;
-      column_base(T&& rhs)
-      {
-        value_.emplace_back(std::move(rhs));
-      }
-      column_base(const T& rhs)
-        : value_{rhs}
-      { }
-      column_base(std::vector<T>&& rhs)
-        : value_{std::move(rhs)}
-      { }
-      column_base(const std::vector<T>& rhs)
-        : value_{rhs}
-      { }
-
-
-      /* value accessors */
-
-
-      std::vector<T>& value()
-      {
-        return value_;
-      }
-
-      const std::vector<T>& value() const
-      {
-        return value_;
-      }
-  };
-
-  template<typename T>
-  struct column_base<T, false> : column_base<T, true>
-  {
+/// Specialization of column_base for non-copy-constructible types.
+template <typename T>
+struct column_base<T, false> : column_base<T, true> {
     using column_base<T, true>::column_base;
 
     column_base() = default;
     column_base(const T& rhs) = delete;
     column_base(const std::vector<T>& rhs) = delete;
-  };
-
-} // end namespace cxtream
-
-
-/* column definition macro */
-
-
-#define CXTREAM_DEFINE_COLUMN(col_name, col_type) \
-struct col_name : cxtream::column_base<col_type> { \
-  using cxtream::column_base<col_type>::column_base; \
-  static constexpr const char* name() \
-  { return #col_name; } \
 };
 
+}  // namespace cxtream
+
+/// Macro for fast column definition.
+///
+/// Basically it creates a new type derived from column_base.
+#define CXTREAM_DEFINE_COLUMN(col_name, col_type)             \
+struct col_name : cxtream::column_base<col_type> {            \
+    using cxtream::column_base<col_type>::column_base;        \
+    static constexpr const char* name() { return #col_name; } \
+};
 
 #endif

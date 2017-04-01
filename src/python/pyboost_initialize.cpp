@@ -9,9 +9,6 @@
  *********************************************************/
 
 #include <cxtream/build_config.hpp>
-
-#include <boost/python.hpp>
-
 #include <cxtream/python/pyboost_initialize.hpp>
 
 #ifdef CXTREAM_BUILD_PYTHON_OPENCV
@@ -21,20 +18,20 @@
 
 #include <cxtream/python/utility/pyboost_fs_path_converter.hpp>
 
+#include <boost/python.hpp>
+
 namespace cxtream::python {
 
-
 #ifdef CXTREAM_BUILD_PYTHON_OPENCV
-  static void* init_array()
-  {
+static void* init_array()
+{
     import_array();
     return NUMPY_IMPORT_ARRAY_RETVAL;
-  }
+}
 #endif
 
-
-  void initialize()
-  {
+void initialize()
+{
     namespace py = boost::python;
 
     // initialize python module
@@ -50,10 +47,8 @@ namespace cxtream::python {
 #endif
 
     // register fs::path converter
-    py::to_python_converter<std::experimental::filesystem::path,
-                           utility::fs_path_to_python_str>();
+    py::to_python_converter<std::experimental::filesystem::path, utility::fs_path_to_python_str>();
     utility::fs_path_from_python_str();
-  }
+}
 
-
-} //end namespace cxtream::python
+}  // namespace cxtream::python
