@@ -22,72 +22,30 @@
 
 #include <cstdio>
 
-namespace pbcvt {
+namespace cxtream::python::utility {
 
-using namespace cv;
+// standalone converter functions //
 
+PyObject* fromMatToNDArray(const cv::Mat& m);
+cv::Mat fromNDArrayToMat(PyObject* o);
 
-//===================    MACROS    =================================================================
-#define ERRWRAP2(expr) \
-try \
-{ \
-    PyAllowThreads allowThreads; \
-    expr; \
-} \
-catch (const cv::Exception &e) \
-{ \
-    PyErr_SetString(opencv_error, e.what()); \
-    return 0; \
-}
-
-//===================   ERROR HANDLING     =========================================================
-
-// static int failmsg(const char *fmt, ...);
-// static PyObject* failmsgp(const char *fmt, ...);
-
-//===================   THREADING     ==============================================================
-class PyAllowThreads;
-class PyEnsureGIL;
-
-static size_t REFCOUNT_OFFSET = (size_t)&(((PyObject*)0)->ob_refcnt) +
-  (0x12345678 != *(const size_t*)"\x78\x56\x34\x12\0\0\0\0\0")*sizeof(int);
-
-static inline PyObject* pyObjectFromRefcount(const int* refcount)
-{
-    return (PyObject*)((size_t)refcount - REFCOUNT_OFFSET);
-}
-
-static inline int* refcountFromPyObject(const PyObject* obj)
-{
-    return (int*)((size_t)obj + REFCOUNT_OFFSET);
-}
-
-//===================   NUMPY ALLOCATOR FOR OPENCV     =============================================
-
-class NumpyAllocator;
-
-//===================   STANDALONE CONVERTER FUNCTIONS     =========================================
-
-PyObject* fromMatToNDArray(const Mat& m);
-Mat fromNDArrayToMat(PyObject* o);
-
-//===================   BOOST CONVERTERS     =======================================================
+// boost converters //
 
 struct matToNDArrayBoostConverter {
-	static PyObject* convert(Mat const& m);
+    static PyObject* convert(cv::Mat const& m);
 };
 
 struct matFromNDArrayBoostConverter {
 
-	matFromNDArrayBoostConverter();
+    matFromNDArrayBoostConverter();
 
-	/// @brief Check if PyObject is an array and can be converted to OpenCV matrix.
-	static void* convertible(PyObject* object);
+    // check if PyObject is an array and can be converted to OpenCV matrix
+    static void* convertible(PyObject* object);
 
-	/// @brief Construct a Mat from an NDArray object.
-	static void construct(PyObject* object,
-			boost::python::converter::rvalue_from_python_stage1_data* data);
+    // construct a Mat from an NDArray object
+    static void construct(PyObject* object,
+                          boost::python::converter::rvalue_from_python_stage1_data* data);
 };
 
-}  // namespace pbcvt
+}  // namespace cxtream::python::utility
 #endif

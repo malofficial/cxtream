@@ -9,22 +9,20 @@
  *  license agreement.
  *********************************************************/
 
+#if CV_VERSION_EPOCH == 2 || (!defined CV_VERSION_EPOCH && CV_VERSION_MAJOR == 2)
+
 #define NO_IMPORT_ARRAY
-#define PY_ARRAY_UNIQUE_SYMBOL pbcvt_ARRAY_API
+#define PY_ARRAY_UNIQUE_SYMBOL CXTREAM_PYTHON_UTILITY_PYBOOST_CV_CONVERTER
 
 #include <cxtream/python/utility/pyboost_cv_converter.hpp>
 
-#if CV_VERSION_EPOCH == 2 || (!defined CV_VERSION_EPOCH && CV_VERSION_MAJOR == 2)
-
-namespace pbcvt {
-
-using namespace cv;
+namespace cxtream::python::utility {
 
 //===================   ERROR HANDLING     =========================================================
 
 static PyObject* opencv_error = 0;
 
-static int failmsg(const char *fmt, ...)
+static int failmsg(const char* fmt, ...)
 {
     char str[1000];
 
@@ -38,7 +36,7 @@ static int failmsg(const char *fmt, ...)
 }
 
 /*
-static PyObject* failmsgp(const char *fmt, ...)
+static PyObject* failmsgp(const char* fmt, ...)
 {
     char str[1000];
 
@@ -51,6 +49,35 @@ static PyObject* failmsgp(const char *fmt, ...)
     return 0;
 }
 */
+
+//===================    MACROS    =================================================================
+
+#define ERRWRAP2(expr) \
+try \
+{ \
+    PyAllowThreads allowThreads; \
+    expr; \
+} \
+catch (const cv::Exception &e) \
+{ \
+    PyErr_SetString(opencv_error, e.what()); \
+    return 0; \
+}
+
+//===================   UTILITY   ==================================================================
+
+static size_t REFCOUNT_OFFSET = (size_t)&(((PyObject*)0)->ob_refcnt) +
+  (0x12345678 != *(const size_t*)"\x78\x56\x34\x12\0\0\0\0\0")*sizeof(int);
+
+static inline PyObject* pyObjectFromRefcount(const int* refcount)
+{
+    return (PyObject*)((size_t)refcount - REFCOUNT_OFFSET);
+}
+
+static inline int* refcountFromPyObject(const PyObject* obj)
+{
+    return (int*)((size_t)obj + REFCOUNT_OFFSET);
+}
 
 //===================   THREADING     ==============================================================
 
@@ -84,10 +111,11 @@ private:
 
 //===================   NUMPY ALLOCATOR FOR OPENCV     =============================================
 
-class NumpyAllocator : public MatAllocator {
+class NumpyAllocator : public cv::MatAllocator {
 public:
-    void allocate(int dims, const int* sizes, int type, int*& refcount,
-            uchar*& datastart, uchar*& data, size_t* step) {
+    void allocate(int dims, const int* sizes, int type, int*& refcount, uchar*& datastart,
+                  uchar*& data, size_t* step)
+    {
         PyEnsureGIL gil;
 
         int depth = CV_MAT_DEPTH(type);
@@ -139,10 +167,10 @@ NumpyAllocator g_numpyAllocator;
 
 //===================   STANDALONE CONVERTER FUNCTIONS     =========================================
 
-PyObject* fromMatToNDArray(const Mat& m)
+PyObject* fromMatToNDArray(const cv::Mat& m)
 {
     if (!m.data) Py_RETURN_NONE;
-    Mat temp, *p = (Mat *)&m;
+    cv::Mat temp, *p = (cv::Mat *)&m;
     if (!p->refcount || p->allocator != &g_numpyAllocator) {
         temp.allocator = &g_numpyAllocator;
         ERRWRAP2(m.copyTo(temp));
@@ -152,7 +180,7 @@ PyObject* fromMatToNDArray(const Mat& m)
     return pyObjectFromRefcount(p->refcount);
 }
 
-Mat fromNDArrayToMat(PyObject* o) {
+cv::Mat fromNDArrayToMat(PyObject* o) {
     cv::Mat m;
     if (!PyArray_Check(o)) {
         failmsg("argument is not a numpy array");
@@ -240,7 +268,7 @@ Mat fromNDArrayToMat(PyObject* o) {
             type |= CV_MAKETYPE(0, size[2]);
         }
 
-        m = Mat(ndims, size, type, PyArray_DATA(oarr), step);
+        m = cv::Mat(ndims, size, type, PyArray_DATA(oarr), step);
 
         if (m.data) {
             m.refcount = refcountFromPyObject(o);
@@ -256,10 +284,10 @@ Mat fromNDArrayToMat(PyObject* o) {
 
 //===================   BOOST CONVERTERS     =======================================================
 
-PyObject* matToNDArrayBoostConverter::convert(Mat const& m) {
+PyObject* matToNDArrayBoostConverter::convert(cv::Mat const& m) {
     if( !m.data )
         Py_RETURN_NONE;
-    Mat temp, *p = (Mat*)&m;
+    cv::Mat temp, *p = (cv::Mat*)&m;
     if(!p->refcount || p->allocator != &g_numpyAllocator)
     {
         temp.allocator = &g_numpyAllocator;
@@ -273,7 +301,7 @@ PyObject* matToNDArrayBoostConverter::convert(Mat const& m) {
 matFromNDArrayBoostConverter::matFromNDArrayBoostConverter() {
     boost::python::converter::registry::push_back(matFromNDArrayBoostConverter::convertible,
             matFromNDArrayBoostConverter::construct,
-            boost::python::type_id<Mat>());
+            boost::python::type_id<cv::Mat>());
 }
 
 /// @brief Check if PyObject is an array and can be converted to OpenCV matrix.
@@ -311,7 +339,7 @@ void matFromNDArrayBoostConverter::construct(
 
     // Obtain a handle to the memory block that the converter has allocated
     // for the C++ type.
-    typedef python::converter::rvalue_from_python_storage<Mat> storage_type;
+    typedef python::converter::rvalue_from_python_storage<cv::Mat> storage_type;
     void* storage = reinterpret_cast<storage_type*>(data)->storage.bytes;
 
     // Allocate the C++ type into the converter's memory block, and assign
@@ -406,5 +434,5 @@ void matFromNDArrayBoostConverter::construct(
     data->convertible = storage;
 }
 
-} //end namespace pbcvt
+}  // namespace cxtream::python::utility
 #endif
