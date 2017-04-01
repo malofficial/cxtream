@@ -86,9 +86,10 @@ std::vector<std::size_t> generate_groups(std::size_t size, std::vector<double> r
 /// \param ratio Cluster size ratio. The sum of ratios has to be positive.
 template<typename Prng = std::mt19937>
 std::vector<std::vector<std::size_t>>
-generate_many_groups(std::size_t n, std::size_t size, const std::vector<double>& volatile_ratio,
-                     const std::vector<double>& fixed_ratio,
-                     Prng&& gen = Prng{std::random_device{}()})
+generate_groups(std::size_t n, std::size_t size,
+                const std::vector<double>& volatile_ratio,
+                const std::vector<double>& fixed_ratio,
+                Prng&& gen = Prng{std::random_device{}()})
 {
     namespace view = ranges::view;
 

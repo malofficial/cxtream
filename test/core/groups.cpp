@@ -67,7 +67,7 @@ BOOST_AUTO_TEST_CASE(test_generate_groups_zero_ratio)
 BOOST_AUTO_TEST_CASE(test_generate_many_groups)
 {
     std::vector<std::vector<std::size_t>> groups =
-      generate_many_groups(2, 20, {0.3, 0.3}, {0.2, 0.2}, prng);
+      generate_groups(2, 20, {0.3, 0.3}, {0.2, 0.2}, prng);
 
     BOOST_TEST(groups.size() == 2UL);
     BOOST_TEST(groups[0].size() == 20UL);
@@ -93,7 +93,7 @@ BOOST_AUTO_TEST_CASE(test_generate_many_groups)
 BOOST_AUTO_TEST_CASE(test_generate_many_groups_zero_ratio)
 {
     std::vector<std::vector<std::size_t>> groups =
-      generate_many_groups(2, 20, {0.3, 0, 0, 0.3}, {0.2, 0, 0, 0.2}, prng);
+      generate_groups(2, 20, {0.3, 0, 0, 0.3}, {0.2, 0, 0, 0.2}, prng);
 
     BOOST_TEST(groups.size() == 2UL);
     BOOST_TEST(groups[0].size() == 20UL);
