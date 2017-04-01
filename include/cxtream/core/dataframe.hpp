@@ -513,7 +513,7 @@ private:
           | view::transform([this_ptr, col_indexes=std::move(col_indexes)](std::size_t i) {
                 return this_ptr->raw_icols(col_indexes)
                   // decltype(auto) to make sure a reference is returned
-                  | view::transform([i](auto&& col) -> decltype(auto){
+                  | view::transform([i](auto&& col) -> decltype(auto) {
                         return col[i];
                     });
             });
@@ -527,7 +527,7 @@ private:
           | view::transform([this_ptr](std::size_t i) {
                 return view::iota(0UL, this_ptr->n_cols())
                   // decltype(auto) to make sure a reference is returned
-                  | view::transform([this_ptr, i](std::size_t j) -> decltype(auto){
+                  | view::transform([this_ptr, i](std::size_t j) -> decltype(auto) {
                         return this_ptr->raw_cols()[j][i];
                     });
             });
@@ -537,7 +537,7 @@ private:
       std::vector<std::size_t> colnames2idxs(const std::vector<std::string>& col_names) const
       {
         return col_names
-          | ranges::view::transform([this](const std::string& name){
+          | ranges::view::transform([this](const std::string& name) {
                 return this->header_.val2idx(name);
         });
       }
@@ -547,7 +547,7 @@ private:
       {
         return std::move(col_indexes)
           | ranges::view::shared
-          | ranges::view::transform([this_ptr](std::size_t idx){
+          | ranges::view::transform([this_ptr](std::size_t idx) {
                 return this_ptr->raw_cols()[idx];
             });
       }
@@ -570,7 +570,7 @@ std::ostream& operator<<(std::ostream& out, const dataframe<DataTable>& df)
     // calculate the width of the columns using their longest field
     std::vector<std::size_t> col_widths =
         df.raw_cols()
-      | view::transform([](auto&& col){
+      | view::transform([](auto&& col) {
             std::vector<std::size_t> elem_sizes = col | view::transform(&std::string::size);
             return ranges::max(elem_sizes) + 2;
         });
@@ -579,7 +579,7 @@ std::ostream& operator<<(std::ostream& out, const dataframe<DataTable>& df)
     if (header.size()) {
         // update col_widths using header widths
         col_widths = view::zip(col_widths, header)
-          | view::transform([](auto&& tpl){
+          | view::transform([](auto&& tpl) {
                 return std::max(std::get<0>(tpl), std::get<1>(tpl).size() + 2);
             });
 

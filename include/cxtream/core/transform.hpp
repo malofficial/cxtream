@@ -69,7 +69,7 @@ struct wrap_fun_for_dim<0>
   template<typename Fun>
   static constexpr auto impl(Fun fun)
   {
-    return [fun=std::move(fun)](auto&& tuple){
+    return [fun=std::move(fun)](auto&& tuple) {
       return std::experimental::apply(fun, std::forward<decltype(tuple)>(tuple));
     };
   }
@@ -86,7 +86,7 @@ struct wrap_fun_for_dim<0>
 ///     std::vector<std::tuple<int, double>> data = {{{3},{5.}}, {{1},{2.}}};
 ///     auto rng = data
 ///       | create<id, value>
-///       | transform(from<id>, to<value>, [](int id){ return id * 5. + 1.; });
+///       | transform(from<id>, to<value>, [](int id) { return id * 5. + 1.; });
 /// \endcode
 template<typename... FromColumns, typename... ToColumns, typename Fun, int Dim = 1>
 constexpr auto transform(from_t<FromColumns...> f,

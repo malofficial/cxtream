@@ -48,7 +48,7 @@ BOOST_AUTO_TEST_CASE(test_move_only_column)
     auto generated = data
       | view::move
       | drop<Unique>
-      | view::transform([](auto t){ return *(std::get<0>(std::move(t)).value()[0]); });
+      | view::transform([](auto t) { return *(std::get<0>(std::move(t)).value()[0]); });
 
     test_ranges_equal(generated, std::vector<int>{5, 6});
 }
@@ -65,7 +65,7 @@ TEST_CASE(test_multiple_columns)
     auto generated = data
       | view::move
       | drop<Int, Unique>
-      | view::transform([](auto t){ return *(std::get<0>(std::move(t)).value()[0]); })
+      | view::transform([](auto t) { return *(std::get<0>(std::move(t)).value()[0]); })
       | to_vector;
   
     test_ranges_equal(generated, std::vector<int>{5, 6});

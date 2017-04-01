@@ -63,7 +63,7 @@ BOOST_AUTO_TEST_CASE(test_multiple_columns)
     auto generated = data
       | view::move
       | create<Unique, Unique2>
-      | view::transform([](auto t){
+      | view::transform([](auto t) {
           return std::make_tuple(*(std::get<0>(std::move(t)).value()[0]),
                                  *(std::get<1>(std::move(t)).value()[0]));
         });

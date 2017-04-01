@@ -82,7 +82,7 @@ struct wrap_void_fun_for_dim<0> {
 /// Example:
 /// \code
 ///     std::vector<std::tuple<Int, Double>> data = {{{3},{5.}}, {{1},{2.}}};
-///     auto rng = data | for_each(from<Int, Double>, [](int& v, double& d){ std::cout << c + d; });
+///     auto rng = data | for_each(from<Int, Double>, [](int& v, double& d) { std::cout << c + d; });
 /// \endcode
 ///
 /// The given function is applied to a subset of columns given by FromColumns.

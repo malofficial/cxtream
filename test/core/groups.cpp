@@ -33,7 +33,7 @@ std::size_t n_groups(const std::vector<std::size_t>& groups, std::size_t group)
 {
     return
       (groups
-         | view::filter([group](std::size_t l){ return l == group; }) 
+         | view::filter([group](std::size_t l) { return l == group; }) 
          | to_vector
       ).size();
 }

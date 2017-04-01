@@ -56,7 +56,7 @@ BOOST_AUTO_TEST_CASE(test_move_only_data)
 {
     // check move only type buffering
     auto rng = ranges::view::iota(1, 6)
-      | ranges::view::transform([](int i){
+      | ranges::view::transform([](int i) {
           return std::make_unique<int>(i);
         })
       | buffer(2)

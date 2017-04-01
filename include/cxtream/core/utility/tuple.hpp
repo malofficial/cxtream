@@ -50,7 +50,7 @@ constexpr Fun&& tuple_for_each_impl(Adl adl, Fun&& fun, Head&& head, Tail&&... t
 /// Example:
 /// \code
 ///     auto tpl = std::make_tuple(5, 2.);
-///     tuple_for_each([](auto& val){ std::cout << val << '\n'; }, tpl);
+///     tuple_for_each([](auto& val) { std::cout << val << '\n'; }, tpl);
 /// \endcode
 ///
 /// \returns The function after application.
@@ -84,7 +84,7 @@ constexpr auto tuple_transform_impl(Fun&& fun, Ts&&... args)
 /// Example:
 /// \code
 ///    auto t1 = std::make_tuple(0, 10L, 5.);
-///    auto t2 = tuple_transform([](const auto &v){ return v + 1; }, t1);
+///    auto t2 = tuple_transform([](const auto &v) { return v + 1; }, t1);
 ///    static_assert(std::is_same<std::tuple<int, long, double>, decltype(t2)>{});
 ///    assert(t2 == std::make_tuple(0 + 1, 10L + 1, 5. + 1));
 /// \endcode
@@ -408,7 +408,7 @@ constexpr auto times_with_index_impl(Adl adl, Fun&& fun,
 /// \code
 ///     auto tpl = std::make_tuple(1, 0.25, 'a');
 ///   
-///     times_with_index<3>([&tpl](auto index){
+///     times_with_index<3>([&tpl](auto index) {
 ///         ++std::get<index>(tpl);
 ///     });
 ///     assert(tpl == std::make_tuple(2, 1.25, 'b'));
@@ -426,7 +426,7 @@ constexpr auto times_with_index(Fun&& fun)
 /// \code
 ///     auto tpl = std::make_tuple(1, 2.);
 ///   
-///     tuple_for_each_with_index([](auto& val, auto index){
+///     tuple_for_each_with_index([](auto& val, auto index) {
 ///         val += index;
 ///     }, tpl);
 ///   
@@ -459,7 +459,7 @@ constexpr auto tuple_transform_with_index_impl(Fun&& fun, Tuple&& tuple, std::in
 /// \code
 ///     auto tpl = std::make_tuple(1, 0.25, 'a');
 ///   
-///     auto tpl2 = tuple_transform_with_index([](auto&& elem, auto index){
+///     auto tpl2 = tuple_transform_with_index([](auto&& elem, auto index) {
 ///         return elem + index;
 ///     }, tpl);
 ///   

@@ -71,7 +71,7 @@ dataframe<> read_csv(std::istream& in, int drop = 0, bool has_header = true, cha
     auto csv_rows =
        ranges::getlines(in)
      | ranges::view::drop(drop)
-     | ranges::view::transform([separator](std::string line){
+     | ranges::view::transform([separator](std::string line) {
          return parse_csv_row(std::move(line), separator);
        });
     // make a row iterator
