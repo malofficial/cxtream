@@ -9,6 +9,7 @@
  *  license agreement.
  *********************************************************/
 
+#include <opencv2/core/core.hpp>
 #if CV_VERSION_MAJOR == 3
 
 #define NO_IMPORT_ARRAY
@@ -130,8 +131,8 @@ public:
         return u;
     }
 
-    cv::UMatData* allocate(int dims0, const int* sizes, int type, void* data, size_t* step, int flags,
-                       cv::UMatUsageFlags usageFlags) const
+    cv::UMatData* allocate(int dims0, const int* sizes, int type, void* data, size_t* step,
+                           int flags, cv::UMatUsageFlags usageFlags) const
     {
         if (data != 0) {
             CV_Error(cv::Error::StsAssert, "The data should normally be NULL!");

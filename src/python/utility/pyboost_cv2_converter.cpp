@@ -9,6 +9,7 @@
  *  license agreement.
  *********************************************************/
 
+#include <opencv2/core/core.hpp>
 #if CV_VERSION_EPOCH == 2 || (!defined CV_VERSION_EPOCH && CV_VERSION_MAJOR == 2)
 
 #define NO_IMPORT_ARRAY
