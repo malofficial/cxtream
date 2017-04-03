@@ -62,6 +62,21 @@ BOOST_AUTO_TEST_CASE(test_generate_groups_zero_ratio)
     BOOST_CHECK(sorted_groups != groups);
 }
 
+BOOST_AUTO_TEST_CASE(test_generate_groups_not_divisible)
+{
+    std::vector<std::size_t> groups = generate_groups(11, {0, 8, 3, 3, 0}, prng);
+    BOOST_TEST(groups.size() == 11UL);
+    BOOST_TEST(n_groups(groups, 0) == 0UL);
+
+    // the first non-zero one gets round(11 / 14 * 8) = 6
+    BOOST_TEST(n_groups(groups, 1) == 6UL);
+    // the second non-zero one gets round(11 / 14 * 3) = 2
+    BOOST_TEST(n_groups(groups, 2) == 2UL);
+    // the third non-zero one gets the rest = 3
+    BOOST_TEST(n_groups(groups, 3) == 3UL);
+
+    BOOST_TEST(n_groups(groups, 4) == 0UL);
+}
 
 BOOST_AUTO_TEST_CASE(test_generate_many_groups)
 {

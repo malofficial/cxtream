@@ -33,6 +33,9 @@ namespace cxtream {
 ///     generate_groups(10, {2, 2, 6})  // == e.g. {1, 2, 2, 1, 0, 2, 2, 2, 0, 2}
 /// \endcode
 ///
+/// If the ratios do not exactly split the requested number of elements, the last
+/// group with non-zero ratio gets all the remaining elements.
+///
 /// \param size The size of the data, i.e., the number of elements.
 /// \param ratio Cluster size ratio. The sum of ratios has to be positive.
 template<typename Prng = std::mt19937>
@@ -41,10 +44,16 @@ std::vector<std::size_t> generate_groups(std::size_t size, std::vector<double> r
 {
     namespace view = ranges::view;
 
-    // scale to [0, 1]
+    // check positive ratio sum
     double ratio_sum = ranges::accumulate(ratio, 0.);
     assert(ratio_sum > 0);
-    for (auto& r : ratio) r /= ratio_sum;
+
+    // remove trailing zeros
+    ratio.erase(std::find_if(ratio.rbegin(), ratio.rend(), [](double r) { return r > 0; }).base(),
+                ratio.end());
+
+    // scale to [0, 1]
+    for (double& r : ratio) r /= ratio_sum;
 
     std::vector<std::size_t> groups(size);
     std::vector<std::size_t> indexes = view::iota(0UL, size);
@@ -52,8 +61,10 @@ std::vector<std::size_t> generate_groups(std::size_t size, std::vector<double> r
 
     std::size_t group = 0;
     std::size_t done = 0;
-    for (double r : ratio) {
-        std::size_t count = r * size;
+    for (std::size_t i = 0; i < ratio.size(); ++i) {
+        std::size_t count = std::lround(ratio[i] * size);
+        // take all the remaining elements if this is the last non-zero group
+        if (i + 1 == ratio.size()) count = size - done;
         for (std::size_t index : indexes | view::drop(done) | view::take(count)) {
             groups[index] = group;
         }
