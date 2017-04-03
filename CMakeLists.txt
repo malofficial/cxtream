@@ -55,6 +55,8 @@ endif()
 # Find Common Libraries
 # ---------------------
 
+find_package(Boost REQUIRED)
+
 if(BUILD_PYTHON)
   find_package(PythonInterp 3 REQUIRED)
   find_package(PythonLibs 3 REQUIRED)
@@ -86,6 +88,7 @@ target_link_libraries(
 )
 target_include_directories(
   cxtream_core INTERFACE
+  ${Boost_INCLUDE_DIRS}
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include> # build_config.hpp is here
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/include>

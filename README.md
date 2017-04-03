@@ -10,11 +10,26 @@ C++17 data pipeline with Python bindings.
 **This project is under heavy development. The API is continuously changing without regard to backward compatibility.**
 
 ## Requirements
-The cxtream core is a header-only C++ library with no requirements. However,
-if you plan to use the Python bindings including the OpenCV support,
-there are a few dependencies that have to be installed on your system.
+The cxtream core is a header-only C++ library with dependencies
+to header-only parts of [Boost C++ Libraries](http://www.boost.org/).
 
-The following commands may be used to install all the requirements automatically.
+To install Boost, run the following command:
+
+__Arch Linux__
+```
+pacman -S boost
+```
+
+__Ubuntu 16.10+__
+```
+apt install libboost-dev
+```
+
+However,
+if you plan to use the Python bindings including the OpenCV support,
+there are a few more dependencies that have to be installed.
+
+The following command may be used to install all the requirements automatically.
 
 __Arch Linux__
 ```
@@ -23,7 +38,7 @@ pacman -S base-devel cmake opencv boost python python-numpy
 
 __Ubuntu 16.10+__
 ```
-apt install build-essential cmake libopencv-dev libboost-python-dev libboost-test-dev python3-dev python3-numpy
+apt install build-essential cmake libopencv-dev libboost-dev libboost-python-dev libboost-test-dev python3-dev python3-numpy
 ```
 
 ## Installation
