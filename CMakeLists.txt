@@ -12,6 +12,7 @@ set(PROJECT_DESCRIPTION "C++17 data pipeline with Python bindings.")
 option(BUILD_TEST "Build test binaries" ON)
 option(BUILD_PYTHON "Build C++ <-> Python converters" ON)
 option(BUILD_PYTHON_OPENCV "Build C++ <-> Python OpenCV converters (requires BUILD_PYTHON)" ON)
+option(BUILTIN_RANGEV3 "Use built-in Range-v3 library" ON)
 
 # -------------
 # CMake Options
@@ -87,10 +88,15 @@ target_include_directories(
   cxtream_core INTERFACE
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include> # build_config.hpp is here
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/cxtream/range-v3>
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/include>
-  $<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/include/cxtream/range-v3>
 )
+if(BUILTIN_RANGEV3)
+  target_include_directories(
+    cxtream_core INTERFACE
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/third_party/range-v3/include>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/include/cxtream/range-v3>
+  )
+endif()
 
 # ---------------------
 # Build cxtream::python
@@ -166,10 +172,12 @@ endif()
 # -------
 
 # install built-in range-v3 library
-install(
-  DIRECTORY include/cxtream/range-v3/
-  DESTINATION include/cxtream/range-v3
-)
+if(BUILTIN_RANGEV3)
+  install(
+    DIRECTORY third_party/range-v3/include/
+    DESTINATION include/cxtream/range-v3
+  )
+endif()
 
 # install core header files
 install(
