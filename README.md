@@ -49,7 +49,3 @@ sudo make install
 ## Example
 
 Please refer to [Cognexa/mnist-example](https://gitlab.com/Cognexa/mnist-example) repository for a usage example.
-
-## License
-
-The code is distributed under the MIT license. See the [LICENSE](LICENSE.txt) file for the full license agreement.
