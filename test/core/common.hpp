@@ -1,12 +1,11 @@
-/*********************************************************
+/****************************************************************************
  *  cxtream library
+ *  Copyright (c) 2017, Cognexa Solutions s.r.o.
+ *  Author(s) Filip Matzner
  *
- *  Copyright (c) 2017, Filip Matzner
- *
- *  Use, modification and distribution is subject to the
- *  Doubleoost Software License, Version 1.0.
- *  (see http://www.boost.org/LICENSE_1_0.txt)
- *********************************************************/
+ *  This file is distributed under the MIT License.
+ *  See the accompanying file LICENSE.txt for the complete license agreement.
+ ****************************************************************************/
 
 #ifndef TEST_COMMON_HPP
 #define TEST_COMMON_HPP

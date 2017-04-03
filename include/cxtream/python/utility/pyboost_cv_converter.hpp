@@ -1,14 +1,11 @@
-/*********************************************************
- *  pyboost_cv3_converter.hpp
- *
- *  Copyright: (c) 2014, Gregory Kramida
- *  Copyright: (c) 2017, Filip Matzner
+/****************************************************************************
+ *  cxtream library
+ *  Copyright (c) 2014, Gregory Kramida
+ *  Modified by Filip Matzner
  *
  *  This file is distributed under the MIT License.
- *  See the accompanying file LICENSE.txt for the complete
- *  license agreement.
- *********************************************************/
-
+ *  See the accompanying file LICENSE.txt for the complete license agreement.
+ ****************************************************************************/
 
 #ifndef CXTREAM_PYTHON_UTILITY_PYBOOST_CV_CONVERTER_HPP
 #define CXTREAM_PYTHON_UTILITY_PYBOOST_CV_CONVERTER_HPP
