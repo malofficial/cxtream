@@ -33,11 +33,11 @@ private:
     struct cursor {
     private:
         buffer_view<Rng>* rng_ = nullptr;
-        ranges::range_iterator_t<Rng> it_ = {};
+        ranges::iterator_t<Rng> it_ = {};
 
         std::size_t n_;
         std::launch policy_;
-        std::deque<std::shared_future<ranges::range_value_t<Rng>>> buffer_;
+        std::deque<std::shared_future<ranges::range_value_type_t<Rng>>> buffer_;
 
         void pop_buffer()
         {
@@ -100,13 +100,13 @@ public:
     }
 
     CONCEPT_REQUIRES(ranges::SizedRange<Rng const>())
-    constexpr ranges::range_size_t<Rng> size() const
+    constexpr ranges::range_size_type_t<Rng> size() const
     {
         return ranges::size(rng_);
     }
 
     CONCEPT_REQUIRES(ranges::SizedRange<Rng>())
-    constexpr ranges::range_size_t<Rng> size()
+    constexpr ranges::range_size_type_t<Rng> size()
     {
         return ranges::size(rng_);
     }

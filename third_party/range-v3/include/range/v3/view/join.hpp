@@ -70,7 +70,7 @@ namespace ranges
         {
             CONCEPT_ASSERT(InputRange<Rng>());
             CONCEPT_ASSERT(InputRange<range_reference_t<Rng>>());
-            using size_type = common_type_t<range_size_t<Rng>, range_size_t<range_reference_t<Rng>>>;
+            using size_type = common_type_t<range_size_type_t<Rng>, range_size_type_t<range_reference_t<Rng>>>;
 
             join_view() = default;
             explicit join_view(Rng rng)
@@ -100,12 +100,12 @@ namespace ranges
             {
             private:
                 join_view* rng_ = nullptr;
-                range_iterator_t<Outer> outer_it_{};
-                range_iterator_t<Inner> inner_it_{};
+                iterator_t<Outer> outer_it_{};
+                iterator_t<Inner> inner_it_{};
 
                 void satisfy()
                 {
-                    while (inner_it_ == ranges::end(rng_->inner_) &&
+                    while(inner_it_ == ranges::end(rng_->inner_) &&
                          ++outer_it_ != ranges::end(rng_->outer_))
                     {
                         rng_->inner_ = view::all(*outer_it_);
@@ -119,7 +119,7 @@ namespace ranges
                   : rng_{&rng}
                   , outer_it_(ranges::begin(rng.outer_))
                 {
-                    if (outer_it_ != ranges::end(rng_->outer_))
+                    if(outer_it_ != ranges::end(rng_->outer_))
                     {
                         rng.inner_ = view::all(*outer_it_);
                         inner_it_ = ranges::begin(rng.inner_);
@@ -162,11 +162,11 @@ namespace ranges
             CONCEPT_ASSERT(InputRange<Rng>());
             CONCEPT_ASSERT(InputRange<range_reference_t<Rng>>());
             CONCEPT_ASSERT(ForwardRange<ValRng>());
-            CONCEPT_ASSERT(Common<range_value_t<range_reference_t<Rng>>, range_value_t<ValRng>>());
+            CONCEPT_ASSERT(Common<range_value_type_t<range_reference_t<Rng>>, range_value_type_t<ValRng>>());
             CONCEPT_ASSERT(SemiRegular<concepts::Common::value_t<
-                range_value_t<range_reference_t<Rng>>,
-                range_value_t<ValRng>>>());
-            using size_type = common_type_t<range_size_t<Rng>, range_size_t<range_value_t<Rng>>>;
+                range_value_type_t<range_reference_t<Rng>>,
+                range_value_type_t<ValRng>>>());
+            using size_type = common_type_t<range_size_type_t<Rng>, range_size_type_t<range_value_type_t<Rng>>>;
 
             join_view() = default;
             join_view(Rng rng, ValRng val)
@@ -200,25 +200,25 @@ namespace ranges
             class cursor
             {
                 join_view* rng_ = nullptr;
-                range_iterator_t<Outer> outer_it_{};
-                variant<range_iterator_t<ValRng>, range_iterator_t<Inner>> cur_{};
+                iterator_t<Outer> outer_it_{};
+                variant<iterator_t<ValRng>, iterator_t<Inner>> cur_{};
 
                 void satisfy()
                 {
-                    while (true)
+                    while(true)
                     {
-                        if (cur_.index() == 0)
+                        if(cur_.index() == 0)
                         {
-                            if (ranges::get<0>(cur_) != ranges::end(rng_->val_))
+                            if(ranges::get<0>(cur_) != ranges::end(rng_->val_))
                                 break;
                             rng_->inner_ = view::all(*outer_it_);
                             ranges::emplace<1>(cur_, ranges::begin(rng_->inner_));
                         }
                         else
                         {
-                            if (ranges::get<1>(cur_) != ranges::end(rng_->inner_))
+                            if(ranges::get<1>(cur_) != ranges::end(rng_->inner_))
                                 break;
-                            if (++outer_it_ == ranges::end(rng_->outer_))
+                            if(++outer_it_ == ranges::end(rng_->outer_))
                                 break;
                             ranges::emplace<0>(cur_, ranges::begin(rng_->val_));
                         }
@@ -226,7 +226,7 @@ namespace ranges
                 }
             public:
                 using value_type = common_type_t<
-                    range_value_t<Inner>, range_value_t<ValRng>>;
+                    range_value_type_t<Inner>, range_value_type_t<ValRng>>;
                 using reference = common_reference_t<
                     range_reference_t<Inner>, range_reference_t<ValRng>>;
                 using rvalue_reference = common_reference_t<
@@ -237,7 +237,7 @@ namespace ranges
                   : rng_{&rng}
                   , outer_it_(ranges::begin(rng.outer_))
                 {
-                    if (outer_it_ != ranges::end(rng_->outer_))
+                    if(outer_it_ != ranges::end(rng_->outer_))
                     {
                         rng.inner_ = view::all(*outer_it_);
                         ranges::emplace<1>(cur_, ranges::begin(rng.inner_));
@@ -251,7 +251,7 @@ namespace ranges
                 void next()
                 {
                     // visit(cur_, [](auto& it){ ++it; });
-                    if (cur_.index() == 0)
+                    if(cur_.index() == 0)
                     {
                         auto& it = ranges::get<0>(cur_);
                         RANGES_ASSERT(it != ranges::end(rng_->val_));
@@ -268,7 +268,7 @@ namespace ranges
                 reference read() const
                 {
                     // return visit(cur_, [](auto& it) -> reference { return *it; });
-                    if (cur_.index() == 0)
+                    if(cur_.index() == 0)
                     {
                         return *ranges::get<0>(cur_);
                     }
@@ -280,7 +280,7 @@ namespace ranges
                 rvalue_reference move() const
                 {
                     // return visit(cur_, [](auto& it) -> rvalue_reference { return iter_move(it); });
-                    if (cur_.index() == 0)
+                    if(cur_.index() == 0)
                     {
                         return iter_move(ranges::get<0>(cur_));
                     }
@@ -301,6 +301,8 @@ namespace ranges
         {
             struct join_fn
             {
+                // Don't forget to update view::for_each whenever this set
+                // of concepts changes
                 template<typename Rng>
                 using JoinableRange_ = meta::and_<
                     InputRange<Rng>,
@@ -315,9 +317,9 @@ namespace ranges
                     CONCEPT_REQUIRES_(JoinableRange_<Rng>())>
                 join_view<all_t<Rng>> operator()(Rng && rng) const
                 {
-                    return join_view<all_t<Rng>>{all(std::forward<Rng>(rng))};
+                    return join_view<all_t<Rng>>{all(static_cast<Rng&&>(rng))};
                 }
-                template<typename Rng, typename Val = range_value_t<range_reference_t<Rng>>,
+                template<typename Rng, typename Val = range_value_type_t<range_reference_t<Rng>>,
                     CONCEPT_REQUIRES_(JoinableRange_<Rng>())>
                 join_view<all_t<Rng>, single_view<Val>> operator()(Rng && rng, meta::id_t<Val> v) const
                 {
@@ -325,23 +327,23 @@ namespace ranges
                         "To join a range of ranges with a value, the value type must be a model of "
                         "the SemiRegular concept; that is, it must have a default constructor, "
                         "copy and move constructors, and a destructor.");
-                    return {all(std::forward<Rng>(rng)), single(std::move(v))};
+                    return {all(static_cast<Rng&&>(rng)), single(std::move(v))};
                 }
                 template<typename Rng, typename ValRng,
                     CONCEPT_REQUIRES_(JoinableRange_<Rng>() && ForwardRange<ValRng>())>
                 join_view<all_t<Rng>, all_t<ValRng>> operator()(Rng && rng, ValRng && val) const
                 {
-                    CONCEPT_ASSERT_MSG(Common<range_value_t<ValRng>,
-                        range_value_t<range_reference_t<Rng>>>(),
+                    CONCEPT_ASSERT_MSG(Common<range_value_type_t<ValRng>,
+                        range_value_type_t<range_reference_t<Rng>>>(),
                         "To join a range of ranges with another range, all the ranges must have "
                         "a common value type.");
                     CONCEPT_ASSERT_MSG(SemiRegular<concepts::Common::value_t<
-                        range_value_t<ValRng>, range_value_t<range_reference_t<Rng>>>>(),
+                        range_value_type_t<ValRng>, range_value_type_t<range_reference_t<Rng>>>>(),
                         "To join a range of ranges with another range, all the ranges must have "
                         "a common value type, and that value type must model the SemiRegular "
                         "concept; that is, it must have a default constructor, copy and move "
                         "constructors, and a destructor.");
-                    return {all(std::forward<Rng>(rng)), all(std::forward<ValRng>(val))};
+                    return {all(static_cast<Rng&&>(rng)), all(static_cast<ValRng&&>(val))};
                 }
             private:
                friend view_access;

@@ -46,15 +46,15 @@ namespace ranges
                 struct ConceptImpl
                 {
                     template<typename Rng, typename Gen,
-                        typename I = range_iterator_t<Rng>>
-                    auto requires_(Rng&&, Gen&&) -> decltype(
+                        typename I = iterator_t<Rng>>
+                    auto requires_() -> decltype(
                         concepts::valid_expr(
                             concepts::model_of<concepts::RandomAccessRange, Rng>(),
                             concepts::is_true(Permutable<I>()),
                             concepts::is_true(UniformRandomNumberGenerator<Gen>()),
                             concepts::is_true(ConvertibleTo<
                                 concepts::UniformRandomNumberGenerator::result_t<Gen>,
-                                iterator_difference_t<I>>())
+                                difference_type_t<I>>())
                         ));
                 };
 
@@ -65,8 +65,8 @@ namespace ranges
                     CONCEPT_REQUIRES_(Concept<Rng, Gen>())>
                 Rng operator()(Rng && rng, Gen && gen) const
                 {
-                    ranges::shuffle(rng, std::forward<Gen>(gen));
-                    return std::forward<Rng>(rng);
+                    ranges::shuffle(rng, static_cast<Gen&&>(gen));
+                    return static_cast<Rng&&>(rng);
                 }
 
             #ifndef RANGES_DOXYGEN_INVOKED
@@ -77,7 +77,7 @@ namespace ranges
                     CONCEPT_ASSERT_MSG(RandomAccessRange<Rng>(),
                         "The object on which action::shuffle operates must be a model of the "
                         "RandomAccessRange concept.");
-                    using I = range_iterator_t<Rng>;
+                    using I = iterator_t<Rng>;
                     CONCEPT_ASSERT_MSG(Permutable<I>(),
                         "The iterator type of the range passed to action::shuffle must allow its "
                         "elements to be permuted; that is, the values must be movable and the "
@@ -87,7 +87,7 @@ namespace ranges
                         "UniformRandomNumberGenerator concept.");
                     CONCEPT_ASSERT_MSG(ConvertibleTo<
                         concepts::UniformRandomNumberGenerator::result_t<Gen>,
-                        iterator_difference_t<I>>(),
+                        difference_type_t<I>>(),
                         "The random generator passed to action::shuffle has to have a return type "
                         "convertible to the container iterator difference type.");
                 }

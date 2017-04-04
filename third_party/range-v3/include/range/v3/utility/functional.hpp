@@ -181,6 +181,17 @@ namespace ranges
           : coerce<T>
         {};
 
+        struct dereference_fn
+        {
+            template<typename I>
+            constexpr auto operator()(I &i) const
+            RANGES_DECLTYPE_AUTO_RETURN_NOEXCEPT
+            (
+                *i
+            )
+        };
+        RANGES_INLINE_VARIABLE(dereference_fn, dereference)
+
         /// \addtogroup group-concepts
         /// @{
         namespace concepts
@@ -190,8 +201,9 @@ namespace ranges
                 template<typename Fun, typename... Args>
                 using result_t = result_of_t<Fun &&(Args &&...)>;
 
-                template<typename Fun, typename... Args, typename = result_of_t<Fun &&(Args &&...)>>
-                auto requires_(Fun &&, Args &&...) -> void;
+                template<typename Fun, typename... Args>
+                auto requires_() ->
+                    meta::void_<result_of_t<Fun &&(Args &&...)>>;
             };
 
             struct RegularInvocable
@@ -204,7 +216,7 @@ namespace ranges
               : refines<RegularInvocable>
             {
                 template<typename Fun, typename... Args>
-                auto requires_(Fun &&, Args &&...) -> decltype(
+                auto requires_() -> decltype(
                     concepts::valid_expr(
                         concepts::model_of<ConvertibleTo, Invocable::result_t<Fun, Args...>, bool>()
                     ));
@@ -213,26 +225,28 @@ namespace ranges
             struct Relation
             {
                 template<typename Fun, typename T>
-                auto requires_(Fun &&, T &&) -> decltype(
+                auto requires_() -> decltype(
                     concepts::valid_expr(
                         concepts::model_of<Predicate, Fun, T, T>()
                     ));
 
-                template<typename Fun, typename T, typename U,
-                    meta::if_<std::is_same<T, U>, int> = 0>
-                auto requires_(Fun &&, T &&, U &&) -> decltype(
+                template<typename Fun, typename T, typename U>
+                auto requires_() -> decltype(
                     concepts::valid_expr(
+                        concepts::is_true(std::is_same<T, U>{}),
                         concepts::model_of<Predicate, Fun, T, U>()
                     ));
 
                 template<typename Fun, typename T, typename U,
-                    meta::if_c<!std::is_same<T, U>::value, int> = 0,
-                    typename C = CommonReference::reference_t<T const &, U const &>>
-                auto requires_(Fun &&, T &&, U &&) -> decltype(
+                    typename C =
+                        common_reference_t<detail::as_cref_t<T>, detail::as_cref_t<U>>>
+                auto requires_() -> decltype(
                     concepts::valid_expr(
+                        concepts::is_false(std::is_same<T, U>{}),
                         concepts::model_of<Relation, Fun, T, T>(),
                         concepts::model_of<Relation, Fun, U, U>(),
-                        concepts::model_of<CommonReference, T const &, U const &>(),
+                        concepts::model_of<
+                            CommonReference, detail::as_cref_t<T>, detail::as_cref_t<U>>(),
                         concepts::model_of<Relation, Fun, C, C>(),
                         concepts::model_of<Predicate, Fun, T, U>(),
                         concepts::model_of<Predicate, Fun, U, T>()
@@ -275,7 +289,7 @@ namespace ranges
 // Luckily they are rare - we'll simply break them.
 #if defined(__GNUC__) && !defined(__clang__) && __GNUC__ < 5 && __GNUC_MINOR__ < 9
             template<typename ...Args,
-                CONCEPT_REQUIRES_(Predicate<FD &, Args &&...>())>
+                CONCEPT_REQUIRES_(Predicate<FD &, Args...>())>
             RANGES_CXX14_CONSTEXPR auto operator()(Args &&...args)
             RANGES_DECLTYPE_NOEXCEPT(
                 !invoke(std::declval<FD &>(), static_cast<Args &&>(args)...))
@@ -284,7 +298,7 @@ namespace ranges
             }
             /// \overload
             template<typename ...Args,
-                CONCEPT_REQUIRES_(Predicate<FD const &, Args &&...>())>
+                CONCEPT_REQUIRES_(Predicate<FD const &, Args...>())>
             constexpr auto operator()(Args &&...args) const
             RANGES_DECLTYPE_NOEXCEPT(
                 !invoke(std::declval<FD const &>(), static_cast<Args &&>(args)...))
@@ -293,7 +307,7 @@ namespace ranges
             }
 #else // ^^^ GCC <= 4.8 / GCC > 4.8 vvvv
             template<typename ...Args,
-                CONCEPT_REQUIRES_(Predicate<FD &, Args &&...>())>
+                CONCEPT_REQUIRES_(Predicate<FD &, Args...>())>
             RANGES_CXX14_CONSTEXPR auto operator()(Args &&...args) &
             RANGES_DECLTYPE_NOEXCEPT(
                 !invoke(std::declval<FD &>(), static_cast<Args &&>(args)...))
@@ -302,7 +316,7 @@ namespace ranges
             }
             /// \overload
             template<typename ...Args,
-                CONCEPT_REQUIRES_(Predicate<FD const &, Args &&...>())>
+                CONCEPT_REQUIRES_(Predicate<FD const &, Args...>())>
             constexpr auto operator()(Args &&...args) const &
             RANGES_DECLTYPE_NOEXCEPT(
                 !invoke(std::declval<FD const &>(), static_cast<Args &&>(args)...))
@@ -311,7 +325,7 @@ namespace ranges
             }
             /// \overload
             template<typename ...Args,
-                CONCEPT_REQUIRES_(Predicate<FD &&, Args &&...>())>
+                CONCEPT_REQUIRES_(Predicate<FD, Args...>())>
             RANGES_CXX14_CONSTEXPR auto operator()(Args &&...args) &&
             RANGES_DECLTYPE_NOEXCEPT(
                 !invoke(std::declval<FD>(), static_cast<Args &&>(args)...))
@@ -320,7 +334,7 @@ namespace ranges
             }
             /// \overload
             template<typename ...Args,
-                CONCEPT_REQUIRES_(Predicate<FD const &&, Args &&...>())>
+                CONCEPT_REQUIRES_(Predicate<FD const, Args...>())>
             RANGES_CXX14_CONSTEXPR auto operator()(Args &&...args) const &&
             RANGES_DECLTYPE_NOEXCEPT(
                 !invoke(std::declval<FD const>(), static_cast<Args &&>(args)...))
@@ -329,13 +343,14 @@ namespace ranges
             }
 #endif // GCC
         };
+
         template<typename Pred>
         using logical_negate = logical_negate_<detail::decay_t<Pred>>;
 
         struct not_fn_fn
         {
             template<typename Pred, typename FD = detail::decay_t<Pred>,
-                CONCEPT_REQUIRES_(MoveConstructible<FD>() && Constructible<FD, Pred &&>())>
+                CONCEPT_REQUIRES_(MoveConstructible<FD>() && Constructible<FD, Pred>())>
             constexpr logical_negate_<FD> operator()(Pred && pred) const
             {
                 return logical_negate_<FD>{(Pred &&) pred};
@@ -347,7 +362,8 @@ namespace ranges
         RANGES_INLINE_VARIABLE(not_fn_fn, not_fn)
 
         /// \cond
-        inline namespace {
+        inline namespace
+        {
             RANGES_DEPRECATED("\"not_\" now uses the C++17 name \"not_fn\".")
             constexpr const auto& not_ = not_fn;
         }
@@ -450,38 +466,44 @@ namespace ranges
             auto operator()(Args&&...args)
             RANGES_DECLTYPE_NOEXCEPT(
                 invoke(std::declval<First &>(),
-                    detail::forward<Args>(args)...))
+                    static_cast<Args&&>(args)...))
             {
-                return invoke(first(), detail::forward<Args>(args)...);
+                return invoke(first(), static_cast<Args&&>(args)...);
             }
             template<typename... Args>
             auto operator()(Args&&...args) const
             RANGES_DECLTYPE_NOEXCEPT(
                 invoke(std::declval<First const &>(),
-                    detail::forward<Args>(args)...))
+                    static_cast<Args&&>(args)...))
             {
-                return invoke(first(), detail::forward<Args>(args)...);
+                return invoke(first(), static_cast<Args&&>(args)...);
             }
             template<typename... Args>
             auto operator()(Args&&...args)
             RANGES_DECLTYPE_NOEXCEPT(
                 std::declval<overloaded<Rest...> &>()(
-                    detail::forward<Args>(args)...))
+                    static_cast<Args&&>(args)...))
             {
-                return second()(detail::forward<Args>(args)...);
+                return second()(static_cast<Args&&>(args)...);
             }
             template<typename... Args>
             auto operator()(Args&&...args) const
             RANGES_DECLTYPE_NOEXCEPT(
                 std::declval<overloaded<Rest...> const &>()(
-                    detail::forward<Args>(args)...))
+                    static_cast<Args&&>(args)...))
             {
-                return second()(detail::forward<Args>(args)...);
+                return second()(static_cast<Args&&>(args)...);
             }
         };
 
         struct overload_fn
         {
+            template<typename Fn>
+            constexpr Fn operator()(Fn fn) const
+            {
+                return fn;
+            }
+
             template<typename ...Fns>
             constexpr overloaded<Fns...> operator()(Fns... fns) const
             {
@@ -572,16 +594,16 @@ namespace ranges
             template<typename ...Args>
             auto operator()(Args &&... args)
             RANGES_DECLTYPE_NOEXCEPT(
-                invoke(std::declval<Fn1 &>(), invoke(std::declval<Fn2 &>(), std::forward<Args>(args))...))
+                invoke(std::declval<Fn1 &>(), invoke(std::declval<Fn2 &>(), static_cast<Args&&>(args))...))
             {
-                return invoke(first(), invoke(second(), std::forward<Args>(args)...));
+                return invoke(first(), invoke(second(), static_cast<Args&&>(args)...));
             }
             template<typename ...Args>
             auto operator()(Args &&... args) const
             RANGES_DECLTYPE_NOEXCEPT(
-                invoke(std::declval<Fn1 const &>(), invoke(std::declval<Fn2 const &>(), std::forward<Args>(args))...))
+                invoke(std::declval<Fn1 const &>(), invoke(std::declval<Fn2 const &>(), static_cast<Args&&>(args))...))
             {
-                return invoke(first(), invoke(second(), std::forward<Args>(args)...));
+                return invoke(first(), invoke(second(), static_cast<Args&&>(args)...));
             }
         };
 
@@ -620,7 +642,7 @@ namespace ranges
                 auto operator()(Arg && arg) const
                 RANGES_DECLTYPE_AUTO_RETURN
                 (
-                    std::forward<Arg>(arg) | pipe0_ | pipe1_
+                    static_cast<Arg&&>(arg) | pipe0_ | pipe1_
                 )
             };
         }
@@ -694,7 +716,7 @@ namespace ranges
             static auto pipe(Arg && arg, Pipe pipe)
             RANGES_DECLTYPE_AUTO_RETURN
             (
-                pipe(std::forward<Arg>(arg))
+                pipe(static_cast<Arg&&>(arg))
             )
         };
 
@@ -704,7 +726,7 @@ namespace ranges
         auto operator|(Arg && arg, Pipe pipe)
         RANGES_DECLTYPE_AUTO_RETURN
         (
-            pipeable_access::impl<Pipe>::pipe(std::forward<Arg>(arg), pipe)
+            pipeable_access::impl<Pipe>::pipe(static_cast<Arg&&>(arg), pipe)
         )
 
         // Compose two pipes
@@ -796,7 +818,7 @@ namespace ranges
             template<typename T, CONCEPT_REQUIRES_(!is_reference_wrapper<T>())>
             T && operator()(T && t) const noexcept
             {
-                return std::forward<T>(t);
+                return static_cast<T&&>(t);
             }
             /// \overload
             template<typename T, bool RValue>
@@ -836,14 +858,14 @@ namespace ranges
                 auto operator()(Ts &&...ts)
                 RANGES_DECLTYPE_AUTO_RETURN
                 (
-                    bind_(std::forward<Ts>(ts)...)
+                    bind_(static_cast<Ts&&>(ts)...)
                 )
                 /// \overload
                 template<typename...Ts>
                 auto operator()(Ts &&...ts) const
                 RANGES_DECLTYPE_AUTO_RETURN
                 (
-                    bind_(std::forward<Ts>(ts)...)
+                    bind_(static_cast<Ts&&>(ts)...)
                 )
             };
         }
@@ -854,13 +876,13 @@ namespace ranges
             template<typename F, CONCEPT_REQUIRES_(std::is_bind_expression<uncvref_t<F>>())>
             detail::protect<uncvref_t<F>> operator()(F && f) const
             {
-                return {std::forward<F>(f)};
+                return {static_cast<F&&>(f)};
             }
             /// \overload
             template<typename F, CONCEPT_REQUIRES_(!std::is_bind_expression<uncvref_t<F>>())>
             F operator()(F && f) const
             {
-                return std::forward<F>(f);
+                return static_cast<F&&>(f);
             }
         };
 
@@ -888,21 +910,21 @@ namespace ranges
             auto operator()(std::initializer_list<V0> &&rng0, Args &&...args) const ->
                 decltype(std::declval<ImplFn const &>()(std::move(rng0), std::declval<Args>()...))
             {
-                return base()(std::move(rng0), std::forward<Args>(args)...);
+                return base()(std::move(rng0), static_cast<Args&&>(args)...);
             }
             /// \overload
             template<typename Rng0, typename V1, typename...Args>
             auto operator()(Rng0 && rng0, std::initializer_list<V1> &&rng1, Args &&...args) const ->
                 decltype(std::declval<ImplFn const &>()(std::declval<Rng0>(), std::move(rng1), std::declval<Args>()...))
             {
-                return base()(std::forward<Rng0>(rng0), std::move(rng1), std::forward<Args>(args)...);
+                return base()(static_cast<Rng0&&>(rng0), std::move(rng1), static_cast<Args&&>(args)...);
             }
             /// \overload
             template<typename V0, typename V1, typename...Args>
             auto operator()(std::initializer_list<V0> rng0, std::initializer_list<V1> &&rng1, Args &&...args) const ->
                 decltype(std::declval<ImplFn const &>()(std::move(rng0), std::move(rng1), std::declval<Args>()...))
             {
-                return base()(std::move(rng0), std::move(rng1), std::forward<Args>(args)...);
+                return base()(std::move(rng0), std::move(rng1), static_cast<Args&&>(args)...);
             }
         };
         /// @}

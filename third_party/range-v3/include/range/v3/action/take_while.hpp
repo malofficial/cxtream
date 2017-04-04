@@ -47,9 +47,9 @@ namespace ranges
                 struct ConceptImpl
                 {
                     template<typename Rng, typename Fun,
-                        typename I = range_iterator_t<Rng>,
-                        typename S = range_sentinel_t<Rng>>
-                    auto requires_(Rng&&, Fun&&) -> decltype(
+                        typename I = iterator_t<Rng>,
+                        typename S = sentinel_t<Rng>>
+                    auto requires_() -> decltype(
                         concepts::valid_expr(
                             concepts::model_of<concepts::ForwardRange, Rng>(),
                             concepts::model_of<concepts::ErasableRange, Rng, I, S>(),
@@ -66,7 +66,7 @@ namespace ranges
                 {
                     ranges::action::erase(rng, find_if_not(begin(rng), end(rng), std::move(fun)),
                         end(rng));
-                    return std::forward<Rng>(rng);
+                    return static_cast<Rng&&>(rng);
                 }
 
             #ifndef RANGES_DOXYGEN_INVOKED
@@ -77,8 +77,8 @@ namespace ranges
                     CONCEPT_ASSERT_MSG(ForwardRange<Rng>(),
                         "The object on which action::take_while operates must be a model of the "
                         "ForwardRange concept.");
-                    using I = range_iterator_t<Rng>;
-                    using S = range_sentinel_t<Rng>;
+                    using I = iterator_t<Rng>;
+                    using S = sentinel_t<Rng>;
                     CONCEPT_ASSERT_MSG(ErasableRange<Rng, I, S>(),
                         "The object on which action::take_while operates must allow element "
                         "removal.");

@@ -88,6 +88,10 @@
     #endif
 #endif
 
+RANGES_DIAGNOSTIC_PUSH
+RANGES_DIAGNOSTIC_IGNORE_PRAGMAS
+RANGES_DIAGNOSTIC_IGNORE_CXX17_COMPAT
+
 namespace ranges
 {
     inline namespace v3
@@ -102,7 +106,7 @@ namespace ranges
                 using result_t = result_of_t<Gen&()>;
 
                 template<typename Gen, typename Result = result_t<Gen>>
-                auto requires_(Gen && gen) -> decltype(
+                auto requires_() -> decltype(
                     concepts::valid_expr(
                         concepts::model_of<UnsignedIntegral, Result>(),
                         concepts::has_type<Result>(uncvref_t<Gen>::min()),
@@ -123,11 +127,11 @@ namespace ranges
         {
             namespace randutils
             {
-                template <typename T,
+                template<typename T,
                     CONCEPT_REQUIRES_(Integral<T>())>
                 RANGES_CXX14_CONSTEXPR std::uint32_t crushto32(T value)
                 {
-                    if (sizeof(T) <= 4)
+                    if(sizeof(T) <= 4)
                         return static_cast<std::uint32_t>(value);
                     else {
                         auto result = static_cast<std::uint64_t>(value);
@@ -136,11 +140,11 @@ namespace ranges
                     }
                 }
 
-                template <typename T>
+                template<typename T>
                 RANGES_CXX14_CONSTEXPR std::uint32_t hash(T && value)
                 {
                     auto hasher = std::hash<uncvref_t<T>>{};
-                    return randutils::crushto32(hasher(detail::forward<T>(value)));
+                    return randutils::crushto32(hasher(static_cast<T&&>(value)));
                 }
 
                 constexpr std::uint32_t fnv(std::uint32_t hash, const char* pos)
@@ -320,37 +324,40 @@ namespace ranges
 
                     std::array<IntRep, count> mixer_;
 
-                    template <typename I, typename S,
+                    template<typename I, typename S,
                         CONCEPT_REQUIRES_(InputIterator<I>() && Sentinel<S, I>() &&
-                            ConvertibleTo<iterator_reference_t<I>, IntRep>())>
+                            ConvertibleTo<reference_t<I>, IntRep>())>
                     void mix_entropy(I begin, S end)
                     {
                         auto hash_const = INIT_A;
-                        auto hash = [&](IntRep value) {
+                        auto hash = [&](IntRep value)
+                        {
                             value ^= hash_const;
                             hash_const *= MULT_A;
                             value *= hash_const;
                             value ^= value >> XSHIFT;
                             return value;
                         };
-                        auto mix = [](IntRep x, IntRep y) {
+                        auto mix = [](IntRep x, IntRep y)
+                        {
                             IntRep result = MIX_MULT_L*x - MIX_MULT_R*y;
                             result ^= result >> XSHIFT;
                             return result;
                         };
 
-                        for (auto& elem : mixer_) {
-                            if (begin != end)
+                        for(auto& elem : mixer_)
+                        {
+                            if(begin != end)
                                 elem = hash(static_cast<IntRep>(*begin++));
                             else
                                 elem = hash(IntRep{0});
                         }
-                        for (auto& src : mixer_)
-                            for (auto& dest : mixer_)
-                                if (&src != &dest)
+                        for(auto& src : mixer_)
+                            for(auto& dest : mixer_)
+                                if(&src != &dest)
                                     dest = mix(dest,hash(src));
-                        for (; begin != end; ++begin)
-                            for (auto& dest : mixer_)
+                        for(; begin != end; ++begin)
+                            for(auto& dest : mixer_)
                                 dest = mix(dest,hash(static_cast<IntRep>(*begin)));
                     }
 
@@ -358,23 +365,23 @@ namespace ranges
                     seed_seq_fe(const seed_seq_fe&)     = delete;
                     void operator=(const seed_seq_fe&)  = delete;
 
-                    template <typename T,
+                    template<typename T,
                         CONCEPT_REQUIRES_(ConvertibleTo<T const&, IntRep>())>
                     seed_seq_fe(std::initializer_list<T> init)
                     {
                         seed(init.begin(), init.end());
                     }
 
-                    template <typename I, typename S,
+                    template<typename I, typename S,
                         CONCEPT_REQUIRES_(InputIterator<I>() && Sentinel<S, I>() &&
-                            ConvertibleTo<iterator_reference_t<I>, IntRep>())>
+                            ConvertibleTo<reference_t<I>, IntRep>())>
                     seed_seq_fe(I begin, S end)
                     {
                         seed(begin, end);
                     }
 
                     // generating functions
-                    template <typename I, typename S,
+                    template<typename I, typename S,
                         CONCEPT_REQUIRES_(RandomAccessIterator<I>() && Sentinel<S, I>())>
                     void generate(I dest_begin, S dest_end) const
                     {
@@ -382,9 +389,10 @@ namespace ranges
                         auto src_end   = mixer_.end();
                         auto src       = src_begin;
                         auto hash_const = INIT_B;
-                        for (auto dest = dest_begin; dest != dest_end; ++dest) {
+                        for(auto dest = dest_begin; dest != dest_end; ++dest)
+                        {
                             auto dataval = *src;
-                            if (++src == src_end)
+                            if(++src == src_end)
                                 src = src_begin;
                             dataval ^= hash_const;
                             hash_const *= MULT_B;
@@ -399,7 +407,7 @@ namespace ranges
                         return count;
                     }
 
-                    template <typename O,
+                    template<typename O,
                         CONCEPT_REQUIRES_(WeaklyIncrementable<O>() &&
                             IndirectlyCopyable<decltype(mixer_.begin()), O>())>
                     void param(O dest) const
@@ -408,14 +416,16 @@ namespace ranges
                         const IntRep MIX_INV_L = randutils::fast_exp(MIX_MULT_L, IntRep(-1));
 
                         auto mixer_copy = mixer_;
-                        for (std::size_t round = 0; round < mix_rounds; ++round) {
+                        for(std::size_t round = 0; round < mix_rounds; ++round)
+                        {
                             // Advance to the final value.  We'll backtrack from that.
                             auto hash_const = INIT_A*randutils::fast_exp(MULT_A, IntRep(count * count));
 
-                            for (auto src = mixer_copy.rbegin(); src != mixer_copy.rend(); ++src)
-                                for (auto dest = mixer_copy.rbegin(); dest != mixer_copy.rend();
+                            for(auto src = mixer_copy.rbegin(); src != mixer_copy.rend(); ++src)
+                                for(auto dest = mixer_copy.rbegin(); dest != mixer_copy.rend();
                                     ++dest)
-                                    if (src != dest) {
+                                    if(src != dest)
+                                    {
                                         IntRep revhashed = *src;
                                         auto mult_const = hash_const;
                                         hash_const *= INV_A;
@@ -428,7 +438,8 @@ namespace ranges
                                         unmixed *= MIX_INV_L;
                                         *dest = unmixed;
                                     }
-                            for (auto i = mixer_copy.rbegin(); i != mixer_copy.rend(); ++i) {
+                            for(auto i = mixer_copy.rbegin(); i != mixer_copy.rend(); ++i)
+                            {
                                 IntRep unhashed = *i;
                                 unhashed ^= unhashed >> XSHIFT;
                                 unhashed *= randutils::fast_exp(hash_const, IntRep(-1));
@@ -440,15 +451,15 @@ namespace ranges
                         ranges::copy(mixer_copy, dest);
                     }
 
-                    template <typename I, typename S,
+                    template<typename I, typename S,
                         CONCEPT_REQUIRES_(InputIterator<I>() && Sentinel<S, I>() &&
-                            ConvertibleTo<iterator_reference_t<I>, IntRep>())>
+                            ConvertibleTo<reference_t<I>, IntRep>())>
                     void seed(I begin, S end)
                     {
                         mix_entropy(begin, end);
                         // For very small sizes, we do some additional mixing.  For normal
                         // sizes, this loop never performs any iterations.
-                        for (std::size_t i = 1; i < mix_rounds; ++i)
+                        for(std::size_t i = 1; i < mix_rounds; ++i)
                             stir();
                     }
 
@@ -488,13 +499,13 @@ namespace ranges
                 *       http://www.pcg-random.org/posts/cpps-random_device.html
                 */
 
-                template <typename SeedSeq>
+                template<typename SeedSeq>
                 struct auto_seeded : public SeedSeq {
                     auto_seeded()
                         : auto_seeded(randutils::local_entropy(
                             randutils::hash(this), randutils::crushto32(typeid(*this).hash_code())))
                     {}
-                    template <std::size_t N>
+                    template<std::size_t N>
                     auto_seeded(std::array<std::uint32_t, N> const& seeds)
                         : SeedSeq(seeds.begin(), seeds.end())
                     {}
@@ -557,7 +568,8 @@ namespace ranges
                     sizeof(default_random_engine),
                     alignof(default_random_engine)>> storage;
 
-                if (!initialized) {
+                if(!initialized)
+                {
                     ::new(static_cast<void*>(&storage)) default_random_engine{Seeder{}.base()};
                     initialized = true;
                 }
@@ -573,6 +585,8 @@ namespace ranges
         /// \endcond
     }
 }
+
+RANGES_DIAGNOSTIC_POP
 
 #undef RANGES_CPU_ENTROPY
 

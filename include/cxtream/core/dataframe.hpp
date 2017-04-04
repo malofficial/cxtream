@@ -116,9 +116,9 @@ public:
     // insertion //
 
     /// Inserts a new column to the dataframe.
-    template<typename Rng, typename ToStrFun = std::string (*)(ranges::range_value_t<Rng>)>
+    template<typename Rng, typename ToStrFun = std::string (*)(ranges::range_value_type_t<Rng>)>
     std::size_t col_insert(Rng rng, std::string col_name = {},
-                           std::function<std::string(ranges::range_value_t<Rng>)> cvt =
+                           std::function<std::string(ranges::range_value_type_t<Rng>)> cvt =
                              static_cast<ToStrFun>(utility::to_string))
     {
         assert(n_rows() == 0 || ranges::size(rng) == n_rows());

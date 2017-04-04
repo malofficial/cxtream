@@ -332,7 +332,7 @@ namespace detail {
 template<typename RangeT>
 auto unzip(RangeT range_of_tuples)
 {
-    using tuple_type = ranges::range_value_t<RangeT>;
+    using tuple_type = ranges::range_value_type_t<RangeT>;
     constexpr auto tuple_size = std::tuple_size<tuple_type>{};
     constexpr auto indexes = std::make_index_sequence<tuple_size>{};
     auto range_size = ranges::size(range_of_tuples);

@@ -26,58 +26,52 @@ namespace ranges
 {
     inline namespace v3
     {
-        template<typename T>
+        template<typename Rng>
         struct shared_view
-          : view_interface<shared_view<T>>
+          : view_interface<shared_view<Rng>,
+            range_cardinality<Rng>::value>
         {
         private:
             // shared storage
-            std::shared_ptr<T> rng_ptr_;
-
-            // range of the shared storage
-            using range_t = view::all_t<T>;
-            range_t rng_;
-
+            std::shared_ptr<Rng> rng_ptr_;
 
         public:
             shared_view() = default;
 
             // construct from a shared_ptr
-            RANGES_NDEBUG_CONSTEXPR shared_view(std::shared_ptr<T> pt)
-              : rng_ptr_(std::move(pt)),
-                rng_{view::all(*rng_ptr_)}
+            shared_view(std::shared_ptr<Rng> pt) noexcept
+              : rng_ptr_{std::move(pt)}
             {}
 
             // construct from a range rvalue
-            RANGES_NDEBUG_CONSTEXPR shared_view(T && t)
-              : rng_ptr_{std::make_shared<T>(std::move(t))},
-                rng_{view::all(*rng_ptr_)}
+            explicit shared_view(Rng && t)
+              : rng_ptr_{std::make_shared<Rng>(std::move(t))}
             {}
 
             // use the stored range's begin and end
-            range_iterator_t<range_t> begin() const
+            iterator_t<Rng> begin() const
             {
-                return ranges::begin(rng_);
+                return ranges::begin(*rng_ptr_);
             }
-            range_sentinel_t<range_t> end() const
+            sentinel_t<Rng> end() const
             {
-                return ranges::end(rng_);
+                return ranges::end(*rng_ptr_);
             }
 
             // use the const-most size() function provided by the range
-            CONCEPT_REQUIRES(SizedRange<const range_t>())
-            range_size_t<range_t> size() const
+            CONCEPT_REQUIRES(SizedRange<const Rng>())
+            range_size_type_t<Rng> size() const
             {
-                return ranges::size(rng_);
+                return ranges::size(*rng_ptr_);
             }
-            CONCEPT_REQUIRES(SizedRange<range_t>() && !SizedRange<const range_t>())
-            range_size_t<range_t> size()
+            CONCEPT_REQUIRES(SizedRange<Rng>() && !SizedRange<const Rng>())
+            range_size_type_t<Rng> size()
             {
-                return ranges::size(rng_);
+                return ranges::size(*rng_ptr_);
             }
 
             // shared storage access
-            const std::shared_ptr<T> & get_shared() const
+            const std::shared_ptr<Rng> & get_shared() const
             {
                 return rng_ptr_;
             }
@@ -91,49 +85,49 @@ namespace ranges
             struct shared_fn : pipeable<shared_fn>
             {
             public:
-                template<typename T,
-                    CONCEPT_REQUIRES_(Range<T>())>
-                shared_view<T> operator()(std::shared_ptr<T> pt) const
+                template<typename Rng,
+                    CONCEPT_REQUIRES_(Range<Rng>())>
+                shared_view<Rng> operator()(std::shared_ptr<Rng> pt) const
                 {
                     return {std::move(pt)};
                 }
 
 #ifndef RANGES_DOXYGEN_INVOKED
-                template<typename T,
-                    CONCEPT_REQUIRES_(!Range<T>())>
-                void operator()(std::shared_ptr<T>) const
+                template<typename Rng,
+                    CONCEPT_REQUIRES_(!Range<Rng>())>
+                void operator()(std::shared_ptr<Rng>) const
                 {
-                    CONCEPT_ASSERT_MSG(Range<T>(),
+                    CONCEPT_ASSERT_MSG(Range<Rng>(),
                         "The object on which view::shared operates must be a "
                         "model of the Range concept.");
                 }
 #endif
 
-                template<typename T,
-                    CONCEPT_REQUIRES_(Range<T>()),
-                    typename std::enable_if<std::is_rvalue_reference<T&&>::value, bool>::type = 0>
-                shared_view<typename std::remove_reference<T>::type> operator()(T && t) const
+                template<typename Rng,
+                    CONCEPT_REQUIRES_(Range<Rng>()
+                                      && !View<Rng>()
+                                      && !std::is_reference<Rng>::value)>
+                shared_view<Rng> operator()(Rng && t) const
                 {
-                    return {std::move(t)};
+                    return shared_view<Rng>{std::move(t)};
                 }
 
 #ifndef RANGES_DOXYGEN_INVOKED
-                template<typename T,
-                    CONCEPT_REQUIRES_(Range<T>()),
-                    typename std::enable_if<!std::is_rvalue_reference<T&&>::value, bool>::type E = 0>
-                void operator()(T &&) const
+                template<typename Rng,
+                    CONCEPT_REQUIRES_(!Range<Rng>()
+                                      || View<Rng>()
+                                      || std::is_reference<Rng>::value)>
+                void operator()(Rng &&) const
                 {
-                    static_assert(E, "view::shared needs an rvalue reference"
-                                     "to build a shared object.");
-                }
-
-                template<typename T,
-                    CONCEPT_REQUIRES_(!Range<T>())>
-                void operator()(T) const
-                {
-                    CONCEPT_ASSERT_MSG(Range<T>(),
+                    CONCEPT_ASSERT_MSG(Range<Rng>(),
                         "The object on which view::shared operates must be a "
                         "model of the Range concept.");
+                    CONCEPT_ASSERT_MSG(!View<Rng>(),
+                        "view::shared cannot be constructed from a view."
+                        " Please copy the original view instead.");
+                    CONCEPT_ASSERT_MSG(std::is_rvalue_reference<Rng&&>::value,
+                        "view::shared needs an rvalue reference"
+                        "to build a shared object.");
                 }
 #endif
             };
@@ -144,7 +138,7 @@ namespace ranges
 
             template<typename Rng>
             using shared_t =
-                meta::_t<std::decay<decltype(shared(std::declval<Rng>()))>>;
+                detail::decay_t<decltype(shared(std::declval<Rng>()))>;
 
         } // namespace view
         /// @}

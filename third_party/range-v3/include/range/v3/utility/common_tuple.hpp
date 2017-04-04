@@ -31,7 +31,7 @@ namespace ranges
             template<typename ...Us, typename Tup, std::size_t...Is>
             std::tuple<Us...> to_std_tuple(Tup && tup, meta::index_sequence<Is...>)
             {
-                return std::tuple<Us...>{std::get<Is>(std::forward<Tup>(tup))...};
+                return std::tuple<Us...>{std::get<Is>(static_cast<Tup&&>(tup))...};
             }
         }
         /// \endcond
@@ -43,22 +43,14 @@ namespace ranges
         private:
             template<typename That, std::size_t...Is>
             common_tuple(That && that, meta::index_sequence<Is...>)
-              : std::tuple<Ts...>{std::get<Is>(std::forward<That>(that))...}
+              : std::tuple<Ts...>{std::get<Is>(static_cast<That&&>(that))...}
             {}
-            std::tuple<Ts...> & base() noexcept
-            {
-                return *this;
-            }
-            std::tuple<Ts...> const & base() const noexcept
-            {
-                return *this;
-            }
             struct element_assign_
             {
                 template<typename T, typename U>
                 int operator()(T &t, U &&u) const
                 {
-                    t = std::forward<U>(u);
+                    t = static_cast<U&&>(u);
                     return 0;
                 }
             };
@@ -70,10 +62,10 @@ namespace ranges
               : std::tuple<Ts...>{}
             {}
             template<typename...Us,
-                CONCEPT_REQUIRES_(meta::and_c<(bool) Constructible<Ts, Us &&>()...>::value)>
+                CONCEPT_REQUIRES_(meta::and_c<(bool) Constructible<Ts, Us>()...>::value)>
             explicit common_tuple(Us &&... us)
-                noexcept(meta::and_c<std::is_nothrow_constructible<Ts, Us &&>::value...>::value)
-              : std::tuple<Ts...>{std::forward<Us>(us)...}
+                noexcept(meta::and_c<std::is_nothrow_constructible<Ts, Us>::value...>::value)
+              : std::tuple<Ts...>{static_cast<Us&&>(us)...}
             {}
             template<typename...Us,
                 CONCEPT_REQUIRES_(meta::and_c<(bool) Constructible<Ts, Us &>()...>::value)>
@@ -88,11 +80,20 @@ namespace ranges
               : common_tuple(that, meta::make_index_sequence<sizeof...(Ts)>{})
             {}
             template<typename...Us,
-                CONCEPT_REQUIRES_(meta::and_c<(bool) Constructible<Ts, Us &&>()...>::value)>
+                CONCEPT_REQUIRES_(meta::and_c<(bool) Constructible<Ts, Us>()...>::value)>
             common_tuple(std::tuple<Us...> &&that)
-                noexcept(meta::and_c<std::is_nothrow_constructible<Ts, Us &&>::value...>::value)
+                noexcept(meta::and_c<std::is_nothrow_constructible<Ts, Us>::value...>::value)
               : common_tuple(std::move(that), meta::make_index_sequence<sizeof...(Ts)>{})
             {}
+
+            std::tuple<Ts...> & base() noexcept
+            {
+                return *this;
+            }
+            std::tuple<Ts...> const & base() const noexcept
+            {
+                return *this;
+            }
 
             // Assignment
             template<typename...Us,
@@ -112,9 +113,34 @@ namespace ranges
                 return *this;
             }
             template<typename...Us,
-                CONCEPT_REQUIRES_(meta::and_c<(bool) Assignable<Ts &, Us &&>()...>::value)>
+                CONCEPT_REQUIRES_(meta::and_c<(bool) Assignable<Ts &, Us>()...>::value)>
             common_tuple &operator=(std::tuple<Us...> &&that)
-                noexcept(meta::and_c<std::is_nothrow_assignable<Ts &, Us &&>::value...>::value)
+                noexcept(meta::and_c<std::is_nothrow_assignable<Ts &, Us>::value...>::value)
+            {
+                (void)tuple_transform(base(), std::move(that), element_assign_{});
+                return *this;
+            }
+
+            template<typename...Us,
+                CONCEPT_REQUIRES_(meta::and_c<(bool) Assignable<Ts const &, Us &>()...>::value)>
+            common_tuple const &operator=(std::tuple<Us...> &that) const
+                noexcept(meta::and_c<std::is_nothrow_assignable<Ts const &, Us &>::value...>::value)
+            {
+                (void)tuple_transform(base(), that, element_assign_{});
+                return *this;
+            }
+            template<typename...Us,
+                CONCEPT_REQUIRES_(meta::and_c<(bool) Assignable<Ts const &, Us const &>()...>::value)>
+            common_tuple const &operator=(std::tuple<Us...> const & that) const
+                noexcept(meta::and_c<std::is_nothrow_assignable<Ts const &, Us const &>::value...>::value)
+            {
+                (void)tuple_transform(base(), that, element_assign_{});
+                return *this;
+            }
+            template<typename...Us,
+                CONCEPT_REQUIRES_(meta::and_c<(bool) Assignable<Ts const &, Us &&>()...>::value)>
+            common_tuple const &operator=(std::tuple<Us...> &&that) const
+                noexcept(meta::and_c<std::is_nothrow_assignable<Ts const &, Us &&>::value...>::value)
             {
                 (void)tuple_transform(base(), std::move(that), element_assign_{});
                 return *this;
@@ -136,9 +162,9 @@ namespace ranges
                 return detail::to_std_tuple<Us...>(*this, meta::make_index_sequence<sizeof...(Ts)>{});
             }
             template<typename ...Us,
-                CONCEPT_REQUIRES_(meta::and_c<(bool) Constructible<Us, Ts &&>()...>::value)>
+                CONCEPT_REQUIRES_(meta::and_c<(bool) Constructible<Us, Ts>()...>::value)>
             operator std::tuple<Us...> () &&
-                noexcept(meta::and_c<std::is_nothrow_constructible<Us, Ts &&>::value...>::value)
+                noexcept(meta::and_c<std::is_nothrow_constructible<Us, Ts>::value...>::value)
             {
                 return detail::to_std_tuple<Us...>(std::move(*this), meta::make_index_sequence<sizeof...(Ts)>{});
             }
@@ -183,7 +209,7 @@ namespace ranges
                         unwrap_reference_t<Args>>::value...>::value)
             {
                 return common_tuple<bind_element_t<Args>...>{
-                    unwrap_reference(std::forward<Args>(args))...};
+                    unwrap_reference(static_cast<Args&&>(args))...};
             }
         };
 
@@ -209,11 +235,11 @@ namespace ranges
               : std::pair<F, S>{}
             {}
             template<typename F2, typename S2,
-                CONCEPT_REQUIRES_(Constructible<F, F2 &&>() && Constructible<S, S2 &&>())>
+                CONCEPT_REQUIRES_(Constructible<F, F2>() && Constructible<S, S2>())>
             common_pair(F2 &&f2, S2 &&s2)
-                noexcept(std::is_nothrow_constructible<F, F2 &&>::value &&
-                    std::is_nothrow_constructible<S, S2 &&>::value)
-              : std::pair<F, S>{std::forward<F2>(f2), std::forward<S2>(s2)}
+                noexcept(std::is_nothrow_constructible<F, F2>::value &&
+                    std::is_nothrow_constructible<S, S2>::value)
+              : std::pair<F, S>{static_cast<F2&&>(f2), static_cast<S2&&>(s2)}
             {}
             template<typename F2, typename S2,
                 CONCEPT_REQUIRES_(Constructible<F, F2 &>() && Constructible<S, S2 &>())>
@@ -230,10 +256,10 @@ namespace ranges
               : std::pair<F, S>{that.first, that.second}
             {}
             template<typename F2, typename S2,
-                CONCEPT_REQUIRES_(Constructible<F, F2 &&>() && Constructible<S, S2 &&>())>
+                CONCEPT_REQUIRES_(Constructible<F, F2>() && Constructible<S, S2>())>
             common_pair(std::pair<F2, S2> &&that)
-                noexcept(std::is_nothrow_constructible<F, F2 &&>::value &&
-                    std::is_nothrow_constructible<S, S2 &&>::value)
+                noexcept(std::is_nothrow_constructible<F, F2>::value &&
+                    std::is_nothrow_constructible<S, S2>::value)
               : std::pair<F, S>{std::forward<F2>(that.first), std::forward<S2>(that.second)}
             {}
 
@@ -255,10 +281,10 @@ namespace ranges
                 return {this->first, this->second};
             }
             template<typename F2, typename S2,
-                CONCEPT_REQUIRES_(Constructible<F2, F &&>() && Constructible<S2, S &&>())>
+                CONCEPT_REQUIRES_(Constructible<F2, F>() && Constructible<S2, S>())>
             operator std::pair<F2, S2> () &&
-                noexcept(std::is_nothrow_constructible<F2, F &&>::value &&
-                    std::is_nothrow_constructible<S2, S &&>::value)
+                noexcept(std::is_nothrow_constructible<F2, F>::value &&
+                    std::is_nothrow_constructible<S2, S>::value)
             {
                 return {std::forward<F>(this->first), std::forward<S>(this->second)};
             }
@@ -285,13 +311,44 @@ namespace ranges
                 return *this;
             }
             template<typename F2, typename S2,
-                CONCEPT_REQUIRES_(Assignable<F &, F2 &&>() && Assignable<S &, S2 &&>())>
+                CONCEPT_REQUIRES_(Assignable<F &, F2>() && Assignable<S &, S2>())>
             common_pair &operator=(std::pair<F2, S2> &&that)
-                noexcept(std::is_nothrow_assignable<F &, F2 &&>::value &&
-                         std::is_nothrow_assignable<S &, S2 &&>::value)
+                noexcept(std::is_nothrow_assignable<F &, F2>::value &&
+                         std::is_nothrow_assignable<S &, S2>::value)
             {
-                this->first = std::forward<F2>(that.first);
-                this->second = std::forward<S2>(that.second);
+                this->first = static_cast<F2&&>(that.first);
+                this->second = static_cast<S2&&>(that.second);
+                return *this;
+            }
+
+            template<typename F2, typename S2,
+                CONCEPT_REQUIRES_(Assignable<F const &, F2 &>() && Assignable<S const &, S2 &>())>
+            common_pair const &operator=(std::pair<F2, S2> &that) const
+                noexcept(std::is_nothrow_assignable<F const &, F2 &>::value &&
+                         std::is_nothrow_assignable<S const &, S2 &>::value)
+            {
+                this->first = that.first;
+                this->second = that.second;
+                return *this;
+            }
+            template<typename F2, typename S2,
+                CONCEPT_REQUIRES_(Assignable<F const &, F2 const &>() && Assignable<S const &, S2 const &>())>
+            common_pair const &operator=(std::pair<F2, S2> const & that) const
+                noexcept(std::is_nothrow_assignable<F const &, F2 const &>::value &&
+                         std::is_nothrow_assignable<S const &, S2 const &>::value)
+            {
+                this->first = that.first;
+                this->second = that.second;
+                return *this;
+            }
+            template<typename F2, typename S2,
+                CONCEPT_REQUIRES_(Assignable<F const &, F2 &&>() && Assignable<S const &, S2 &&>())>
+            common_pair const &operator=(std::pair<F2, S2> &&that) const
+                noexcept(std::is_nothrow_assignable<F const &, F2 &&>::value &&
+                         std::is_nothrow_assignable<S const &, S2 &&>::value)
+            {
+                this->first = static_cast<F2&&>(that.first);
+                this->second = static_cast<S2&&>(that.second);
                 return *this;
             }
         };
@@ -369,8 +426,8 @@ namespace ranges
                     std::is_nothrow_constructible<F, unwrap_reference_t<Second>>::value)
             {
                 return {
-                    unwrap_reference(std::forward<First>(f)),
-                    unwrap_reference(std::forward<Second>(s))};
+                    unwrap_reference(static_cast<First&&>(f)),
+                    unwrap_reference(static_cast<Second&&>(s))};
             }
         };
 
