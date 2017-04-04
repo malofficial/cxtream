@@ -36,12 +36,12 @@ namespace ranges
                 template<typename Rng>
                 using Concept = meta::and_<
                     ForwardRange<Rng>,
-                    EqualityComparable<range_value_t<Rng>>>;
+                    EqualityComparable<range_value_type_t<Rng>>>;
 
                 template<typename Rng, CONCEPT_REQUIRES_(Concept<Rng>())>
                 unique_view<all_t<Rng>> operator()(Rng && rng) const
                 {
-                    return {all(std::forward<Rng>(rng)), not_equal_to{}};
+                    return {all(static_cast<Rng&&>(rng)), not_equal_to{}};
                 }
             #ifndef RANGES_DOXYGEN_INVOKED
                 template<typename Rng,
@@ -51,7 +51,7 @@ namespace ranges
                     CONCEPT_ASSERT_MSG(ForwardRange<Rng>(),
                         "The object on which view::unique operates must be a model the "
                         "ForwardRange concept.");
-                    CONCEPT_ASSERT_MSG(EqualityComparable<range_value_t<Rng>>(),
+                    CONCEPT_ASSERT_MSG(EqualityComparable<range_value_type_t<Rng>>(),
                         "The value type of the range passed to view::unique must be "
                         "EqualityComparable.");
                 }

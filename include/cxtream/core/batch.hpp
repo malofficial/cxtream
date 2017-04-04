@@ -54,9 +54,9 @@ private:
     struct cursor {
     private:
         batch_view<Rng>* rng_ = nullptr;
-        ranges::range_iterator_t<Rng> it_ = {};
+        ranges::iterator_t<Rng> it_ = {};
 
-        using batch_t_ = ranges::range_value_t<Rng>;
+        using batch_t_ = ranges::range_value_type_t<Rng>;
         using column_idxs_t = std::make_index_sequence<std::tuple_size<batch_t_>{}>;
         // the batch will be a pointer to allow moving from it in const functions
         std::shared_ptr<batch_t_> batch_ = std::make_shared<batch_t_>();

@@ -85,8 +85,8 @@ namespace ranges
                 using rvalue_reference_t_ = cursor_rvalue_reference_t<Cur>;
             private:
                 using R1 = reference_t_;
-                using R2 = common_reference_t<reference_t_ &&, value_t_ &>;
-                using R3 = common_reference_t<reference_t_ &&, rvalue_reference_t_ &&>;
+                using R2 = common_reference_t<reference_t_, value_t_ &>;
+                using R3 = common_reference_t<reference_t_, rvalue_reference_t_>;
                 using tmp1 = meta::list<value_t_, R1>;
                 using tmp2 =
                     meta::if_<meta::in<tmp1, uncvref_t<R2>>, tmp1, meta::push_back<tmp1, R2>>;
@@ -109,18 +109,18 @@ namespace ranges
                         typename cursor_traits<Cur>::common_refs,
                         meta::bind_front<
                             meta::quote<proxy_reference_conversion>,
-                            basic_proxy_reference<Cur>>>>
+                            basic_proxy_reference<Cur, Readable>>>>
             {
             private:
                 Cur *cur_;
-                template<typename OtherCur, bool OtherReadable>
+                template<typename, bool>
                 friend struct basic_proxy_reference;
                 template<typename, typename>
                 friend struct proxy_reference_conversion;
                 using typename cursor_traits<Cur>::value_t_;
                 using typename cursor_traits<Cur>::reference_t_;
                 using typename cursor_traits<Cur>::rvalue_reference_t_;
-                CONCEPT_ASSERT_MSG(CommonReference<value_t_ &, reference_t_ &&>(),
+                CONCEPT_ASSERT_MSG(CommonReference<value_t_ &, reference_t_>(),
                     "Your readable and writable cursor must have a value type and a reference "
                     "type that share a common reference type. See the ranges::common_reference "
                     "type trait.");
@@ -132,7 +132,7 @@ namespace ranges
                 }
                 template<typename T>
                 RANGES_CXX14_CONSTEXPR
-                void write_(T && t)
+                void write_(T && t) const
                 {
                     range_access::write(*cur_, (T &&) t);
                 }
@@ -162,6 +162,19 @@ namespace ranges
                     this->write_(that.read_());
                     return *this;
                 }
+                CONCEPT_REQUIRES(ReadableCursor<Cur>())
+                RANGES_CXX14_CONSTEXPR
+                basic_proxy_reference const &operator=(basic_proxy_reference && that) const
+                {
+                    return *this = that;
+                }
+                CONCEPT_REQUIRES(ReadableCursor<Cur>())
+                RANGES_CXX14_CONSTEXPR
+                basic_proxy_reference const &operator=(basic_proxy_reference const &that) const
+                {
+                    this->write_(that.read_());
+                    return *this;
+                }
                 template<typename OtherCur,
                     CONCEPT_REQUIRES_(ReadableCursor<OtherCur>() &&
                         WritableCursor<Cur, cursor_reference_t<OtherCur>>())>
@@ -179,10 +192,35 @@ namespace ranges
                     this->write_(that.read_());
                     return *this;
                 }
+                template<typename OtherCur,
+                    CONCEPT_REQUIRES_(ReadableCursor<OtherCur>() &&
+                        WritableCursor<Cur, cursor_reference_t<OtherCur>>())>
+                RANGES_CXX14_CONSTEXPR
+                basic_proxy_reference const &operator=(basic_proxy_reference<OtherCur> && that) const
+                {
+                    return *this = that;
+                }
+                template<typename OtherCur,
+                    CONCEPT_REQUIRES_(ReadableCursor<OtherCur>() &&
+                        WritableCursor<Cur, cursor_reference_t<OtherCur>>())>
+                RANGES_CXX14_CONSTEXPR
+                basic_proxy_reference const &operator=(basic_proxy_reference<OtherCur> const &that) const
+                {
+                    this->write_(that.read_());
+                    return *this;
+                }
+                template<typename T,
+                    CONCEPT_REQUIRES_(WritableCursor<Cur, T>())>
+                RANGES_CXX14_CONSTEXPR
+                basic_proxy_reference &operator=(T && t)
+                {
+                    this->write_((T &&) t);
+                    return *this;
+                }
                 template<typename T,
                     CONCEPT_REQUIRES_(WritableCursor<Cur, T &&>())>
                 RANGES_CXX14_CONSTEXPR
-                basic_proxy_reference &operator=(T && t)
+                basic_proxy_reference const &operator=(T && t) const
                 {
                     this->write_((T &&) t);
                     return *this;
@@ -269,7 +307,11 @@ namespace ranges
                             is_writable_cursor<Cur>,
                             basic_proxy_reference<Cur>,
                             cursor_reference_t<Cur>>>;
-                using const_reference_t = reference_t;
+                using const_reference_t =
+                    meta::if_<
+                        is_writable_cursor<Cur const>,
+                        basic_proxy_reference<Cur const>,
+                        cursor_reference_t<Cur>>;
             public:
                 using difference_type = range_access::cursor_difference_t<Cur>;
                 using value_type = range_access::cursor_value_t<Cur>;
@@ -280,7 +322,7 @@ namespace ranges
                     HasCursorArrow<Cur>,
                     meta::defer<cursor_arrow_t, Cur>,
                     std::add_pointer<reference>>>;
-                using common_reference = common_reference_t<reference &&, value_type &>;
+                using common_reference = common_reference_t<reference, value_type &>;
             };
         }
         /// \endcond
@@ -310,13 +352,20 @@ namespace ranges
             using box<T>::get;
         };
 
+        /// \cond
+        namespace _basic_iterator_
+        {
+        /// \endcond
+
         template<typename Cur>
         struct basic_iterator
           : range_access::mixin_base_t<Cur>
           , detail::iterator_associated_types_base<Cur>
         {
         private:
-            friend struct range_access;
+            template<typename Cur2>
+            friend struct basic_iterator;
+            friend struct ranges::range_access;
             using mixin_t = range_access::mixin_base_t<Cur>;
             CONCEPT_ASSERT(detail::Cursor<Cur>());
             using assoc_types_ = detail::iterator_associated_types_base<Cur>;
@@ -340,10 +389,10 @@ namespace ranges
             {}
             template<typename OtherCur,
                 CONCEPT_REQUIRES_(ConvertibleTo<OtherCur, Cur>() &&
-                    Constructible<mixin_t, OtherCur &&>())>
+                    Constructible<mixin_t, OtherCur>())>
             RANGES_CXX14_CONSTEXPR
             basic_iterator(basic_iterator<OtherCur> that)
-              : mixin_t{range_access::pos(std::move(that))}
+              : mixin_t{std::move(that.pos())}
             {}
             // Mix in any additional constructors defined and exported by the mixin
             using mixin_t::mixin_t;
@@ -355,6 +404,18 @@ namespace ranges
             basic_iterator &operator=(T && t)
             noexcept(noexcept(
                 std::declval<Cur &>().write(static_cast<T &&>(t))))
+            {
+                pos().write(static_cast<T &&>(t));
+                return *this;
+            }
+
+            template<typename T,
+                CONCEPT_REQUIRES_(!Same<detail::decay_t<T>, basic_iterator>() &&
+                    !detail::HasCursorNext<Cur>() && detail::WritableCursor<Cur const, T>())>
+            RANGES_CXX14_CONSTEXPR
+            basic_iterator const &operator=(T && t) const
+            noexcept(noexcept(
+                std::declval<Cur const &>().write(static_cast<T &&>(t))))
             {
                 pos().write(static_cast<T &&>(t));
                 return *this;
@@ -375,7 +436,7 @@ namespace ranges
                 return reference_t{pos()};
             }
             CONCEPT_REQUIRES(detail::HasCursorNext<Cur>() &&
-                detail::is_writable_cursor<Cur>())
+                detail::is_writable_cursor<Cur const>())
             constexpr const_reference_t operator*() const
             noexcept(noexcept(
                 const_reference_t{std::declval<Cur const &>()}))
@@ -441,37 +502,37 @@ namespace ranges
                 ++*this;
             }
 
-            template <class Cur2, CONCEPT_REQUIRES_(detail::CursorSentinel<Cur2, Cur>())>
+            template<class Cur2, CONCEPT_REQUIRES_(detail::CursorSentinel<Cur2, Cur>())>
             friend constexpr bool operator==(basic_iterator const &left,
                 basic_iterator<Cur2> const &right)
             {
                 return range_access::equal(left.pos(), range_access::pos(right));
             }
-            template <class Cur2, CONCEPT_REQUIRES_(detail::CursorSentinel<Cur2, Cur>())>
+            template<class Cur2, CONCEPT_REQUIRES_(detail::CursorSentinel<Cur2, Cur>())>
             friend constexpr bool operator!=(basic_iterator const &left,
                 basic_iterator<Cur2> const &right)
             {
                 return !(left == right);
             }
-            template <class S, CONCEPT_REQUIRES_(detail::CursorSentinel<S, Cur>())>
+            template<class S, CONCEPT_REQUIRES_(detail::CursorSentinel<S, Cur>())>
             friend constexpr bool operator==(basic_iterator const &left,
                 S const &right)
             {
                 return range_access::equal(left.pos(), right);
             }
-            template <class S, CONCEPT_REQUIRES_(detail::CursorSentinel<S, Cur>())>
+            template<class S, CONCEPT_REQUIRES_(detail::CursorSentinel<S, Cur>())>
             friend constexpr bool operator!=(basic_iterator const &left,
                 S const &right)
             {
                 return !(left == right);
             }
-            template <class S, CONCEPT_REQUIRES_(detail::CursorSentinel<S, Cur>())>
+            template<class S, CONCEPT_REQUIRES_(detail::CursorSentinel<S, Cur>())>
             friend constexpr bool operator==(S const &left,
                 basic_iterator const &right)
             {
                 return right == left;
             }
-            template <class S, CONCEPT_REQUIRES_(detail::CursorSentinel<S, Cur>())>
+            template<class S, CONCEPT_REQUIRES_(detail::CursorSentinel<S, Cur>())>
             friend constexpr bool operator!=(S const &left,
                 basic_iterator const &right)
             {
@@ -527,7 +588,7 @@ namespace ranges
                 left -= n;
                 return left;
             }
-            template <typename Cur2,
+            template<typename Cur2,
                 CONCEPT_REQUIRES_(detail::SizedCursorSentinel<Cur2, Cur>())>
             RANGES_CXX14_CONSTEXPR
             friend difference_type operator-(basic_iterator<Cur2> const &left,
@@ -535,7 +596,7 @@ namespace ranges
             {
                 return range_access::distance_to(right.pos(), range_access::pos(left));
             }
-            template <typename S,
+            template<typename S,
                 CONCEPT_REQUIRES_(detail::SizedCursorSentinel<S, Cur>())>
             RANGES_CXX14_CONSTEXPR
             friend difference_type operator-(S const &left,
@@ -543,7 +604,7 @@ namespace ranges
             {
                 return range_access::distance_to(right.pos(), left);
             }
-            template <typename S,
+            template<typename S,
                 CONCEPT_REQUIRES_(detail::SizedCursorSentinel<S, Cur>())>
             RANGES_CXX14_CONSTEXPR
             friend difference_type operator-(basic_iterator const &left,
@@ -582,7 +643,21 @@ namespace ranges
             {
                 return *(*this + n);
             }
+
+            // Optionally support hooking iter_move when the cursor sports a
+            // move() member function.
+            template<typename C = Cur,
+               CONCEPT_REQUIRES_(Same<C, Cur>() && detail::InputCursor<Cur>())>
+            RANGES_CXX14_CONSTEXPR
+            friend auto iter_move(basic_iterator const &it)
+            RANGES_DECLTYPE_AUTO_RETURN_NOEXCEPT
+            (
+                range_access::move(static_cast<basic_iterator<C> const &>(it).pos())
+            )
         };
+        /// \cond
+        } // namespace _basic_iterator_
+        /// \endcond
 
         /// Get a cursor from a basic_iterator
         struct get_cursor_fn
@@ -612,21 +687,6 @@ namespace ranges
         /// \ingroup group-utility
         RANGES_INLINE_VARIABLE(get_cursor_fn, get_cursor)
         /// @}
-
-        /// \cond
-        namespace detail
-        {
-            // Optionally support hooking iter_move when the cursor sports a
-            // move() member function.
-            template<typename C, CONCEPT_REQUIRES_(InputCursor<C>())>
-            RANGES_CXX14_CONSTEXPR
-            auto indirect_move(basic_iterator<C> const &it)
-            RANGES_DECLTYPE_AUTO_RETURN_NOEXCEPT
-            (
-                range_access::move(get_cursor(it))
-            )
-        }
-        /// \endcond
     }
 }
 
@@ -669,6 +729,7 @@ namespace ranges
 {
     inline namespace v3
     {
+        /// \cond
         namespace detail
         {
             template<typename Cur, bool IsReadable = (bool) ReadableCursor<Cur>()>
@@ -692,6 +753,7 @@ namespace ranges
                             typename std_iterator_traits::reference>>;
             };
         }
+        /// \endcond
     }
 }
 

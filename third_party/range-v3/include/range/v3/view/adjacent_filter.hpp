@@ -54,7 +54,7 @@ namespace ranges
                 adaptor(adjacent_filter_view const &rng)
                   : rng_(&rng)
                 {}
-                void next(range_iterator_t<Rng> &it) const
+                void next(iterator_t<Rng> &it) const
                 {
                     auto const end = ranges::end(rng_->mutable_base());
                     auto &pred = rng_->pred_;
@@ -99,14 +99,14 @@ namespace ranges
                 template<typename Rng, typename Pred>
                 using Concept = meta::and_<
                     ForwardRange<Rng>,
-                    IndirectPredicate<Pred, range_iterator_t<Rng>,
-                        range_iterator_t<Rng>>>;
+                    IndirectPredicate<Pred, iterator_t<Rng>,
+                        iterator_t<Rng>>>;
 
                 template<typename Rng, typename Pred,
                     CONCEPT_REQUIRES_(Concept<Rng, Pred>())>
                 adjacent_filter_view<all_t<Rng>, Pred> operator()(Rng && rng, Pred pred) const
                 {
-                    return {all(std::forward<Rng>(rng)), std::move(pred)};
+                    return {all(static_cast<Rng&&>(rng)), std::move(pred)};
                 }
             #ifndef RANGES_DOXYGEN_INVOKED
                 template<typename Rng, typename Pred,
@@ -115,8 +115,8 @@ namespace ranges
                 {
                     CONCEPT_ASSERT_MSG(ForwardRange<Rng>(),
                         "Rng must model the ForwardRange concept");
-                    CONCEPT_ASSERT_MSG(IndirectPredicate<Pred, range_iterator_t<Rng>,
-                        range_iterator_t<Rng>>(),
+                    CONCEPT_ASSERT_MSG(IndirectPredicate<Pred, iterator_t<Rng>,
+                        iterator_t<Rng>>(),
                         "Pred must be callable with two arguments of the range's common "
                         "reference type, and it must return something convertible to bool.");
                 }

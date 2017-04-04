@@ -37,9 +37,9 @@ namespace ranges
             optional(T t)
               : data_(emplaced_index<1>, std::move(t))
             {}
-            template <typename...Args, CONCEPT_REQUIRES_(Constructible<T, Args &&...>())>
+            template<typename...Args, CONCEPT_REQUIRES_(Constructible<T, Args...>())>
             explicit optional(in_place_t, Args &&...args)
-              : data_(emplaced_index<1>, std::forward<Args>(args)...)
+              : data_(emplaced_index<1>, static_cast<Args&&>(args)...)
             {}
             explicit operator bool() const
             {

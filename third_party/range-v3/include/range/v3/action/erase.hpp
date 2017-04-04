@@ -50,17 +50,17 @@ namespace ranges
                 template<typename Rng, typename I,
                     CONCEPT_REQUIRES_(Range<Rng>() && ForwardIterator<I>())>
                 auto operator()(Rng && rng, I it) const ->
-                    decltype(erase(std::forward<Rng>(rng), it))
+                    decltype(erase(static_cast<Rng&&>(rng), it))
                 {
-                    return erase(std::forward<Rng>(rng), it);
+                    return erase(static_cast<Rng&&>(rng), it);
                 }
                 template<typename Rng, typename I, typename S,
                     CONCEPT_REQUIRES_(Range<Rng>() && ForwardIterator<I>() &&
                         Sentinel<S, I>())>
                 auto operator()(Rng && rng, I begin, S end) const ->
-                    decltype(erase(std::forward<Rng>(rng), begin, end))
+                    decltype(erase(static_cast<Rng&&>(rng), begin, end))
                 {
-                    return erase(std::forward<Rng>(rng), begin, end);
+                    return erase(static_cast<Rng&&>(rng), begin, end);
                 }
             };
         }
@@ -82,10 +82,11 @@ namespace ranges
               : refines<Range(_1)>
             {
                 template<typename Rng, typename...Rest>
-                using result_t = decltype(ranges::erase(std::declval<Rng&>(), std::declval<Rest>()...));
+                using result_t =
+                    decltype(ranges::erase(std::declval<Rng&>(), std::declval<Rest>()...));
 
                 template<typename Rng, typename...Rest>
-                auto requires_(Rng &&, Rest &&...) ->
+                auto requires_() ->
                     meta::void_<result_t<Rng, Rest...>>;
             };
         }

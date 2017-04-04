@@ -56,7 +56,7 @@ namespace ranges
     #if RANGES_CXX_INLINE_VARIABLES < RANGES_CXX_INLINE_VARIABLES_17
         inline namespace
         {
-            template <std::size_t I>
+            template<std::size_t I>
             constexpr auto& emplaced_index = static_const<emplaced_index_t<I>>::value;
         }
     #else // RANGES_CXX_INLINE_VARIABLES >= RANGES_CXX_INLINE_VARIABLES_17
@@ -118,7 +118,7 @@ namespace ranges
             O uninitialized_copy(I first, S last, O out)
             {
                 for(; first != last; ++first, ++out)
-                    ::new((void *) std::addressof(*out)) iterator_value_t<O>(*first);
+                    ::new((void *) std::addressof(*out)) value_type_t<O>(*first);
                 return out;
             }
 
@@ -146,9 +146,9 @@ namespace ranges
                   : datum_{}
                 {}
                 template<typename... Ts,
-                    CONCEPT_REQUIRES_(Constructible<T, Ts &&...>())>
+                    CONCEPT_REQUIRES_(Constructible<T, Ts...>())>
                 constexpr indexed_datum(Ts &&... ts)
-                  : datum_(detail::forward<Ts>(ts)...)
+                  : datum_(static_cast<Ts&&>(ts)...)
                 {}
                 RANGES_CXX14_CONSTEXPR indexed_element<T, Index::value> ref()
                 {
@@ -210,7 +210,7 @@ namespace ranges
         } // namespace detail
 
         template<std::size_t N, typename... Ts, typename... Args,
-            meta::if_c<Constructible<detail::variant_datum_t<N, Ts...>, Args &&...>::value, int> = 42>
+            meta::if_c<Constructible<detail::variant_datum_t<N, Ts...>, Args...>::value, int> = 42>
         void emplace(variant<Ts...>&, Args &&...);
 
         namespace detail
@@ -239,7 +239,8 @@ namespace ranges
                         tail_t tail;
                     };
 
-                    type() {}
+                    type()
+                    {}
                     template<typename... Args>
                     constexpr type(meta::size_t<0>, Args &&... args)
                       : head{((Args &&) args)...}
@@ -264,8 +265,10 @@ namespace ranges
                         tail_t tail;
                     };
 
-                    type() {}
-                    ~type() {}
+                    type()
+                    {}
+                    ~type()
+                    {}
                     template<typename... Args>
                     constexpr type(meta::size_t<0>, Args &&... args)
                       : head{((Args &&) args)...}
@@ -359,7 +362,7 @@ namespace ranges
                     return detail::move(var.data_());
                 }
                 template<typename...Ts>
-                static variant<Ts...> make_empty(meta::id<variant<Ts...>>)
+                static variant<Ts...> make_empty(meta::id<variant<Ts...>> = {})
                 {
                     return variant<Ts...>{empty_variant_tag{}};
                 }
@@ -382,11 +385,11 @@ namespace ranges
                 template<typename U, std::size_t ...Is>
                 void construct_(U &u, meta::index_sequence<Is...>)
                 {
-                    ::new((void*)std::addressof(u)) U(detail::forward<Ts>(std::get<Is>(args_))...);
+                    ::new((void*)std::addressof(u)) U(static_cast<Ts&&>(std::get<Is>(args_))...);
                 }
 
                 construct_fn(Ts &&...ts)
-                  : args_{detail::forward<Ts>(ts)...}
+                  : args_{static_cast<Ts&&>(ts)...}
                 {}
                 template<typename U, std::size_t M>
                 [[noreturn]] meta::if_c<N != M> operator()(indexed_datum<U, meta::size_t<M>> &)
@@ -434,7 +437,7 @@ namespace ranges
                 auto operator()(Ts &&...ts) const
                 RANGES_DECLTYPE_AUTO_RETURN
                 (
-                    ranges::emplace<N>(*var_, detail::forward<Ts>(ts)...)
+                    ranges::emplace<N>(*var_, static_cast<Ts&&>(ts)...)
                 )
             };
 
@@ -574,10 +577,10 @@ namespace ranges
               : variant{emplaced_index<0>}
             {}
             template<std::size_t N, typename...Args,
-                CONCEPT_REQUIRES_(Constructible<datum_t<N>, Args &&...>())>
+                CONCEPT_REQUIRES_(Constructible<datum_t<N>, Args...>())>
             constexpr variant(RANGES_EMPLACED_INDEX_T(N), Args &&...args)
-              : detail::variant_data<Ts...>{meta::size_t<N>{}
-              , detail::forward<Args>(args)...}, index_(N)
+              : detail::variant_data<Ts...>{meta::size_t<N>{}, static_cast<Args&&>(args)...}
+              , index_(N)
             {}
             template<std::size_t N, typename T,
                 CONCEPT_REQUIRES_(Constructible<datum_t<N>, std::initializer_list<T>>())>
@@ -617,11 +620,11 @@ namespace ranges
                 return sizeof...(Ts);
             }
             template<std::size_t N, typename ...Args,
-                CONCEPT_REQUIRES_(Constructible<datum_t<N>, Args &&...>())>
+                CONCEPT_REQUIRES_(Constructible<datum_t<N>, Args...>())>
             void emplace(Args &&...args)
             {
                 this->clear_();
-                detail::construct_fn<N, Args&&...> fn{detail::forward<Args>(args)...};
+                detail::construct_fn<N, Args&&...> fn{static_cast<Args&&>(args)...};
                 detail::variant_visit_(N, data_(), std::ref(fn), ident{});
                 index_ = N;
             }
@@ -728,10 +731,10 @@ namespace ranges
         ////////////////////////////////////////////////////////////////////////////////////////////
         // emplace
         template<std::size_t N, typename... Ts, typename... Args,
-            meta::if_c<Constructible<detail::variant_datum_t<N, Ts...>, Args &&...>::value, int>>
+            meta::if_c<Constructible<detail::variant_datum_t<N, Ts...>, Args...>::value, int>>
         void emplace(variant<Ts...> &var, Args &&...args)
         {
-            var.template emplace<N>(detail::forward<Args>(args)...);
+            var.template emplace<N>(static_cast<Args&&>(args)...);
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////
