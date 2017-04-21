@@ -23,24 +23,24 @@ namespace cxtream::python::utility {
 
 namespace detail {
 
-template <typename T>
-struct vector_to_py_impl {
-    template <typename U>
-    static U&& impl(U&& val)
-    {
-        return std::forward<U>(val);
-    }
-};
+    template <typename T>
+    struct vector_to_py_impl {
+        template <typename U>
+        static U&& impl(U&& val)
+        {
+            return std::forward<U>(val);
+        }
+    };
 
-template <typename T>
-struct vector_to_py_impl<std::vector<T>> {
-    static boost::python::list impl(std::vector<T> vec)
-    {
-        boost::python::list res;
-        for (auto& val : vec) res.append(vector_to_py_impl<T>::impl(std::move(val)));
-        return res;
-    }
-};
+    template <typename T>
+    struct vector_to_py_impl<std::vector<T>> {
+        static boost::python::list impl(std::vector<T> vec)
+        {
+            boost::python::list res;
+            for (auto& val : vec) res.append(vector_to_py_impl<T>::impl(std::move(val)));
+            return res;
+        }
+    };
 
 }  // namespace detail
 

@@ -126,7 +126,10 @@ public:
 template <typename Rng>
 std::once_flag iterator<Rng>::register_flag;
 
-/// Make Python iterator for a given range.
+/// Make Python iterator for a range of tuples of columns.
+///
+/// Columns represented by n-dimensional std::vectors are automatically
+/// converted to n-dimensional python lists.
 template <typename Rng>
 auto make_iterator(Rng&& rng)
 {

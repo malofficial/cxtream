@@ -14,10 +14,10 @@
 #include <cxtream/core/utility/string.hpp>
 
 #include <range/v3/algorithm/find_first_of.hpp>
-#include <range/v3/getlines.hpp>
 #include <range/v3/view/drop.hpp>
-#include <range/v3/view/transform.hpp>
+#include <range/v3/view/move.hpp>
 
+#include <climits>
 #include <deque>
 #include <experimental/filesystem>
 #include <fstream>
@@ -27,35 +27,135 @@
 
 namespace cxtream {
 
-/// Parse a single csv row from an std::istream.
+/// Parse and iterate over CSV formatted rows from an istream.
 ///
 /// Beware, escaping double quotes is allowed using backslash, not another double quote.
-/// Escaping of a field is only enabled if the first non-whitespace character is a double quote.
-std::vector<std::string> parse_csv_row(std::string row, char separator = ',')
-{
-    std::vector<std::string> csv_row;
-    std::istringstream in{std::move(row)};
-    while (in >> std::ws) {
+/// Escaping is only allowed if the first non-whitespace character of a field is a double quote.
+///
+/// Usage:
+///     std::istringstream simple_csv{"Id, A," R"("Quoted \"column\"") "\n 1, a1, 1.1"};
+///     csv_istream_range csv_rows{simple_csv};
+///     // csv_rows == {{"Id", "A", R"("Quoted \"column\"")"}, {"1", "a1", "1.1"}}
+///
+/// \throws std::ios_base::failure if badbit is triggered.
+class csv_istream_range : public ranges::view_facade<csv_istream_range> {
+private:
+    friend ranges::range_access;
+    using single_pass = std::true_type;
+    enum class RowPosition{Normal, Last, End};
+
+    std::istream* in_;
+    char separator_;
+
+    std::vector<std::string> row_;
+    RowPosition row_position_ = RowPosition::Normal;
+
+    class cursor {
+    private:
+        csv_istream_range* rng_;
+
+    public:
+        cursor() = default;
+        explicit cursor(csv_istream_range& rng) noexcept
+          : rng_{&rng}
+        {}
+
+        void next()
+        {
+            rng_->next();
+        }
+
+        std::vector<std::string>& read() const noexcept
+        {
+            return rng_->row_;
+        }
+
+        std::vector<std::string>&& move() const noexcept
+        {
+            return std::move(rng_->row_);
+        }
+
+        bool equal(ranges::default_sentinel) const noexcept
+        {
+            return rng_->row_position_ == RowPosition::End;
+        }
+    };
+
+    // parse csv field and return whether the next separator is found
+    std::tuple<std::string, bool> parse_field()
+    {
         std::string field;
-        if (in.peek() == '"') {
-            in >> std::quoted(field);
-            in.ignore(std::numeric_limits<std::streamsize>::max(), separator);
+        char c;
+        while (in_->get(c)) {
+            if (c == separator_) {
+                return {std::move(field), true};
+            } else if (c == '\n') {
+                return {std::move(field), false};
+            }
+            field.push_back(c);
         }
-        else {
-            std::getline(in, field, separator);
-            field = utility::trim(std::move(field));
-        }
-        csv_row.emplace_back(std::move(field));
-        in >> std::ws;
-        in.peek();  // to make sure the stream registers the end of line
+        return {std::move(field), false};
     }
-    return csv_row;
-}
+
+    // parse csv row
+    void next()
+    {
+        if (!in_->good() || row_position_ == RowPosition::Last) {
+            row_position_ = RowPosition::End;
+            return;
+        }
+
+        // temporarily set badbit exception mask
+        auto orig_exceptions = in_->exceptions();
+        in_->exceptions(orig_exceptions | std::istream::badbit);
+
+        row_.clear();
+        bool has_next = true;
+        while (has_next && *in_ >> std::ws) {
+            std::string field;
+            // process quoted fields
+            if (in_->peek() == '"') {
+                *in_ >> std::quoted(field);
+                if (in_->fail()) throw std::ios_base::failure{"Error while reading CSV field."};
+                std::tie(std::ignore, has_next) = parse_field();
+            }
+            // process unquoted fields
+            else {
+                std::tie(field, has_next) = parse_field();
+                field = utility::trim(std::move(field));
+            }
+            row_.emplace_back(std::move(field));
+        }
+
+        // detect whether end of file is reached
+        *in_ >> std::ws;
+        in_->peek();
+        if (!in_->good()) {
+            row_position_ = RowPosition::Last;
+        }
+
+        // reset exception mask
+        in_->exceptions(orig_exceptions);
+    }
+
+    cursor begin_cursor()
+    {
+        return cursor{*this};
+    }
+
+public:
+    csv_istream_range() = default;
+
+    explicit csv_istream_range(std::istream& in, char separator = ',')
+      : in_{&in}, separator_{separator}
+    {
+        next();
+    }
+};
 
 /// Parse csv file from an std::istream.
 ///
-/// Beware, escaping double quotes is allowed using backslash, not another double quote.
-/// Escaping of a field is only enabled if the first non-whitespace character is a double quote.
+/// Parsing has the same rules as for csv_istream_range.
 ///
 /// \param drop How many lines should be ignored at the very beginning of the stream.
 /// \param has_header Whether a header row should be parsed (after drop).
@@ -68,17 +168,16 @@ dataframe<> read_csv(std::istream& in, int drop = 0, bool has_header = true, cha
     std::vector<std::vector<std::string>> data;
     // load csv line by line
     auto csv_rows =
-       ranges::getlines(in)
-     | ranges::view::drop(drop)
-     | ranges::view::transform([separator](std::string line) {
-         return parse_csv_row(std::move(line), separator);
-       });
-    // make a row iterator
+      csv_istream_range(in, separator)
+      | ranges::view::drop(drop)
+      | ranges::view::move;
     auto csv_row_it = ranges::begin(csv_rows);
-    std::size_t n_cols;
     // load header if requested
+    std::size_t n_cols;
     if (has_header) {
-        assert(csv_row_it != ranges::end(csv_rows) && "There has to be at least the header row.");
+        if (csv_row_it == ranges::end(csv_rows)) {
+            throw std::ios_base::failure{"There has to be at least the header row."};
+        }
         std::vector<std::string> csv_row = *csv_row_it;
         n_cols = ranges::size(csv_row);
         header = std::move(csv_row);
@@ -91,14 +190,18 @@ dataframe<> read_csv(std::istream& in, int drop = 0, bool has_header = true, cha
         // sanity check row size
         if (i == 0) {
             if (has_header) {
-                assert(ranges::size(csv_row) == n_cols && "The first row must have the same "
-                                                          "length as the header.");
+                if (ranges::size(csv_row) != n_cols) {
+                    throw std::ios_base::failure{"The first row must have the same "
+                                                 "length as the header."};
+                }
             } else {
                 n_cols = ranges::size(csv_row);
                 data.resize(n_cols);
             }
         } else {
-            assert(ranges::size(csv_row) == n_cols && "Rows must have the same length.");
+            if (ranges::size(csv_row) != n_cols) {
+                throw std::ios_base::failure{"Rows must have the same length."};
+            }
         }
         // store columns
         for (std::size_t j = 0; j < ranges::size(csv_row); ++j) {
@@ -113,21 +216,26 @@ dataframe<> read_csv(const std::experimental::filesystem::path& file, int drop =
                      bool header = true, char separator = ',')
 {
     std::ifstream fin{file};
-    fin.exceptions(std::ifstream::badbit);
     return read_csv(fin, drop, header, separator);
 }
 
 /// Write a single csv row to an std::ostream.
 /// 
-/// Fields containing '"' or ',' are automatically quoted ('"..."').
+/// Fields containing '"', '\n', or ',' are automatically quoted ('"..."').
+///
+/// \throws std::ios_base::failure if badbit is triggered.
 template <typename Row>
 std::ostream& write_csv_row(std::ostream& out, Row&& row, char separator = ',')
 {
+    // temporarily set badbit exception mask
+    auto orig_exceptions = out.exceptions();
+    out.exceptions(orig_exceptions | std::ofstream::badbit);
+
     for (std::size_t i = 0; i < ranges::size(row); ++i) {
         auto& field = row[i];
-        // output quoted string if it contains separator, double quote or
+        // output quoted string if it contains separator, double quote, newline or
         // starts or ends with a whitespace
-        if (ranges::find_first_of(field, {separator, '"'}) != ranges::end(field) ||
+        if (ranges::find_first_of(field, {separator, '"', '\n'}) != ranges::end(field) ||
             field != utility::trim(field)) {
             out << std::quoted(field);
         } else {
@@ -138,12 +246,16 @@ std::ostream& write_csv_row(std::ostream& out, Row&& row, char separator = ',')
         if (i + 1 < ranges::size(row)) out << separator;
         else out << '\n';
     }
+
+    out.exceptions(orig_exceptions);
     return out;
 }
 
 /// Write a dataframe to an std::ostream.
 /// 
-/// Fields containing '"' or ',' are automatically quoted ('"..."').
+/// Fields containing '"', '\n', or ',' are automatically quoted ('"..."').
+///
+/// \throws std::ios_base::failure if badbit is triggered.
 template <typename DataTable>
 std::ostream& write_csv(std::ostream& out, const dataframe<DataTable>& df, char separator = ',')
 {
@@ -160,7 +272,6 @@ void write_csv(const std::experimental::filesystem::path& file, const dataframe<
                char separator = ',')
 {
     std::ofstream fout{file};
-    fout.exceptions(std::ofstream::badbit);
     write_csv(fout, df, separator);
 }
 
