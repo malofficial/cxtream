@@ -567,10 +567,10 @@ std::ostream& operator<<(std::ostream& out, const dataframe<DataTable>& df)
 {
     namespace view = ranges::view;
     // calculate the width of the columns using their longest field
-    std::vector<std::size_t> col_widths =
-        df.raw_cols()
+    std::vector<std::size_t> col_widths = df.raw_cols()
       | view::transform([](auto&& col) {
-            std::vector<std::size_t> elem_sizes = col | view::transform(&std::string::size);
+            std::vector<std::size_t> elem_sizes = col
+              | view::transform([](auto& field) { return ranges::size(field); });
             return ranges::max(elem_sizes) + 2;
         });
 
