@@ -200,7 +200,11 @@ dataframe<> read_csv(std::istream& in, int drop = 0, bool has_header = true, cha
             }
         } else {
             if (ranges::size(csv_row) != n_cols) {
-                throw std::ios_base::failure{"Rows must have the same length."};
+                throw std::ios_base::failure{"Row " + std::to_string(i)
+                                             + " has a different length "
+                                             + "(has: " + std::to_string(ranges::size(csv_row))
+                                             + " , expected: " + std::to_string(n_cols)
+                                             + ")."};
             }
         }
         // store columns
