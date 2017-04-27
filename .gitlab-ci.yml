@@ -1,5 +1,5 @@
 test:ubuntu16.10-gcc:
-  image: ubuntu:rolling
+  image: ubuntu:yakkety
   before_script: 
     - apt update
     - apt -y install build-essential cmake

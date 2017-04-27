@@ -503,6 +503,12 @@ public:
         return header_.values();
     }
 
+    /// Returns the reference to the raw data table.
+    DataTable& data()
+    {
+        return data_;
+    }
+
 private:
     template <typename This>
     static auto raw_irows_impl(This this_ptr, std::vector<std::size_t> col_indexes)
