@@ -1,35 +1,82 @@
-test:ubuntu16.10-gcc:
+.test_common: &test_common
+  artifacts:
+    paths: [build/log.txt]
+    when: always
+    expire_in: 1 week
+
+test:ubuntu16.10-gcc-tf_static:
+  <<: *test_common
   image: ubuntu:yakkety
-  before_script: 
+  before_script:
     - apt update
-    - apt -y install build-essential cmake
+    - apt -y install build-essential cmake git unzip
         libopencv-dev libboost-dev libboost-python-dev libboost-test-dev
         python3-dev python3-numpy
-  script: 
+  script:
     - mkdir build && cd build
     - cmake -DCMAKE_BUILD_TYPE=Debug ..
-    - make
+    - make > log.txt 2>&1
     - make test
 
-test:arch-gcc:
-  image: pritunl/archlinux
-  before_script: 
-    - pacman -S --noconfirm base-devel cmake
-        opencv boost python python-numpy
-  script: 
+test:ubuntu16.10-gcc-tf_shared:
+  <<: *test_common
+  image: ubuntu:yakkety
+  tags: [4gb]
+  before_script:
+    - apt update
+    - apt -y install build-essential cmake git unzip curl
+        libopencv-dev libboost-dev libboost-python-dev libboost-test-dev
+        python3-dev python3-numpy
+    # install bazel
+    - apt -y install python-numpy
+    - echo "deb [arch=amd64] http://storage.googleapis.com/bazel-apt stable jdk1.8" >
+        /etc/apt/sources.list.d/bazel.list
+    - curl https://bazel.build/bazel-release.pub.gpg | apt-key add -
+    - apt update
+    - apt -y install bazel
+  script:
     - mkdir build && cd build
-    - cmake -DCMAKE_BUILD_TYPE=Debug ..
-    - make
+    - cmake -DCMAKE_BUILD_TYPE=Debug
+            -DBUILTIN_TENSORFLOW_SHARED=ON ..
+    - make > log.txt 2>&1
     - make test
 
-test:arch-clang:
+test:arch-clang-tf_static:
+  <<: *test_common
   image: pritunl/archlinux
   before_script:
-    - pacman -S --noconfirm base-devel cmake clang
+    - pacman -S --noconfirm base-devel cmake clang git unzip
         opencv boost python python-numpy
   script:
     - mkdir build && cd build
     - cmake -DCMAKE_BUILD_TYPE=Debug
             -DCMAKE_CXX_COMPILER=clang++ ..
-    - make
+    - make > log.txt 2>&1
     - make test
+
+# Building bazel requires too much memory. Uncomment with stronger runners.
+# test:arch-clang-tf_shared:
+#   <<: *test_common
+#   image: pritunl/archlinux
+#   tags: [4gb]
+#   before_script:
+#     - pacman -S --noconfirm base-devel cmake clang git unzip sudo
+#         opencv boost python python-numpy
+#     # install bazel
+#     - useradd -m -s /bin/bash builder
+#     - git clone https://aur.archlinux.org/bazel.git
+#     - chown -R builder:builder bazel
+#     - echo "builder ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+#     - cd bazel
+#     - sudo -u builder makepkg -si --noconfirm --skippgpcheck
+#     - cd ..
+#     # cleanup bazel after installation
+#     - rm -rf bazel
+#     - rm -rf /home/builder/.cache
+#   script:
+#     - mkdir build && cd build
+#     - cmake -DCMAKE_BUILD_TYPE=Debug
+#             -DCMAKE_CXX_COMPILER=clang++
+#             -DBUILTIN_TENSORFLOW_SHARED=ON ..
+#     - make > log.txt 2>&1
+#     - make test

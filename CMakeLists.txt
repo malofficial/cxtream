@@ -12,7 +12,10 @@ set(PROJECT_DESCRIPTION "C++17 data pipeline with Python bindings.")
 option(BUILD_TEST "Build test binaries" ON)
 option(BUILD_PYTHON "Build C++ <-> Python converters" ON)
 option(BUILD_PYTHON_OPENCV "Build C++ <-> Python OpenCV converters (requires BUILD_PYTHON)" ON)
+option(BUILD_TENSORFLOW "Build TensorFlow functionality" ON)
 option(BUILTIN_RANGEV3 "Use built-in Range-v3 library" ON)
+option(BUILTIN_TENSORFLOW_STATIC "Download and build static TensorFlow C++ library (no GPU support)" ON)
+option(BUILTIN_TENSORFLOW_SHARED "Download and build dynamic TensorFlow C++ library (with GPU support)" OFF)
 
 # -------------
 # CMake Options
@@ -68,6 +71,16 @@ if(BUILD_PYTHON)
   endif()
 endif()
 
+if(BUILD_TENSORFLOW)
+  if (BUILTIN_TENSORFLOW_STATIC AND NOT BUILTIN_TENSORFLOW_SHARED)
+    include(TensorflowStatic)
+  endif()
+
+  if(BUILTIN_TENSORFLOW_SHARED)
+    include(TensorflowShared)
+    link_directories(${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
+  endif()
+endif()
 
 # ------------------
 # Build cxtream core
@@ -83,8 +96,8 @@ target_compile_options(
 )
 target_link_libraries(
   cxtream_core INTERFACE
-  "-lpthread"
-  "-lstdc++fs"
+  pthread
+  stdc++fs
 )
 target_include_directories(
   cxtream_core INTERFACE
@@ -97,7 +110,7 @@ if(BUILTIN_RANGEV3)
   target_include_directories(
     cxtream_core INTERFACE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/third_party/range-v3/include>
-    $<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/include/cxtream/range-v3>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/include/cxtream/third_party/range-v3>
   )
 endif()
 
@@ -159,6 +172,106 @@ if(BUILD_PYTHON)
 
 endif()
 
+# -------------------------
+# Build cxtream::tensorflow
+# -------------------------
+
+if(BUILD_TENSORFLOW)
+
+  add_library(
+    cxtream_tensorflow SHARED
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/tensorflow/load_graph.cpp"
+  )
+  set_target_properties(
+    cxtream_tensorflow PROPERTIES EXPORT_NAME Tensorflow
+  )
+  target_link_libraries(
+    cxtream_tensorflow
+    PUBLIC cxtream_core
+    PUBLIC stdc++fs
+    PUBLIC pthread
+    PUBLIC dl
+  )
+  set_target_properties(
+    cxtream_tensorflow
+    PROPERTIES VERSION ${PROJECT_VERSION}
+  )
+
+  # -----------------------
+  # Build static tensorflow
+  # -----------------------
+
+  if(BUILTIN_TENSORFLOW_STATIC AND NOT BUILTIN_TENSORFLOW_SHARED)
+    add_dependencies(
+      cxtream_tensorflow
+      tensorflow_static
+    )
+    target_include_directories(
+      cxtream_tensorflow PUBLIC
+      $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/third_party/tensorflow>
+      $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/third_party/tensorflow/tensorflow/contrib/makefile/gen/host_obj>
+      $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/third_party/tensorflow/tensorflow/contrib/makefile/downloads>
+      $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/third_party/tensorflow/tensorflow/contrib/makefile/downloads/eigen>
+      $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/third_party/tensorflow/tensorflow/contrib/makefile/downloads/gemmlowp>
+      $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/third_party/tensorflow/tensorflow/contrib/makefile/gen/protobuf-host/include>
+      $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/third_party/tensorflow/tensorflow/contrib/makefile/gen/proto>
+      $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/third_party/tensorflow/tensorflow/contrib/makefile/gen/proto_text>
+      $<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/include/cxtream/third_party/tensorflow>
+      $<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/include/cxtream/third_party/tensorflow/tensorflow/contrib/makefile/gen/host_obj>
+      $<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/include/cxtream/third_party/tensorflow/tensorflow/contrib/makefile/downloads>
+      $<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/include/cxtream/third_party/tensorflow/tensorflow/contrib/makefile/downloads/eigen>
+      $<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/include/cxtream/third_party/tensorflow/tensorflow/contrib/makefile/downloads/gemmlowp>
+      $<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/include/cxtream/third_party/tensorflow/tensorflow/contrib/makefile/gen/protobuf-host/include>
+      $<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/include/cxtream/third_party/tensorflow/tensorflow/contrib/makefile/gen/proto>
+      $<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/include/cxtream/third_party/tensorflow/tensorflow/contrib/makefile/gen/proto_text>
+    )
+    target_link_libraries(
+      cxtream_tensorflow
+      PRIVATE "-Wl,--allow-multiple-definition"
+      PRIVATE "-Wl,--whole-archive ${CMAKE_CURRENT_BINARY_DIR}/third_party/tensorflow/tensorflow/contrib/makefile/gen/lib/libtensorflow-core.a"
+      PRIVATE "-Wl,--no-whole-archive"
+      PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/third_party/tensorflow/tensorflow/contrib/makefile/gen/protobuf-host/lib/libprotobuf.a"
+    )
+  endif()
+
+  # -----------------------
+  # Build shared tensorflow
+  # -----------------------
+
+  if(BUILTIN_TENSORFLOW_SHARED)
+    add_dependencies(
+      cxtream_tensorflow
+      tensorflow_shared
+    )
+    target_include_directories(
+      cxtream_tensorflow PUBLIC
+      $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/third_party/tensorflow>
+      $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/third_party/tensorflow/bazel-genfiles>
+      $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/third_party/tensorflow/tensorflow/contrib/makefile/downloads>
+      $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/third_party/tensorflow/tensorflow/contrib/makefile/downloads/eigen>
+      $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/third_party/tensorflow/tensorflow/contrib/makefile/downloads/gemmlowp>
+      $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/third_party/tensorflow/tensorflow/contrib/makefile/gen/protobuf-host/include>
+      $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/third_party/tensorflow/tensorflow/contrib/makefile/gen/proto>
+      $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/third_party/tensorflow/tensorflow/contrib/makefile/gen/proto_text>
+      $<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/include/cxtream/third_party/tensorflow>
+      $<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/include/cxtream/third_party/tensorflow/bazel-genfiles>
+      $<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/include/cxtream/third_party/tensorflow/tensorflow/contrib/makefile/downloads>
+      $<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/include/cxtream/third_party/tensorflow/tensorflow/contrib/makefile/downloads/eigen>
+      $<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/include/cxtream/third_party/tensorflow/tensorflow/contrib/makefile/downloads/gemmlowp>
+      $<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/include/cxtream/third_party/tensorflow/tensorflow/contrib/makefile/gen/protobuf-host/include>
+      $<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/include/cxtream/third_party/tensorflow/tensorflow/contrib/makefile/gen/proto>
+      $<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/include/cxtream/third_party/tensorflow/tensorflow/contrib/makefile/gen/proto_text>
+    )
+    target_link_libraries(
+      cxtream_tensorflow
+      PUBLIC cxtream_tensorflow_cc
+      # static protobuf is used from the contrib/makefile
+      PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/third_party/tensorflow/tensorflow/contrib/makefile/gen/protobuf-host/lib/libprotobuf.a"
+    )
+  endif()
+
+endif()
+
 # -----
 # Tests
 # -----
@@ -178,8 +291,26 @@ endif()
 if(BUILTIN_RANGEV3)
   install(
     DIRECTORY third_party/range-v3/include/
-    DESTINATION include/cxtream/range-v3
+    DESTINATION include/cxtream/third_party/range-v3
   )
+endif()
+
+# install built-in tensorflow library
+if(BUILD_TENSORFLOW)
+  if(BUILTIN_TENSORFLOW_STATIC OR BUILTIN_TENSORFLOW_SHARED)
+    install(
+      DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/third_party/tensorflow/"
+      DESTINATION include/cxtream/third_party/tensorflow
+      FILES_MATCHING PATTERN "*.h"
+    )
+  endif()
+
+  if(BUILTIN_TENSORFLOW_SHARED)
+    install(
+      FILES "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libcxtream_tensorflow_cc.so"
+      DESTINATION lib
+    )
+  endif()
 endif()
 
 # install core header files
@@ -198,13 +329,13 @@ install(
   DESTINATION include
 )
 
-# install core target
+# install cxtream::core target
 install(
   TARGETS cxtream_core
   EXPORT CxtreamCoreTargets
 )
 
-# install python library
+# install cxtream::python library
 if(BUILD_PYTHON)
   install(
     DIRECTORY include/cxtream/python/
@@ -217,6 +348,25 @@ if(BUILD_PYTHON)
   install(
     TARGETS cxtream_python
     EXPORT CxtreamPythonTargets
+    RUNTIME DESTINATION bin
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib
+  )
+endif()
+
+# install cxtream::tensorflow library
+if(BUILD_TENSORFLOW)
+  install(
+    DIRECTORY include/cxtream/tensorflow/
+    DESTINATION include/cxtream/tensorflow
+  )
+  install(
+    FILES include/cxtream/tensorflow.hpp
+    DESTINATION include/cxtream
+  )
+  install(
+    TARGETS cxtream_tensorflow
+    EXPORT CxtreamTensorflowTargets
     RUNTIME DESTINATION bin
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib
@@ -279,6 +429,22 @@ if(BUILD_PYTHON)
   export(
     TARGETS cxtream_python
     FILE CxtreamPythonTargets.cmake
+    NAMESPACE Cxtream::
+  )
+endif()
+
+# install the tensorflow targets file
+if(BUILD_TENSORFLOW)
+  install(
+    EXPORT CxtreamTensorflowTargets
+    FILE CxtreamTensorflowTargets.cmake
+    NAMESPACE Cxtream::
+    DESTINATION "${CMAKECFG_INSTALL_DIR}"
+  )
+  # export the targets also for local use
+  export(
+    TARGETS cxtream_tensorflow
+    FILE CxtreamTensorflowTargets.cmake
     NAMESPACE Cxtream::
   )
 endif()
