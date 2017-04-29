@@ -18,41 +18,126 @@
 #include <range/v3/view/chunk.hpp>
 #include <range/v3/view/for_each.hpp>
 
+#include <cassert>
 #include <memory>
+#include <type_traits>
 #include <vector>
 
 namespace cxtream::utility {
 
-// recursive std::vector flatten //
+/// Gets the number of dimensions of a multidimensional std::vector type.
+///
+/// \code
+///     std::size_t vec_ndims = ndims<std::vector<std::vector<int>>>{};
+///     // vec_ndims == 2;
+/// \endcode
+template<typename T>
+struct ndims {
+};
+
+template<typename T>
+struct ndims<std::vector<T>> : std::integral_constant<long, 1L> {
+};
+
+template<typename T>
+struct ndims<std::vector<std::vector<T>>>
+  : std::integral_constant<long, ndims<std::vector<T>>{} + 1L> {
+};
+
+// multidimensional std::vector shape //
 
 namespace detail {
 
-    template<typename T>
-    struct flat_view_impl {
+    template<typename T, long Dim>
+    struct shape_impl {
     };
 
-    template<typename T>
-    struct flat_view_impl<std::vector<T>> {
-        static auto impl(std::vector<T>& vec)
+    template<typename T, long Dim>
+    struct shape_impl<std::vector<T>, Dim> {
+        static void impl(const std::vector<T>& vec, std::vector<long>& shape)
         {
-            return vec | ranges::view::all;
+            shape[Dim] = vec.size();
         }
     };
 
-    template<typename T>
-    struct flat_view_impl<std::vector<std::vector<T>>> {
-        static auto impl(std::vector<std::vector<T>>& vec)
+    template<typename T, long Dim>
+    struct shape_impl<std::vector<std::vector<T>>, Dim> {
+        static void impl(const std::vector<std::vector<T>>& vec, std::vector<long>& shape)
         {
-            return vec
-              | ranges::view::for_each([](std::vector<T>& subvec) {
-                    return flat_view_impl<std::vector<T>>::impl(subvec);
+            shape[Dim] = vec.size();
+            if (!vec.empty()) shape_impl<std::vector<T>, Dim+1>::impl(vec[0], shape);
+        }
+    };
+
+    template<typename T, long Dim>
+    struct check_shape_impl {
+    };
+
+    template<typename T, long Dim>
+    struct check_shape_impl<std::vector<T>, Dim> {
+        static bool impl(const std::vector<T>& vec, const std::vector<long>& shape)
+        {
+            return static_cast<long>(vec.size()) == shape[Dim];
+        }
+    };
+    template<typename T, long Dim>
+    struct check_shape_impl<std::vector<std::vector<T>>, Dim> {
+        static bool impl(const std::vector<std::vector<T>>& vec, const std::vector<long>& shape)
+        {
+            if (static_cast<long>(vec.size()) != shape[Dim]) return false;
+            return ranges::all_of(vec, [&shape](auto& subvec) {
+                return check_shape_impl<std::vector<T>, Dim+1>::impl(subvec, shape);
             });
         }
     };
 
 }  // namespace detail
 
-/// Make a flat view out of a multidimensional std::vector.
+/// Calculates the shape of a multidimensional std::vector.
+///
+/// \code
+///     std::vector<std::vector<int>> vec{{1, 2}, {3, 4}, {5, 6}, {5, 6}};
+///     std::vector<long> vec_shape = shape(vec);
+///     // vec_shape == {4, 2};
+/// \endcode
+///
+/// \param vec The vector whose shape shall be calculated. All the vectors
+///            on the same dimension have to be of equal size.
+/// \returns The shape of the given vector.
+template<typename T>
+std::vector<long> shape(const std::vector<T>& vec)
+{
+    std::vector<long> shape(ndims<std::vector<T>>{});
+    detail::shape_impl<std::vector<T>, 0>::impl(vec, shape);
+    assert((detail::check_shape_impl<std::vector<T>, 0>::impl(vec, shape)));
+    return shape;
+}
+
+// recursive std::vector flatten //
+
+namespace detail {
+
+    template<long Dim>
+    struct flat_view_impl {
+        static auto impl()
+        {
+            return ranges::view::for_each([](auto& subvec) {
+                return subvec | flat_view_impl<Dim-1>::impl();
+            });
+        }
+    };
+
+    template<>
+    struct flat_view_impl<1> {
+        static auto impl()
+        {
+            return ranges::view::all;
+        }
+    };
+
+}  // namespace detail
+
+/// Makes a flat view out of a multidimensional std::vector.
 ///
 /// \code
 ///     std::vector<std::vector<int>> vec{{1, 2}, {3}, {}, {4, 5, 6}};
@@ -65,7 +150,14 @@ namespace detail {
 template<typename T>
 auto flat_view(std::vector<T>& vec)
 {
-    return detail::flat_view_impl<std::vector<T>>::impl(vec);
+    return vec | detail::flat_view_impl<ndims<std::vector<T>>{}>::impl();
+}
+
+/// Const version of flat_view.
+template<typename T>
+auto flat_view(const std::vector<T>& vec)
+{
+    return vec | detail::flat_view_impl<ndims<std::vector<T>>{}>::impl();
 }
 
 // std::vector reshape //
@@ -73,27 +165,54 @@ auto flat_view(std::vector<T>& vec)
 namespace detail {
 
     template<long N>
-    struct reshaped_view_impl {
+    struct reshaped_view_impl_go {
         static auto impl(const std::shared_ptr<std::vector<long>>& shape_ptr)
         {
             return ranges::view::chunk((*shape_ptr)[N-2])
               | ranges::view::transform([shape_ptr](auto subview) {
-                    return std::move(subview) | reshaped_view_impl<N-1>::impl(shape_ptr);
+                    return std::move(subview) | reshaped_view_impl_go<N-1>::impl(shape_ptr);
             });
         }
     };
 
     template<>
-    struct reshaped_view_impl<1> {
+    struct reshaped_view_impl_go<1> {
         static auto impl(const std::shared_ptr<std::vector<long>>&)
         {
             return ranges::view::all;
         }
     };
 
+    template<long N, typename Vector>
+    auto reshaped_view_impl(Vector& vec, std::vector<long> shape)
+    {
+        assert(shape.size() == N);
+        auto flat = flat_view(vec);
+
+        // if -1 present in the shape list, deduce the dimension
+        auto deduced_pos = ranges::find(shape, -1);
+        if (deduced_pos != shape.end()) {
+            auto flat_size = ranges::distance(flat);
+            auto shape_prod = -ranges::accumulate(shape, 1, std::multiplies<>{});
+            assert(flat_size % shape_prod == 0);
+            *deduced_pos = flat_size / shape_prod;
+        }
+
+        // check that all the requested dimenstions have positive size
+        assert(ranges::all_of(shape, [](long s) { return s > 0; }));
+        // check that the user requests the same number of elements as there really is
+        assert(ranges::distance(flat) == ranges::accumulate(shape, 1, std::multiplies<>{}));
+        // calculate the cummulative product of the shape list in reverse order
+        shape |= ranges::action::reverse;
+        ranges::partial_sum(shape, shape, std::multiplies<>{});
+        // the recursive chunks will share a single copy of the shape list (performance)
+        auto shape_ptr = std::make_shared<std::vector<long>>(std::move(shape));
+        return std::move(flat) | detail::reshaped_view_impl_go<N>::impl(shape_ptr);
+    }
+
 }  // namespace detail
 
-/// Make a multidimensional view of a multidimensional std::vector, reshaping the dimensions.
+/// Makes a view of a multidimensional std::vector with a specific shape.
 ///
 /// Usage:
 /// \code
@@ -102,38 +221,23 @@ namespace detail {
 ///     // rvec == {{1, 2, 3}, {4, 5, 6}};
 /// \endcode
 ///
-/// \param vec The vector to reshape.
-/// \param shape The list of shapes. There can be a single -1, which denotes
-///              automatically deduced dimension shape. All the other values
+/// \param vec The base vector for the view.
+/// \param shape The list of shapes. Those can contain a single -1, which denotes
+///              that the dimension size shall be automatically deduced. All the other values
 ///              have to be positive.
 /// \tparam N The number of dimensions. Has to be equal to shape.size().
 /// \returns View (InputRange) of the original vector with the given shape.
 template<long N, typename T>
 auto reshaped_view(std::vector<T>& vec, std::vector<long> shape)
 {
-    assert(shape.size() == N);
-    auto flat = flat_view(vec);
+    return detail::reshaped_view_impl<N, std::vector<T>>(vec, std::move(shape));
+}
 
-    // if -1 present in the shape list, deduce the dimension
-    auto deduced_pos = ranges::find(shape, -1);
-    if (deduced_pos != shape.end()) {
-        auto flat_size = ranges::distance(flat);
-        auto shape_prod = -ranges::accumulate(shape, 1, std::multiplies<>{});
-        assert(flat_size % shape_prod == 0);
-        *deduced_pos = flat_size / shape_prod;
-    }
-
-    // check that all the dimenstions have positive size
-    assert(ranges::all_of(shape, [](long s) { return s > 0; }));
-    
-    // check that the user requests the same number of elements as there really is
-    assert(ranges::distance(flat) == ranges::accumulate(shape, 1, std::multiplies<>{}));
-    // calculate the cummulative product of the shape list in reverse order
-    shape |= ranges::action::reverse;
-    ranges::partial_sum(shape, shape, std::multiplies<>{});
-    // the recursive chunks will share a single copy of the shape list
-    auto shape_ptr = std::make_shared<std::vector<long>>(std::move(shape));
-    return std::move(flat) | detail::reshaped_view_impl<N>::impl(shape_ptr);
+/// Const version of reshaped_view.
+template<long N, typename T>
+auto reshaped_view(const std::vector<T>& vec, std::vector<long> shape)
+{
+    return detail::reshaped_view_impl<N, const std::vector<T>>(vec, std::move(shape));
 }
 
 }  // namespace cxtream::utility

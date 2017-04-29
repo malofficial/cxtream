@@ -24,9 +24,31 @@
 using namespace cxtream::utility;
 using namespace ranges;
 
+BOOST_AUTO_TEST_CASE(test_ndims)
+{
+    BOOST_TEST(ndims<std::vector<int>>{} == 1);
+    BOOST_TEST(ndims<std::vector<std::vector<int>>>{} == 2);
+    BOOST_TEST(ndims<std::vector<std::vector<std::vector<int>>>>{} == 3);
+}
+
+BOOST_AUTO_TEST_CASE(test_shape)
+{
+    const std::vector<int> vec5 = {0, 0, 0, 0, 0};
+    std::vector<std::vector<int>> vec23 = {{0, 0, 0}, {0, 0, 0}};
+    const std::vector<std::vector<std::vector<int>>> vec234 = {
+        {{0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}},
+        {{0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}}
+    };
+    std::vector<std::vector<std::vector<int>>> vec200 = {{}, {}};
+    test_ranges_equal(shape(vec5),  std::vector<long>{5});
+    test_ranges_equal(shape(vec23), std::vector<long>{2, 3});
+    test_ranges_equal(shape(vec234), std::vector<long>{2, 3, 4});
+    test_ranges_equal(shape(vec200), std::vector<long>{2, 0, 0});
+}
+
 BOOST_AUTO_TEST_CASE(test_flatten)
 {
-    std::vector<std::vector<std::vector<int>>> vec = {
+    const std::vector<std::vector<std::vector<int>>> vec = {
         {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}},
         {{10, 11, 12}, {13, 14, 15}}
     };
@@ -35,7 +57,7 @@ BOOST_AUTO_TEST_CASE(test_flatten)
 
 BOOST_AUTO_TEST_CASE(test_flatten_identity)
 {
-    std::vector<int> vec = view::iota(1, 16);
+    const std::vector<int> vec = view::iota(1, 16);
     test_ranges_equal(flat_view(vec), view::iota(1, 16));
 }
 
@@ -78,7 +100,7 @@ BOOST_AUTO_TEST_CASE(test_reshape_1d)
 
 BOOST_AUTO_TEST_CASE(test_reshape_2d)
 {
-    std::vector<std::vector<std::vector<int>>> vec = {
+    const std::vector<std::vector<std::vector<int>>> vec = {
         {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}},
         {{10, 11, 12}, {13, 14, 15}}
     };
@@ -106,7 +128,7 @@ BOOST_AUTO_TEST_CASE(test_reshape_3d)
 
 BOOST_AUTO_TEST_CASE(test_reshape_auto_dimension)
 {
-    std::vector<std::vector<std::vector<int>>> vec = {
+    const std::vector<std::vector<std::vector<int>>> vec = {
         {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}},
         {{10, 11, 12}, {13, 14, 15}}
     };
