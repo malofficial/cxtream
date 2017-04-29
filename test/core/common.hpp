@@ -10,7 +10,7 @@
 #ifndef TEST_COMMON_HPP
 #define TEST_COMMON_HPP
 
-#include <cxtream/core/column.hpp>
+#include <cxtream/core/stream/column.hpp>
 #include <cxtream/core/utility/tuple.hpp>
 
 #include <boost/test/unit_test.hpp>

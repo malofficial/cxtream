@@ -10,9 +10,9 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE column_create_test
 
-#include "common.hpp"
+#include "../common.hpp"
 
-#include <cxtream/core/create.hpp>
+#include <cxtream/core/stream/create.hpp>
 
 #include <boost/test/unit_test.hpp>
 #include <range/v3/view/iota.hpp>
@@ -21,7 +21,7 @@
 #include <tuple>
 #include <vector>
 
-using namespace cxtream;
+using namespace cxtream::stream;
 using namespace ranges;
 using namespace boost;
 

@@ -10,9 +10,9 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE for_each_test
 
-#include "common.hpp"
+#include "../common.hpp"
 
-#include <cxtream/core/for_each.hpp>
+#include <cxtream/core/stream/for_each.hpp>
 
 #include <boost/test/unit_test.hpp>
 #include <range/v3/to_container.hpp>
@@ -23,7 +23,7 @@
 #include <tuple>
 #include <vector>
 
-using namespace cxtream;
+using namespace cxtream::stream;
 using namespace ranges;
 using namespace boost;
 

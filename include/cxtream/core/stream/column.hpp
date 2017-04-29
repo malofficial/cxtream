@@ -7,13 +7,13 @@
  *  See the accompanying file LICENSE.txt for the complete license agreement.
  ****************************************************************************/
 
-#ifndef CXTREAM_CORE_COLUMN_HPP
-#define CXTREAM_CORE_COLUMN_HPP
+#ifndef CXTREAM_CORE_STREAM_COLUMN_HPP
+#define CXTREAM_CORE_STREAM_COLUMN_HPP
 
 #include <type_traits>
 #include <vector>
 
-namespace cxtream {
+namespace cxtream::stream {
 
 /// Base class for cxtream columns.
 ///
@@ -57,15 +57,15 @@ struct column_base<T, false> : column_base<T, true> {
     column_base(const std::vector<T>& rhs) = delete;
 };
 
-}  // namespace cxtream
+}  // namespace cxtream::stream
 
 /// Macro for fast column definition.
 ///
 /// Basically it creates a new type derived from column_base.
-#define CXTREAM_DEFINE_COLUMN(col_name, col_type)             \
-struct col_name : cxtream::column_base<col_type> {            \
-    using cxtream::column_base<col_type>::column_base;        \
-    static constexpr const char* name() { return #col_name; } \
+#define CXTREAM_DEFINE_COLUMN(col_name, col_type)               \
+struct col_name : cxtream::stream::column_base<col_type> {      \
+    using cxtream::stream::column_base<col_type>::column_base;  \
+    static constexpr const char* name() { return #col_name; }   \
 };
 
 #endif

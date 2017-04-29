@@ -7,8 +7,8 @@
  *  See the accompanying file LICENSE.txt for the complete license agreement.
  ****************************************************************************/
 
-#ifndef CXTREAM_CORE_BATCH_VIEW_HPP
-#define CXTREAM_CORE_BATCH_VIEW_HPP
+#ifndef CXTREAM_CORE_STREAM_BATCH_HPP
+#define CXTREAM_CORE_STREAM_BATCH_HPP
 
 #include <cxtream/core/utility/tuple.hpp>
 
@@ -16,7 +16,7 @@
 #include <range/v3/view/all.hpp>
 #include <range/v3/view/view.hpp>
 
-namespace cxtream {
+namespace cxtream::stream {
 
 /// Check whether all columns in a tuple have the same batch size.
 template<typename Tuple>
@@ -172,5 +172,5 @@ public:
 
 constexpr ranges::view::view<batch_fn> batch{};
 
-}  // namespace cxtream
+}  // namespace cxtream::stream
 #endif
