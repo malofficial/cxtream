@@ -7,8 +7,8 @@
  *  See the accompanying file LICENSE.txt for the complete license agreement.
  ****************************************************************************/
 
-#ifndef CXTREAM_CORE_TRANSFORM_HPP
-#define CXTREAM_CORE_TRANSFORM_HPP
+#ifndef CXTREAM_CORE_STREAM_TRANSFORM_HPP
+#define CXTREAM_CORE_STREAM_TRANSFORM_HPP
 
 #include <cxtream/core/utility/template_arguments.hpp>
 #include <cxtream/core/utility/tuple.hpp>
@@ -19,7 +19,7 @@
 #include <functional>
 #include <utility>
 
-namespace cxtream {
+namespace cxtream::stream {
 
 /// Transform a subset of tuple elements for each tuple in a range.
 template<typename... FromTypes, typename... ToTypes,
@@ -108,5 +108,5 @@ constexpr auto transform(from_t<FromColumns...> f,
                              [](auto& column) { return std::ref(column.value()); });
 }
 
-} // namespace cxtream
+} // namespace cxtream::stream
 #endif

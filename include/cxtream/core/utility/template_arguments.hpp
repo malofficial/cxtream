@@ -7,12 +7,12 @@
  *  See the accompanying file LICENSE.txt for the complete license agreement.
  ****************************************************************************/
 
-#ifndef CXTREAM_CORE_TEMPLATE_ARGUMENTS_HPP
-#define CXTREAM_CORE_TEMPLATE_ARGUMENTS_HPP
+#ifndef CXTREAM_CORE_STREAM_TEMPLATE_ARGUMENTS_HPP
+#define CXTREAM_CORE_STREAM_TEMPLATE_ARGUMENTS_HPP
 
 #include <functional>
 
-namespace cxtream {
+namespace cxtream::stream {
 
 /// Helper type representing columns which should be transformed.
 template <typename... Columns>
@@ -60,5 +60,5 @@ struct ref_wrap_t {
 
 auto ref_wrap = ref_wrap_t{};
 
-}  // namespace cxtream
+}  // namespace cxtream::stream
 #endif

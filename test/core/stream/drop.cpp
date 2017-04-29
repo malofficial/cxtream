@@ -10,9 +10,9 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE column_drop_test
 
-#include "common.hpp"
+#include "../common.hpp"
 
-#include <cxtream/core/drop.hpp>
+#include <cxtream/core/stream/drop.hpp>
 
 #include <boost/test/unit_test.hpp>
 #include <range/v3/view/move.hpp>
@@ -20,7 +20,7 @@
 #include <tuple>
 #include <vector>
 
-using namespace cxtream;
+using namespace cxtream::stream;
 using namespace ranges;
 using namespace boost;
 

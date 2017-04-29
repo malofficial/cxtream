@@ -7,8 +7,8 @@
  *  See the accompanying file LICENSE.txt for the complete license agreement.
  ****************************************************************************/
 
-#ifndef CXTREAM_CORE_FOR_EACH_HPP
-#define CXTREAM_CORE_FOR_EACH_HPP
+#ifndef CXTREAM_CORE_STREAM_FOR_EACH_HPP
+#define CXTREAM_CORE_STREAM_FOR_EACH_HPP
 
 #include <cxtream/core/utility/template_arguments.hpp>
 #include <cxtream/core/utility/tuple.hpp>
@@ -19,7 +19,7 @@
 #include <functional>
 #include <utility>
 
-namespace cxtream {
+namespace cxtream::stream {
 
 /// Apply a function to a subset of tuple elements for each tuple in a range.
 ///
@@ -102,5 +102,5 @@ constexpr auto for_each(from_t<FromColumns...> f, Fun fun, dim_t<Dim> d = dim_t<
                             [](auto& column) { return std::ref(column.value()); });
 }
 
-}  // namespace cxtream
+}  // namespace cxtream::stream
 #endif

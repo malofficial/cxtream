@@ -7,14 +7,14 @@
  *  See the accompanying file LICENSE.txt for the complete license agreement.
  ****************************************************************************/
 
-#ifndef CXTREAM_CORE_DROP_HPP
-#define CXTREAM_CORE_DROP_HPP
+#ifndef CXTREAM_CORE_STREAM_DROP_HPP
+#define CXTREAM_CORE_STREAM_DROP_HPP
 
 #include <cxtream/core/utility/tuple.hpp>
 
 #include <range/v3/view/transform.hpp>
 
-namespace cxtream {
+namespace cxtream::stream {
 
 template<typename... Columns>
 constexpr auto drop_fn()
@@ -39,5 +39,5 @@ constexpr auto drop_fn()
 template <typename... Columns>
 auto drop = drop_fn<Columns...>();
 
-}  // end namespace cxtream
+}  // end namespace cxtream::stream
 #endif

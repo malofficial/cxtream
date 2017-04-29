@@ -10,9 +10,9 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE batch_view_test
 
-#include "common.hpp"
+#include "../common.hpp"
 
-#include <cxtream/core/batch.hpp>
+#include <cxtream/core/stream/batch.hpp>
 
 #include <boost/test/unit_test.hpp>
 #include <range/v3/view/iota.hpp>
@@ -22,7 +22,7 @@
 #include <memory>
 
 using namespace ranges;
-using namespace cxtream;
+using namespace cxtream::stream;
 using namespace boost;
 
 auto generate_batched_data(std::vector<int> batch_sizes)

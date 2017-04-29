@@ -7,14 +7,14 @@
  *  See the accompanying file LICENSE.txt for the complete license agreement.
  ****************************************************************************/
 
-#ifndef CXTREAM_CORE_CREATE_HPP
-#define CXTREAM_CORE_CREATE_HPP
+#ifndef CXTREAM_CORE_STREAM_CREATE_HPP
+#define CXTREAM_CORE_STREAM_CREATE_HPP
 
 #include <cxtream/core/utility/tuple.hpp>
 
 #include <range/v3/view/transform.hpp>
 
-namespace cxtream {
+namespace cxtream::stream {
 
 template<typename... Columns>
 constexpr auto create_fn()
@@ -34,5 +34,5 @@ constexpr auto create_fn()
 template<typename... Columns>
 auto create = create_fn<Columns...>();
 
-} // end namespace cxtream
+} // end namespace cxtream::stream
 #endif

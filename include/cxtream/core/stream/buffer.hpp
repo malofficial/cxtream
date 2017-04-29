@@ -7,8 +7,8 @@
  *  See the accompanying file LICENSE.txt for the complete license agreement.
  ****************************************************************************/
 
-#ifndef CXTREAM_CORE_BUFFER_VIEW_HPP
-#define CXTREAM_CORE_BUFFER_VIEW_HPP
+#ifndef CXTREAM_CORE_STREAM_BUFFER_HPP
+#define CXTREAM_CORE_STREAM_BUFFER_HPP
 
 #include <range/v3/core.hpp>
 #include <range/v3/view/all.hpp>
@@ -18,7 +18,7 @@
 #include <deque>
 #include <future>
 
-namespace cxtream {
+namespace cxtream::stream {
 
 /// Asynchronously buffers input range.
 template<typename Rng>
@@ -134,5 +134,5 @@ public:
 
 ranges::view::view<buffer_fn> buffer{};
 
-}  // end namespace stream
+}  // end namespace cxtream::stream
 #endif

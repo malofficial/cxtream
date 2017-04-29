@@ -10,8 +10,9 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE buffer_view_test
 
-#include "common.hpp"
-#include <cxtream/core/buffer.hpp>
+#include "../common.hpp"
+
+#include <cxtream/core/stream/buffer.hpp>
 
 #include <boost/test/unit_test.hpp>
 #include <range/v3/view/indirect.hpp>
@@ -21,7 +22,7 @@
 #include <memory>
 #include <vector>
 
-using namespace cxtream;
+using namespace cxtream::stream;
 using namespace boost;
 using namespace std::chrono_literals;
 
