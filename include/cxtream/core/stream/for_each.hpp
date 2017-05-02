@@ -10,7 +10,7 @@
 #ifndef CXTREAM_CORE_STREAM_FOR_EACH_HPP
 #define CXTREAM_CORE_STREAM_FOR_EACH_HPP
 
-#include <cxtream/core/utility/template_arguments.hpp>
+#include <cxtream/core/stream/template_arguments.hpp>
 #include <cxtream/core/utility/tuple.hpp>
 
 #include <range/v3/view/transform.hpp>

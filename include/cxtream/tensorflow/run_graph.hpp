@@ -13,8 +13,8 @@
 #include <cxtream/core/utility/tuple.hpp>
 #include <cxtream/tensorflow/utility/to_tf_type.hpp>
 
-#include "tensorflow/core/framework/tensor.h"
-#include "tensorflow/core/public/session.h"
+#include <tensorflow/core/framework/tensor.h>
+#include <tensorflow/core/public/session.h>
 
 #include <exception>
 #include <experimental/filesystem>

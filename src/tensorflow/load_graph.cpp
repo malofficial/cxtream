@@ -9,8 +9,7 @@
 
 #include <cxtream/tensorflow/load_graph.hpp>
 
-#include "tensorflow/core/framework/graph.pb.h"
-#include "tensorflow/core/public/session.h"
+#include <tensorflow/core/framework/graph.pb.h>
 
 #include <exception>
 
