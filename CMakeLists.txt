@@ -251,16 +251,12 @@ if(BUILD_TENSORFLOW)
       $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/third_party/tensorflow/tensorflow/contrib/makefile/downloads/eigen>
       $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/third_party/tensorflow/tensorflow/contrib/makefile/downloads/gemmlowp>
       $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/third_party/tensorflow/tensorflow/contrib/makefile/gen/protobuf-host/include>
-      $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/third_party/tensorflow/tensorflow/contrib/makefile/gen/proto>
-      $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/third_party/tensorflow/tensorflow/contrib/makefile/gen/proto_text>
       $<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/include/cxtream/third_party/tensorflow>
       $<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/include/cxtream/third_party/tensorflow/bazel-genfiles>
       $<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/include/cxtream/third_party/tensorflow/tensorflow/contrib/makefile/downloads>
       $<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/include/cxtream/third_party/tensorflow/tensorflow/contrib/makefile/downloads/eigen>
       $<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/include/cxtream/third_party/tensorflow/tensorflow/contrib/makefile/downloads/gemmlowp>
       $<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/include/cxtream/third_party/tensorflow/tensorflow/contrib/makefile/gen/protobuf-host/include>
-      $<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/include/cxtream/third_party/tensorflow/tensorflow/contrib/makefile/gen/proto>
-      $<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/include/cxtream/third_party/tensorflow/tensorflow/contrib/makefile/gen/proto_text>
     )
     target_link_libraries(
       cxtream_tensorflow
@@ -302,6 +298,16 @@ if(BUILD_TENSORFLOW)
       DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/third_party/tensorflow/"
       DESTINATION include/cxtream/third_party/tensorflow
       FILES_MATCHING PATTERN "*.h"
+    )
+    # install all files from third_party folders, instead of only *.h files
+    # (e.g., Eigen/Tensor file)
+    install(
+      DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/third_party/tensorflow/tensorflow/contrib/makefile/downloads/"
+      DESTINATION include/cxtream/third_party/tensorflow/tensorflow/contrib/makefile/downloads
+    )
+    install(
+      DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/third_party/tensorflow/third_party/"
+      DESTINATION include/cxtream/third_party/tensorflow/third_party
     )
   endif()
 

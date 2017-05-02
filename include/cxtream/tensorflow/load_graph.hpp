@@ -10,8 +10,8 @@
 #ifndef CXTREAM_TENSORFLOW_LOAD_GRAPH_HPP
 #define CXTREAM_TENSORFLOW_LOAD_GRAPH_HPP
 
-#include "tensorflow/core/framework/tensor.h"
-#include "tensorflow/core/public/session.h"
+#include <tensorflow/core/framework/tensor.h>
+#include <tensorflow/core/public/session.h>
 
 #include <experimental/filesystem>
 #include <memory>

@@ -7,14 +7,12 @@
  *  See the accompanying file LICENSE.txt for the complete license agreement.
  ****************************************************************************/
 
-#ifndef CXTREAM_CORE_HPP
-#define CXTREAM_CORE_HPP
+#ifndef CXTREAM_CORE_UTILITY_HPP
+#define CXTREAM_CORE_UTILITY_HPP
 
-#include <cxtream/core/base64.hpp>
-#include <cxtream/core/csv.hpp>
-#include <cxtream/core/dataframe.hpp>
-#include <cxtream/core/groups.hpp>
-#include <cxtream/core/stream.hpp>
-#include <cxtream/core/utility.hpp>
+#include <cxtream/core/utility/filesystem.hpp>
+#include <cxtream/core/utility/string.hpp>
+#include <cxtream/core/utility/tuple.hpp>
+#include <cxtream/core/utility/vector.hpp>
 
 #endif
