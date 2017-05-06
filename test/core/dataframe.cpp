@@ -36,38 +36,6 @@ const dataframe<> simple_df{
     std::vector<std::string>{"Id", "A", "B"}
 };
 
-BOOST_AUTO_TEST_CASE(test_index_mapper_construction)
-{
-    const index_mapper<std::string> mapper{{"first", "second", "third"}};
-    test_ranges_equal(mapper.values(), std::vector<std::string>{"first", "second", "third"});
-    BOOST_TEST(mapper.size() == 3UL);
-}
-
-BOOST_AUTO_TEST_CASE(test_index_mapper_mapping)
-{
-    const index_mapper<std::string> mapper{{"first", "second", "third"}};
-    BOOST_TEST(mapper.val2idx("second") == 1UL);
-    BOOST_TEST(mapper.val2idx("third") == 2UL);
-    BOOST_TEST(mapper.val2idx("first") == 0UL);
-    BOOST_TEST(mapper.idx2val(2UL) == "third");
-    BOOST_TEST(mapper.idx2val(1UL) == "second");
-    BOOST_TEST(mapper.idx2val(0UL) == "first");
-    BOOST_TEST(mapper.contains("first"));
-    BOOST_TEST(mapper.contains("second"));
-    BOOST_TEST(!mapper.contains("fourth"));
-}
-
-BOOST_AUTO_TEST_CASE(test_index_mapper_insertion)
-{
-    index_mapper<std::string> mapper{{"first", "second", "third"}};
-    mapper.insert("fourth");
-    test_ranges_equal(mapper.values(),
-                      std::vector<std::string>{"first", "second", "third", "fourth"});
-    BOOST_TEST(mapper.idx2val(3UL) == "fourth");
-    BOOST_TEST(mapper.val2idx("fourth") == 3UL);
-    BOOST_TEST(mapper.size() == 4UL);
-}
-
 BOOST_AUTO_TEST_CASE(test_column_insertion)
 {
     dataframe<> df{simple_df};

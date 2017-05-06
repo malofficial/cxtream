@@ -9,3 +9,5 @@ add_boost_test("test.core.csv" "csv.cpp" "")
 add_boost_test("test.core.dataframe" "dataframe.cpp" "")
 
 add_boost_test("test.core.groups" "groups.cpp" "")
+
+add_boost_test("test.core.index_mapper" "index_mapper.cpp" "")

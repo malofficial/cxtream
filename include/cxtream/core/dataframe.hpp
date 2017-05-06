@@ -10,6 +10,7 @@
 #ifndef CXTREAM_CORE_DATAFRAME_HPP
 #define CXTREAM_CORE_DATAFRAME_HPP
 
+#include <cxtream/core/index_mapper.hpp>
 #include <cxtream/core/utility/string.hpp>
 #include <cxtream/core/utility/tuple.hpp>
 
@@ -26,59 +27,6 @@
 #include <vector>
 
 namespace cxtream {
-
-/// Provides a bidirectional access from values to their indices in a vector.
-template<typename T>
-class index_mapper {
-public:
-    index_mapper() = default;
-
-    index_mapper(std::vector<T> values)
-      : idx2val_{std::move(values)}
-    {
-        for (std::size_t i = 0; i < idx2val_.size(); ++i) {
-            val2idx_[idx2val_[i]] = i;
-        }
-        assert(val2idx_.size() == idx2val_.size() && "Index mapper needs unique values.");
-    }
-
-    const std::size_t& val2idx(const T& val) const
-    {
-        return val2idx_.at(val);
-    }
-
-    const T& idx2val(const std::size_t& idx) const
-    {
-        return idx2val_.at(idx);
-    }
-
-    bool contains(const T& val) const
-    {
-        return val2idx_.count(val);
-    }
-
-    std::size_t insert(T val)
-    {
-        assert(!contains(val) && "Index mapper cannot insert already contained value.");
-        val2idx_[val] = idx2val_.size();
-        idx2val_.emplace_back(std::move(val));
-        return idx2val_.size() - 1;
-    }
-
-    std::size_t size() const
-    {
-        return val2idx_.size();
-    }
-
-    std::vector<T> values() const
-    {
-        return idx2val_;
-    }
-
-private:
-    std::unordered_map<T, std::size_t> val2idx_;
-    std::vector<T> idx2val_;
-};
 
 /// Tabular object with convenient data access methods.
 ///
@@ -164,7 +112,7 @@ public:
     void col_drop(const std::string& col_name)
     {
         assert(header_.size() && "Dataframe has no header, cannot drop by column name.");
-        return icol_drop(header_.val2idx(col_name));
+        return icol_drop(header_.index_for(col_name));
     }
 
     /// Drop a row.
@@ -200,7 +148,7 @@ public:
     auto raw_col(const std::string& col_name)
     {
         assert(header_.size() && "Dataframe has no header, cannot index by column name.");
-        return raw_icol(header_.val2idx(col_name));
+        return raw_icol(header_.index_for(col_name));
     }
 
     /// Return a raw view of a column.
@@ -209,7 +157,7 @@ public:
     auto raw_col(const std::string& col_name) const
     {
         assert(header_.size() && "Dataframe has no header, cannot index by column name.");
-        return raw_icol(header_.val2idx(col_name));
+        return raw_icol(header_.index_for(col_name));
     }
 
     // typed column access //
@@ -238,7 +186,7 @@ public:
              std::function<T(std::string)> cvt = utility::string_to<T>) const
     {
         assert(header_.size() && "Dataframe has no header, cannot index by column name.");
-        return icol<T>(header_.val2idx(col_name), std::move(cvt));
+        return icol<T>(header_.index_for(col_name), std::move(cvt));
     }
 
     // raw multi column access //
@@ -281,7 +229,7 @@ public:
     auto raw_cols(const std::vector<std::string>& col_names)
     {
         assert(header_.size() && "Dataframe has no header, cannot index by column name.");
-        return raw_icols(colnames2idxs(col_names));
+        return raw_icols(header_.index_for(col_names));
     }
 
     /// Return a raw view of multiple columns.
@@ -290,7 +238,7 @@ public:
     auto raw_cols(const std::vector<std::string>& col_names) const
     {
         assert(header_.size() && "Dataframe has no header, cannot index by column name.");
-        return raw_icols(colnames2idxs(col_names));
+        return raw_icols(header_.index_for(col_names));
     }
 
     // typed multi column access //
@@ -320,7 +268,7 @@ public:
                 std::make_tuple(utility::string_to<Ts>...)) const
     {
         assert(header_.size() && "Dataframe has no header, cannot index by column name.");
-        return icols<Ts...>(colnames2idxs(col_names), std::move(cvts));
+        return icols<Ts...>(header_.index_for(col_names), std::move(cvts));
     }
 
     /// Return a raw view of multiple rows.
@@ -361,7 +309,7 @@ public:
     auto raw_rows(const std::vector<std::string>& col_names)
     {
         assert(header_.size() && "Dataframe has no header, cannot index by column name.");
-        return raw_irows(colnames2idxs(col_names));
+        return raw_irows(header_.index_for(col_names));
     }
 
     /// Return a raw view of multiple rows.
@@ -370,7 +318,7 @@ public:
     auto raw_rows(const std::vector<std::string>& col_names) const
     {
         assert(header_.size() && "Dataframe has no header, cannot index by column name.");
-        return raw_irows(colnames2idxs(col_names));
+        return raw_irows(header_.index_for(col_names));
     }
 
     // typed row access //
@@ -397,7 +345,7 @@ public:
                 std::make_tuple(utility::string_to<Ts>...)) const
     {
         assert(header_.size() && "Dataframe has no header, cannot index by column name.");
-        return irows<Ts...>(colnames2idxs(col_names), std::move(cvts));
+        return irows<Ts...>(header_.index_for(col_names), std::move(cvts));
     }
 
     // typed indexed single column access //
@@ -437,8 +385,8 @@ public:
               std::function<ColT(std::string)> val_col_cvt = utility::string_to<ColT>) const
     {
         assert(header_.size() && "Dataframe has no header, cannot index by column name.");
-        return index_icol(header_.val2idx(key_col_name),
-                          header_.val2idx(val_col_name),
+        return index_icol(header_.index_for(key_col_name),
+                          header_.index_for(val_col_name),
                           std::move(key_col_cvt),
                           std::move(val_col_cvt));
     }
@@ -476,8 +424,8 @@ public:
                  std::make_tuple(utility::string_to<Ts>...)) const
     {
         assert(header_.size() && "Dataframe has no header, cannot index by column name.");
-        return index_icols(header_.val2idx(key_col_name),
-                           colnames2idxs(val_col_names),
+        return index_icols(header_.index_for(key_col_name),
+                           header_.index_for(val_col_names),
                            std::move(key_col_cvt),
                            std::move(val_col_cvts));
     }
@@ -536,15 +484,6 @@ private:
                         return this_ptr->raw_cols()[j][i];
                     });
             });
-      }
-
-      template<typename... Ts>
-      std::vector<std::size_t> colnames2idxs(const std::vector<std::string>& col_names) const
-      {
-        return col_names
-          | ranges::view::transform([this](const std::string& name) {
-                return this->header_.val2idx(name);
-        });
       }
 
       template<typename This>
@@ -616,5 +555,5 @@ std::ostream& operator<<(std::ostream& out, const dataframe<DataTable>& df)
     return out;
 }
 
-} // end namespace cxtream
+}  // end namespace cxtream
 #endif

@@ -14,6 +14,7 @@
 #include <cxtream/core/csv.hpp>
 #include <cxtream/core/dataframe.hpp>
 #include <cxtream/core/groups.hpp>
+#include <cxtream/core/index_mapper.hpp>
 #include <cxtream/core/stream.hpp>
 #include <cxtream/core/utility.hpp>
 
