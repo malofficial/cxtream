@@ -137,7 +137,7 @@ auto make_iterator(Rng&& rng)
     auto range_of_python_types =
       std::forward<Rng&&>(rng)
       | ranges::view::transform([](auto&& tuple) {
-            return utility::column_tuple_to_py(std::forward<decltype(tuple)>(tuple));
+            return utility::columns_to_dict(std::forward<decltype(tuple)>(tuple));
         });
 
     // make python iterator out of the range of python types
