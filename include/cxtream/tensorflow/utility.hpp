@@ -7,11 +7,9 @@
  *  See the accompanying file LICENSE.txt for the complete license agreement.
  ****************************************************************************/
 
-#ifndef CXTREAM_TENSORFLOW_HPP
-#define CXTREAM_TENSORFLOW_HPP
+#ifndef CXTREAM_TENSORFLOW_UTILITY_HPP
+#define CXTREAM_TENSORFLOW_UTILITY_HPP
 
-#include <cxtream/tensorflow/load_graph.hpp>
-#include <cxtream/tensorflow/run_graph.hpp>
-#include <cxtream/tensorflow/utility.hpp>
+#include <cxtream/tensorflow/utility/to_tf_type.hpp>
 
 #endif
