@@ -10,11 +10,8 @@
 #ifndef CXTREAM_PYTHON_PYBOOST_RANGE_ITERATOR_HPP
 #define CXTREAM_PYTHON_PYBOOST_RANGE_ITERATOR_HPP
 
-#include <cxtream/python/utility/pyboost_column_converter.hpp>
-
 #include <boost/python.hpp>
 #include <range/v3/core.hpp>
-#include <range/v3/view/transform.hpp>
 
 #include <functional>
 #include <mutex>
@@ -126,24 +123,5 @@ public:
 template <typename Rng>
 std::once_flag iterator<Rng>::register_flag;
 
-/// Make Python iterator for a range of tuples of columns.
-///
-/// Columns represented by n-dimensional std::vectors are automatically
-/// converted to n-dimensional python lists.
-template <typename Rng>
-auto make_iterator(Rng&& rng)
-{
-    // transform the range of columns to a range of python types
-    auto range_of_python_types =
-      std::forward<Rng&&>(rng)
-      | ranges::view::transform([](auto&& tuple) {
-            return utility::columns_to_dict(std::forward<decltype(tuple)>(tuple));
-        });
-
-    // make python iterator out of the range of python types
-    using PyRng = decltype(range_of_python_types);
-    return iterator<PyRng>{std::move(range_of_python_types)};
-}
-
-} // end namespace cxtream::python
+}  // end namespace cxtream::python
 #endif
