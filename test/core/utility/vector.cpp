@@ -87,8 +87,8 @@ BOOST_AUTO_TEST_CASE(test_ndim_resize)
     std::vector<std::vector<long>> vec3302_size = {{3}, {3, 0, 2}, {4, 3, 2, 1, 0}};
     std::vector<std::vector<long>> vec200_size  = {{2}, {0, 0}, {}};
 
-    std::vector<int> vec5_desired = {1, 1, 1, 1, 1};
-    std::vector<std::vector<int>> vec3231_desired = {{2, 2}, {2, 2, 2}, {2}};
+    std::vector<int> vec5_desired = {7, 8, 9, 1, 1};
+    std::vector<std::vector<int>> vec3231_desired = {{1, 1}, {3, 4, 2}, {2}};
     std::vector<std::vector<std::vector<int>>> vec3302_desired = {
         {{0, 0, 0, 0}, {0, 0, 0}, {0, 0}},
         {},
@@ -96,8 +96,8 @@ BOOST_AUTO_TEST_CASE(test_ndim_resize)
     };
     std::vector<std::vector<std::vector<int>>> vec200_desired = {{}, {}};
 
-    std::vector<int> vec5;
-    std::vector<std::vector<int>> vec3231;
+    std::vector<int> vec5 = {7, 8, 9};
+    std::vector<std::vector<int>> vec3231 = {{1, 1, 1}, {3, 4}};
     std::vector<std::vector<std::vector<int>>> vec3302;
     std::vector<std::vector<std::vector<int>>> vec200;
 
