@@ -8,4 +8,6 @@ add_boost_test("test.core.stream.drop" "drop.cpp" "")
 
 add_boost_test("test.core.stream.for_each" "for_each.cpp" "")
 
+add_boost_test("test.core.stream.random_fill" "random_fill.cpp" "")
+
 add_boost_test("test.core.stream.transform" "transform.cpp" "")
