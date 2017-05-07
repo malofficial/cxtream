@@ -163,7 +163,7 @@ namespace detail {
 /// Example:
 /// \code
 ///     std::vector<std::vector<int>> vec;
-///     vec = ndim_resize(std::move(vec), {{2}, {3, 1}}, 2);
+///     ndim_resize(vec, {{2}, {3, 1}}, 2);
 ///     // vec == {{2, 2, 2}, {2}};
 /// \endcode
 ///
@@ -172,9 +172,9 @@ namespace detail {
 /// \param val The value to pad with.
 /// \returns The requested size of the given vector.
 template<typename T, typename ValT = typename ndim_type<std::vector<T>>::type>
-std::vector<T> ndim_resize(std::vector<T> vec,
-                           const std::vector<std::vector<long>>& vec_size,
-                           ValT val = ValT{})
+std::vector<T>& ndim_resize(std::vector<T>& vec,
+                            const std::vector<std::vector<long>>& vec_size,
+                            ValT val = ValT{})
 {
     // check that the size is valid
     assert(vec_size.size() == ndims<std::vector<T>>{});

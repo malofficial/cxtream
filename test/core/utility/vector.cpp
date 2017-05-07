@@ -101,10 +101,10 @@ BOOST_AUTO_TEST_CASE(test_ndim_resize)
     std::vector<std::vector<std::vector<int>>> vec3302;
     std::vector<std::vector<std::vector<int>>> vec200;
 
-    BOOST_CHECK(ndim_resize(std::move(vec5), vec5_size, 1) == vec5_desired);
-    BOOST_CHECK(ndim_resize(std::move(vec3231), vec3231_size, 2) == vec3231_desired);
-    BOOST_CHECK(ndim_resize(std::move(vec3302), vec3302_size) == vec3302_desired);
-    BOOST_CHECK(ndim_resize(std::move(vec200), vec200_size, 3) == vec200_desired);
+    BOOST_CHECK(ndim_resize(vec5, vec5_size, 1) == vec5_desired);
+    BOOST_CHECK(ndim_resize(vec3231, vec3231_size, 2) == vec3231_desired);
+    BOOST_CHECK(ndim_resize(vec3302, vec3302_size) == vec3302_desired);
+    BOOST_CHECK(ndim_resize(vec200, vec200_size, 3) == vec200_desired);
 }
 
 BOOST_AUTO_TEST_CASE(test_flatten)
