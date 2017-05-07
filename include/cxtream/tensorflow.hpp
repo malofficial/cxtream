@@ -12,5 +12,6 @@
 
 #include <cxtream/tensorflow/load_graph.hpp>
 #include <cxtream/tensorflow/run_graph.hpp>
+#include <cxtream/tensorflow/utility.hpp>
 
 #endif

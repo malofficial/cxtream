@@ -7,12 +7,9 @@
  *  See the accompanying file LICENSE.txt for the complete license agreement.
  ****************************************************************************/
 
-#ifndef CXTREAM_PYTHON_HPP
-#define CXTREAM_PYTHON_HPP
+#ifndef CXTREAM_TENSORFLOW_UTILITY_HPP
+#define CXTREAM_TENSORFLOW_UTILITY_HPP
 
-#include <cxtream/python/pyboost_initialize.hpp>
-#include <cxtream/python/pyboost_range_iterator.hpp>
-#include <cxtream/python/stream.hpp>
-#include <cxtream/python/utility.hpp>
+#include <cxtream/tensorflow/utility/to_tf_type.hpp>
 
 #endif

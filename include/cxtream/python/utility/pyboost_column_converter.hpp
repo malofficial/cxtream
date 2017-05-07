@@ -24,7 +24,7 @@ namespace cxtream::python::utility {
 namespace detail {
 
     template <typename T>
-    struct vector_to_py_impl {
+    struct to_list_impl {
         template <typename U>
         static U&& impl(U&& val)
         {
@@ -33,11 +33,11 @@ namespace detail {
     };
 
     template <typename T>
-    struct vector_to_py_impl<std::vector<T>> {
+    struct to_list_impl<std::vector<T>> {
         static boost::python::list impl(std::vector<T> vec)
         {
             boost::python::list res;
-            for (auto& val : vec) res.append(vector_to_py_impl<T>::impl(std::move(val)));
+            for (auto& val : vec) res.append(to_list_impl<T>::impl(std::move(val)));
             return res;
         }
     };
@@ -49,9 +49,9 @@ namespace detail {
 /// If the vector is multidimensional, i.e., std::vector<std::vector<...>>,
 /// the conversion is applied recursively.
 template <typename Vector>
-boost::python::list vector_to_py(Vector&& v)
+boost::python::list to_list(Vector&& v)
 {
-    return detail::vector_to_py_impl<std::decay_t<Vector>>::impl(std::forward<Vector>(v));
+    return detail::to_list_impl<std::decay_t<Vector>>::impl(std::forward<Vector>(v));
 }
 
 /// Convert a tuple of cxtream columns into python dict.
@@ -60,11 +60,11 @@ boost::python::list vector_to_py(Vector&& v)
 /// Batches are converted to python lists. If the batch value is a multidimensional
 /// std::vector<std::vector<...>>, it is converted to multidimensional python list.
 template <typename Tuple>
-boost::python::dict column_tuple_to_py(Tuple tuple)
+boost::python::dict columns_to_dict(Tuple tuple)
 {
     boost::python::dict res;
     cxtream::utility::tuple_for_each([&res](auto& column) {
-        res[column.name()] = vector_to_py(std::move(column.value()));
+        res[column.name()] = to_list(std::move(column.value()));
     }, tuple);
     return res;
 }
