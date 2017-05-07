@@ -49,6 +49,27 @@ BOOST_AUTO_TEST_CASE(test_shape)
     test_ranges_equal(shape(vec200), std::vector<long>{2, 0, 0});
 }
 
+BOOST_AUTO_TEST_CASE(test_ndim_size)
+{
+    const std::vector<int> vec5 = {0, 0, 0, 0, 0};
+    std::vector<std::vector<int>> vec3231 = {{0, 0}, {0, 0, 0}, {0}};
+    const std::vector<std::vector<std::vector<int>>> vec3302 = {
+        {{0, 0, 0, 0}, {0, 0, 0}, {0, 0}},
+        {},
+        {{0}, {}}
+    };
+    std::vector<std::vector<std::vector<int>>> vec200 = {{}, {}};
+
+    test_ranges_equal(ndim_size(vec5),
+      std::vector<std::vector<long>>{{5}});
+    test_ranges_equal(ndim_size(vec3231),
+      std::vector<std::vector<long>>{{3}, {2, 3, 1}});
+    test_ranges_equal(ndim_size(vec3302),
+      std::vector<std::vector<long>>{{3}, {3, 0, 2}, {4, 3, 2, 1, 0}});
+    test_ranges_equal(ndim_size(vec200),
+      std::vector<std::vector<long>>{{2}, {0, 0}, {}});
+}
+
 BOOST_AUTO_TEST_CASE(test_flatten)
 {
     const std::vector<std::vector<std::vector<int>>> vec = {

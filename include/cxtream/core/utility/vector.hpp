@@ -46,6 +46,57 @@ struct ndims<std::vector<std::vector<T>>>
   : std::integral_constant<long, ndims<std::vector<T>>{} + 1L> {
 };
 
+// multidimensional std::vector size //
+
+namespace detail {
+
+    template<typename T, long Dim>
+    struct ndim_size_impl {
+    };
+
+    template<typename T, long Dim>
+    struct ndim_size_impl<std::vector<T>, Dim> {
+        static void impl(const std::vector<T>& vec, std::vector<std::vector<long>>& size_out)
+        {
+            size_out[Dim].push_back(vec.size());
+        }
+    };
+
+    template<typename T, long Dim>
+    struct ndim_size_impl<std::vector<std::vector<T>>, Dim> {
+        static void impl(const std::vector<std::vector<T>>& vec,
+                         std::vector<std::vector<long>>& size_out)
+        {
+            size_out[Dim].push_back(vec.size());
+            for (auto& subvec : vec) {
+                ndim_size_impl<std::vector<T>, Dim+1>::impl(subvec, size_out);
+            }
+        }
+    };
+
+}  // namespace detail
+
+/// Calculates the size of a multidimensional std::vector.
+///
+/// i-th element of the resulting vector are the sizes of the vecotrs in the i-th dimension.
+///
+/// Example:
+/// \code
+///     std::vector<std::vector<int>> vec{{1, 2, 3}, {1}, {5, 6}, {7}};
+///     std::vector<std::vector<long>> vec_size = ndim_size(vec);
+///     // vec_size == {{4}, {3, 1, 2, 1}};
+/// \endcode
+///
+/// \param vec The vector whose size shall be calculated.
+/// \returns The sizes of the given vector.
+template<typename T>
+std::vector<std::vector<long>> ndim_size(const std::vector<T>& vec)
+{
+    std::vector<std::vector<long>> size_out(ndims<std::vector<T>>{});
+    detail::ndim_size_impl<std::vector<T>, 0>::impl(vec, size_out);
+    return size_out;
+}
+
 // multidimensional std::vector shape //
 
 namespace detail {
@@ -110,6 +161,7 @@ template<typename T>
 std::vector<long> shape(const std::vector<T>& vec)
 {
     std::vector<long> shape(ndims<std::vector<T>>{});
+    // the ndim_size is not used for efficiency in ndebug mode (only the 0-th element is inspected)
     detail::shape_impl<std::vector<T>, 0>::impl(vec, shape);
     assert((detail::check_shape_impl<std::vector<T>, 0>::impl(vec, shape)));
     return shape;
