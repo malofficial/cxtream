@@ -34,6 +34,16 @@ BOOST_AUTO_TEST_CASE(test_ndims)
     BOOST_TEST(ndims<std::vector<std::vector<std::vector<int>>>>{} == 3);
 }
 
+BOOST_AUTO_TEST_CASE(test_ndim_type)
+{
+    static_assert(std::is_same<int,
+      ndim_type<std::vector<int>>::type>{});
+    static_assert(std::is_same<char,
+      ndim_type<std::vector<std::vector<char>>>::type>{});
+    static_assert(std::is_same<double,
+      ndim_type<std::vector<std::vector<std::vector<double>>>>::type>{});
+}
+
 BOOST_AUTO_TEST_CASE(test_shape)
 {
     const std::vector<int> vec5 = {0, 0, 0, 0, 0};
@@ -68,6 +78,33 @@ BOOST_AUTO_TEST_CASE(test_ndim_size)
       std::vector<std::vector<long>>{{3}, {3, 0, 2}, {4, 3, 2, 1, 0}});
     test_ranges_equal(ndim_size(vec200),
       std::vector<std::vector<long>>{{2}, {0, 0}, {}});
+}
+
+BOOST_AUTO_TEST_CASE(test_ndim_resize)
+{
+    std::vector<std::vector<long>> vec5_size    = {{5}};
+    std::vector<std::vector<long>> vec3231_size = {{3}, {2, 3, 1}};
+    std::vector<std::vector<long>> vec3302_size = {{3}, {3, 0, 2}, {4, 3, 2, 1, 0}};
+    std::vector<std::vector<long>> vec200_size  = {{2}, {0, 0}, {}};
+
+    std::vector<int> vec5_desired = {1, 1, 1, 1, 1};
+    std::vector<std::vector<int>> vec3231_desired = {{2, 2}, {2, 2, 2}, {2}};
+    std::vector<std::vector<std::vector<int>>> vec3302_desired = {
+        {{0, 0, 0, 0}, {0, 0, 0}, {0, 0}},
+        {},
+        {{0}, {}}
+    };
+    std::vector<std::vector<std::vector<int>>> vec200_desired = {{}, {}};
+
+    std::vector<int> vec5;
+    std::vector<std::vector<int>> vec3231;
+    std::vector<std::vector<std::vector<int>>> vec3302;
+    std::vector<std::vector<std::vector<int>>> vec200;
+
+    BOOST_CHECK(ndim_resize(std::move(vec5), vec5_size, 1) == vec5_desired);
+    BOOST_CHECK(ndim_resize(std::move(vec3231), vec3231_size, 2) == vec3231_desired);
+    BOOST_CHECK(ndim_resize(std::move(vec3302), vec3302_size) == vec3302_desired);
+    BOOST_CHECK(ndim_resize(std::move(vec200), vec200_size, 3) == vec200_desired);
 }
 
 BOOST_AUTO_TEST_CASE(test_flatten)

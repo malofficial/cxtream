@@ -29,6 +29,7 @@ namespace cxtream::utility {
 
 /// Gets the number of dimensions of a multidimensional std::vector type.
 ///
+/// Example:
 /// \code
 ///     std::size_t vec_ndims = ndims<std::vector<std::vector<int>>>{};
 ///     // vec_ndims == 2;
@@ -44,6 +45,27 @@ struct ndims<std::vector<T>> : std::integral_constant<long, 1L> {
 template<typename T>
 struct ndims<std::vector<std::vector<T>>>
   : std::integral_constant<long, ndims<std::vector<T>>{} + 1L> {
+};
+
+/// Gets the innermost value_type of a multidimensional std::vector type.
+///
+/// Example:
+/// \code
+///     using vec_type = ndim_type<std::vector<std::vector<int>>>::type;
+///     // vec_type is int
+/// \endcode
+template<typename T>
+struct ndim_type {
+};
+
+template<typename T>
+struct ndim_type<std::vector<T>> {
+    using type = T;
+};
+
+template<typename T>
+struct ndim_type<std::vector<std::vector<T>>>
+  : ndim_type<std::vector<T>> {
 };
 
 // multidimensional std::vector size //
@@ -78,7 +100,7 @@ namespace detail {
 
 /// Calculates the size of a multidimensional std::vector.
 ///
-/// i-th element of the resulting vector are the sizes of the vecotrs in the i-th dimension.
+/// i-th element of the resulting vector are the sizes of the vectors in the i-th dimension.
 ///
 /// Example:
 /// \code
@@ -95,6 +117,75 @@ std::vector<std::vector<long>> ndim_size(const std::vector<T>& vec)
     std::vector<std::vector<long>> size_out(ndims<std::vector<T>>{});
     detail::ndim_size_impl<std::vector<T>, 0>::impl(vec, size_out);
     return size_out;
+}
+
+// multidimensional std::vector resize //
+
+namespace detail {
+
+    template<typename T, long Dim>
+    struct ndim_resize_impl {
+    };
+
+    template<typename T, long Dim>
+    struct ndim_resize_impl<std::vector<T>, Dim> {
+        template<typename ValT>
+        static void impl(std::vector<T>& vec,
+                         const std::vector<std::vector<long>>& vec_size,
+                         std::vector<long>& vec_size_idx,
+                         const ValT& val)
+        {
+            vec.resize(vec_size[Dim][vec_size_idx[Dim]++], val);
+        }
+    };
+
+    template<typename T, long Dim>
+    struct ndim_resize_impl<std::vector<std::vector<T>>, Dim> {
+        template<typename ValT>
+        static void impl(std::vector<std::vector<T>>& vec,
+                         const std::vector<std::vector<long>>& vec_size,
+                         std::vector<long>& vec_size_idx,
+                         const ValT& val)
+        {
+            vec.resize(vec_size[Dim][vec_size_idx[Dim]++]);
+            for (auto& subvec : vec) {
+                ndim_resize_impl<std::vector<T>, Dim+1>::impl(subvec, vec_size, vec_size_idx, val);
+            }
+        }
+    };
+
+}  // namespace detail
+
+/// Resizes a multidimensional std::vector to the given size.
+///
+/// i-th element of the given size vector are the sizes of the vectors in the i-th dimension.
+///
+/// Example:
+/// \code
+///     std::vector<std::vector<int>> vec;
+///     vec = ndim_resize(std::move(vec), {{2}, {3, 1}}, 2);
+///     // vec == {{2, 2, 2}, {2}};
+/// \endcode
+///
+/// \param vec The vector to be resized.
+/// \param vec_size The vector to be resized.
+/// \param val The value to pad with.
+/// \returns The requested size of the given vector.
+template<typename T, typename ValT = typename ndim_type<std::vector<T>>::type>
+std::vector<T> ndim_resize(std::vector<T> vec,
+                           const std::vector<std::vector<long>>& vec_size,
+                           ValT val = ValT{})
+{
+    // check that the size is valid
+    assert(vec_size.size() == ndims<std::vector<T>>{});
+    for (std::size_t i = 1; i < vec_size.size(); ++i) {
+        assert(vec_size[i].size() == ranges::accumulate(vec_size[i-1], 0UL));
+    }
+    // build initial indices
+    std::vector<long> vec_size_idx(vec_size.size());
+    // recursively resize
+    detail::ndim_resize_impl<std::vector<T>, 0>::impl(vec, vec_size, vec_size_idx, val);
+    return vec;
 }
 
 // multidimensional std::vector shape //
