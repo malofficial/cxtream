@@ -12,6 +12,7 @@
 
 #include <range/v3/action/reverse.hpp>
 #include <range/v3/algorithm/all_of.hpp>
+#include <range/v3/algorithm/fill.hpp>
 #include <range/v3/algorithm/find.hpp>
 #include <range/v3/numeric/accumulate.hpp>
 #include <range/v3/view/all.hpp>
@@ -20,6 +21,7 @@
 
 #include <cassert>
 #include <memory>
+#include <random>
 #include <type_traits>
 #include <vector>
 
@@ -238,6 +240,73 @@ template<long N, typename T>
 auto reshaped_view(const std::vector<T>& vec, std::vector<long> shape)
 {
     return detail::reshaped_view_impl<N, const std::vector<T>>(vec, std::move(shape));
+}
+
+// random fill //
+
+namespace detail {
+
+    template<typename T, long Dim>
+    struct random_fill_impl {
+    };
+
+    template<typename T, long Dim>
+    struct random_fill_impl<std::vector<T>, Dim> {
+        template<typename Prng>
+        static void impl(std::vector<T>& vec, long ndims, Prng& gen)
+        {
+            if (Dim >= ndims) ranges::fill(vec, gen());
+            else for (auto& val : vec) val = gen();
+        }
+    };
+
+    template<typename T, long Dim>
+    struct random_fill_impl<std::vector<std::vector<T>>, Dim> {
+        template<typename Prng>
+        static void impl(std::vector<std::vector<T>>& vec, long ndims, Prng& gen)
+        {
+            if (Dim >= ndims) {
+                auto val = gen();
+                for (auto& elem : flat_view(vec)) elem = val;
+            } else {
+                for (auto& subvec : vec) {
+                    random_fill_impl<std::vector<T>, Dim+1>::impl(subvec, ndims, gen);
+                }
+            }
+        }
+    };
+
+}  // namespace detail
+
+/// Fill a multidimensional std::vector with random values.
+///
+/// If the vector is multidimensional, the random generator may be used only up to the
+/// given dimension and the rest of the dimensions will be constant.
+///
+/// Example:
+/// \code
+///     std::uniform_int_distribution gen = ...;
+///     std::vector<std::vector<std::vector<int>>> data = {{{0, 0, 0},{0}}, {{0}{0, 0}}};
+///     random_fill(data, 0, gen);
+///     // data == e.g., {{{4, 4, 4},{4}}, {{4}{4, 4}}};
+///     random_fill(data, 1, gen);
+///     // data == e.g., {{{8, 8, 8},{8}}, {{2}{2, 2}}};
+///     random_fill(data, 2, gen);
+///     // data == e.g., {{{8, 8, 8},{6}}, {{7}{3, 3}}};
+///     random_fill(data, 3, gen);
+///     // data == e.g., {{{8, 2, 3},{1}}, {{2}{4, 7}}};
+/// \endcode
+///
+/// \param vec The vector to be filled.
+/// \param ndims The random generator will be used only for this number of dimension. The
+///              rest of the dimensions will be filled by the last generated value.
+/// \param gen The random generator to be used.
+template<typename T, typename Prng = std::mt19937>
+constexpr void random_fill(std::vector<T>& vec,
+                           long ndims = std::numeric_limits<long>::max(),
+                           Prng&& gen = Prng{std::random_device{}()})
+{
+    detail::random_fill_impl<std::vector<T>, 0>::impl(vec, ndims, gen);
 }
 
 }  // namespace cxtream::utility
