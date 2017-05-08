@@ -84,6 +84,8 @@ namespace detail {
 ///
 /// Example:
 /// \code
+///     CXTREAM_DEFINE_COLUMN(Int, int)
+///     CXTREAM_DEFINE_COLUMN(Double, double)
 ///     std::vector<std::tuple<Int, Double>> data = {{{3},{5.}}, {{1},{2.}}};
 ///     auto rng = data | for_each(from<Int, Double>, [](int& v, double& d) { std::cout << c + d; });
 /// \endcode

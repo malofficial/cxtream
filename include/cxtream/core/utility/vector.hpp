@@ -12,6 +12,7 @@
 
 #include <range/v3/action/reverse.hpp>
 #include <range/v3/algorithm/all_of.hpp>
+#include <range/v3/algorithm/fill.hpp>
 #include <range/v3/algorithm/find.hpp>
 #include <range/v3/numeric/accumulate.hpp>
 #include <range/v3/view/all.hpp>
@@ -20,6 +21,7 @@
 
 #include <cassert>
 #include <memory>
+#include <random>
 #include <type_traits>
 #include <vector>
 
@@ -27,6 +29,7 @@ namespace cxtream::utility {
 
 /// Gets the number of dimensions of a multidimensional std::vector type.
 ///
+/// Example:
 /// \code
 ///     std::size_t vec_ndims = ndims<std::vector<std::vector<int>>>{};
 ///     // vec_ndims == 2;
@@ -43,6 +46,147 @@ template<typename T>
 struct ndims<std::vector<std::vector<T>>>
   : std::integral_constant<long, ndims<std::vector<T>>{} + 1L> {
 };
+
+/// Gets the innermost value_type of a multidimensional std::vector type.
+///
+/// Example:
+/// \code
+///     using vec_type = ndim_type<std::vector<std::vector<int>>>::type;
+///     // vec_type is int
+/// \endcode
+template<typename T>
+struct ndim_type {
+};
+
+template<typename T>
+struct ndim_type<std::vector<T>> {
+    using type = T;
+};
+
+template<typename T>
+struct ndim_type<std::vector<std::vector<T>>>
+  : ndim_type<std::vector<T>> {
+};
+
+// multidimensional std::vector size //
+
+namespace detail {
+
+    template<typename T, long Dim>
+    struct ndim_size_impl {
+    };
+
+    template<typename T, long Dim>
+    struct ndim_size_impl<std::vector<T>, Dim> {
+        static void impl(const std::vector<T>& vec, std::vector<std::vector<long>>& size_out)
+        {
+            size_out[Dim].push_back(vec.size());
+        }
+    };
+
+    template<typename T, long Dim>
+    struct ndim_size_impl<std::vector<std::vector<T>>, Dim> {
+        static void impl(const std::vector<std::vector<T>>& vec,
+                         std::vector<std::vector<long>>& size_out)
+        {
+            size_out[Dim].push_back(vec.size());
+            for (auto& subvec : vec) {
+                ndim_size_impl<std::vector<T>, Dim+1>::impl(subvec, size_out);
+            }
+        }
+    };
+
+}  // namespace detail
+
+/// Calculates the size of a multidimensional std::vector.
+///
+/// i-th element of the resulting vector are the sizes of the vectors in the i-th dimension.
+///
+/// Example:
+/// \code
+///     std::vector<std::vector<int>> vec{{1, 2, 3}, {1}, {5, 6}, {7}};
+///     std::vector<std::vector<long>> vec_size = ndim_size(vec);
+///     // vec_size == {{4}, {3, 1, 2, 1}};
+/// \endcode
+///
+/// \param vec The vector whose size shall be calculated.
+/// \returns The sizes of the given vector.
+template<typename T>
+std::vector<std::vector<long>> ndim_size(const std::vector<T>& vec)
+{
+    std::vector<std::vector<long>> size_out(ndims<std::vector<T>>{});
+    detail::ndim_size_impl<std::vector<T>, 0>::impl(vec, size_out);
+    return size_out;
+}
+
+// multidimensional std::vector resize //
+
+namespace detail {
+
+    template<typename T, long Dim>
+    struct ndim_resize_impl {
+    };
+
+    template<typename T, long Dim>
+    struct ndim_resize_impl<std::vector<T>, Dim> {
+        template<typename ValT>
+        static void impl(std::vector<T>& vec,
+                         const std::vector<std::vector<long>>& vec_size,
+                         std::vector<long>& vec_size_idx,
+                         const ValT& val)
+        {
+            vec.resize(vec_size[Dim][vec_size_idx[Dim]++], val);
+        }
+    };
+
+    template<typename T, long Dim>
+    struct ndim_resize_impl<std::vector<std::vector<T>>, Dim> {
+        template<typename ValT>
+        static void impl(std::vector<std::vector<T>>& vec,
+                         const std::vector<std::vector<long>>& vec_size,
+                         std::vector<long>& vec_size_idx,
+                         const ValT& val)
+        {
+            vec.resize(vec_size[Dim][vec_size_idx[Dim]++]);
+            for (auto& subvec : vec) {
+                ndim_resize_impl<std::vector<T>, Dim+1>::impl(subvec, vec_size, vec_size_idx, val);
+            }
+        }
+    };
+
+}  // namespace detail
+
+/// Resizes a multidimensional std::vector to the given size.
+///
+/// i-th element of the given size vector are the sizes of the vectors in the i-th dimension.
+///
+/// Example:
+/// \code
+///     std::vector<std::vector<int>> vec;
+///     ndim_resize(vec, {{2}, {3, 1}}, 2);
+///     // vec == {{2, 2, 2}, {2}};
+/// \endcode
+///
+/// \param vec The vector to be resized.
+/// \param vec_size The vector to be resized.
+/// \param val The value to pad with.
+/// \returns The requested size of the given vector.
+template<typename T, typename ValT = typename ndim_type<std::vector<T>>::type>
+std::vector<T>& ndim_resize(std::vector<T>& vec,
+                            const std::vector<std::vector<long>>& vec_size,
+                            ValT val = ValT{})
+{
+    // check that the size is valid
+    assert(vec_size.size() == ndims<std::vector<T>>{});
+    for (std::size_t i = 1; i < vec_size.size(); ++i) {
+        assert(vec_size[i].size() == ranges::accumulate(vec_size[i-1], 0UL));
+    }
+    // build initial indices
+    std::vector<long> vec_size_idx(vec_size.size());
+    // recursively resize
+    detail::ndim_resize_impl<std::vector<T>, 0>::impl(vec, vec_size, vec_size_idx, val);
+    return vec;
+}
 
 // multidimensional std::vector shape //
 
@@ -108,6 +252,7 @@ template<typename T>
 std::vector<long> shape(const std::vector<T>& vec)
 {
     std::vector<long> shape(ndims<std::vector<T>>{});
+    // the ndim_size is not used for efficiency in ndebug mode (only the 0-th element is inspected)
     detail::shape_impl<std::vector<T>, 0>::impl(vec, shape);
     assert((detail::check_shape_impl<std::vector<T>, 0>::impl(vec, shape)));
     return shape;
@@ -238,6 +383,73 @@ template<long N, typename T>
 auto reshaped_view(const std::vector<T>& vec, std::vector<long> shape)
 {
     return detail::reshaped_view_impl<N, const std::vector<T>>(vec, std::move(shape));
+}
+
+// random fill //
+
+namespace detail {
+
+    template<typename T, long Dim>
+    struct random_fill_impl {
+    };
+
+    template<typename T, long Dim>
+    struct random_fill_impl<std::vector<T>, Dim> {
+        template<typename Prng>
+        static void impl(std::vector<T>& vec, long ndims, Prng& gen)
+        {
+            if (Dim >= ndims) ranges::fill(vec, gen());
+            else for (auto& val : vec) val = gen();
+        }
+    };
+
+    template<typename T, long Dim>
+    struct random_fill_impl<std::vector<std::vector<T>>, Dim> {
+        template<typename Prng>
+        static void impl(std::vector<std::vector<T>>& vec, long ndims, Prng& gen)
+        {
+            if (Dim >= ndims) {
+                auto val = gen();
+                for (auto& elem : flat_view(vec)) elem = val;
+            } else {
+                for (auto& subvec : vec) {
+                    random_fill_impl<std::vector<T>, Dim+1>::impl(subvec, ndims, gen);
+                }
+            }
+        }
+    };
+
+}  // namespace detail
+
+/// Fill a multidimensional std::vector with random values.
+///
+/// If the vector is multidimensional, the random generator may be used only up to the
+/// given dimension and the rest of the dimensions will be constant.
+///
+/// Example:
+/// \code
+///     std::uniform_int_distribution gen = ...;
+///     std::vector<std::vector<std::vector<int>>> data = {{{0, 0, 0},{0}}, {{0}{0, 0}}};
+///     random_fill(data, 0, gen);
+///     // data == e.g., {{{4, 4, 4},{4}}, {{4}{4, 4}}};
+///     random_fill(data, 1, gen);
+///     // data == e.g., {{{8, 8, 8},{8}}, {{2}{2, 2}}};
+///     random_fill(data, 2, gen);
+///     // data == e.g., {{{8, 8, 8},{6}}, {{7}{3, 3}}};
+///     random_fill(data, 3, gen);
+///     // data == e.g., {{{8, 2, 3},{1}}, {{2}{4, 7}}};
+/// \endcode
+///
+/// \param vec The vector to be filled.
+/// \param ndims The random generator will be used only for this number of dimension. The
+///              rest of the dimensions will be filled by the last generated value.
+/// \param gen The random generator to be used.
+template<typename T, typename Prng = std::mt19937>
+constexpr void random_fill(std::vector<T>& vec,
+                           long ndims = std::numeric_limits<long>::max(),
+                           Prng&& gen = Prng{std::random_device{}()})
+{
+    detail::random_fill_impl<std::vector<T>, 0>::impl(vec, ndims, gen);
 }
 
 }  // namespace cxtream::utility
