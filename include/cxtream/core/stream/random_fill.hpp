@@ -45,7 +45,7 @@ constexpr auto random_fill(from_t<FromColumn> size_from,
                            long ndims = std::numeric_limits<long>::max(),
                            Prng&& gen = Prng{std::random_device{}()})
 {
-    auto fun = [ndims, &gen](const auto& source) {
+    auto fun = [ndims, &gen](const auto& source) -> ToColumn {
         using SourceVector = std::decay_t<decltype(source)>;
         using TargetVector = std::decay_t<decltype(std::declval<ToColumn>().value())>;
         static_assert(utility::ndims<TargetVector>{} <= utility::ndims<SourceVector>{});
