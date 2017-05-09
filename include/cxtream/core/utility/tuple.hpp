@@ -107,7 +107,7 @@ struct tuple_contains<T, std::tuple<Types...>>
   : std::disjunction<std::is_same<std::decay_t<T>, std::decay_t<Types>>...> {
 };
 
-/// Makes a sub-tuple made of references to the original tuple.
+/// Makes a sub-tuple made of references to the original tuple (selected by type).
 ///
 /// Example:
 /// \code
@@ -122,6 +122,23 @@ template<typename... Types, typename Tuple>
 constexpr auto tuple_type_view(Tuple& tuple)
 {
     return std::make_tuple(std::ref(std::get<Types>(tuple))...);
+}
+
+/// Makes a sub-tuple made of references to the original tuple (selected by index).
+///
+/// Example:
+/// \code
+///     auto tpl = std::make_tuple(0, 5., 'c');
+///     auto subtpl = tuple_index_view<2, 0>(t1);
+///     static_assert(std::is_same<std::tuple<char&, int&>, decltype(subtpl)>{});
+///     assert(subtpl == std::tuple<char, int>{'c', 0});
+/// \endcode
+///
+/// \returns The view of the original tuple.
+template<std::size_t... Idxs, typename Tuple>
+constexpr auto tuple_index_view(Tuple& tuple)
+{
+    return std::make_tuple(std::ref(std::get<Idxs>(tuple))...);
 }
 
 // tuple_reverse //
@@ -303,15 +320,27 @@ namespace detail {
 
     // wrap each type of Tuple in std::vector
     template<typename Tuple, std::size_t... Is>
-    auto vectorize_tuple(std::size_t size, std::index_sequence<Is...>)
+    auto vectorize_tuple(std::index_sequence<Is...>)
     {
-        return std::make_tuple(std::vector<std::tuple_element_t<Is, std::decay_t<Tuple>>>(size)...);
+        return std::make_tuple(std::vector<std::tuple_element_t<Is, std::decay_t<Tuple>>>()...);
     }
 
     template<typename ToR, typename Tuple, std::size_t... Is>
-    void unzip_impl(ToR& tuple_of_ranges, std::size_t i, Tuple&& tuple, std::index_sequence<Is...>)
+    void unzip_impl(ToR& tuple_of_ranges, Tuple&& tuple, std::index_sequence<Is...>)
     {
-        (..., (std::get<Is>(tuple_of_ranges)[i] = std::get<Is>(std::forward<Tuple>(tuple))));
+        (..., (std::get<Is>(tuple_of_ranges).emplace_back(std::get<Is>(std::forward<Tuple>(tuple)))));
+    }
+
+    template<typename Rng, CONCEPT_REQUIRES_(ranges::SizedRange<Rng>())>
+    std::size_t safe_init_size(Rng&& rng)
+    {
+        return ranges::size(rng);
+    }
+
+    template<typename Rng, CONCEPT_REQUIRES_(!ranges::SizedRange<Rng>())>
+    std::size_t safe_init_size(Rng&& rng)
+    {
+        return 0;
     }
 
 }  // namespace detail
@@ -335,16 +364,64 @@ auto unzip(RangeT range_of_tuples)
     using tuple_type = ranges::range_value_type_t<RangeT>;
     constexpr auto tuple_size = std::tuple_size<tuple_type>{};
     constexpr auto indexes = std::make_index_sequence<tuple_size>{};
-    auto range_size = ranges::size(range_of_tuples);
+    auto range_size = detail::safe_init_size(range_of_tuples);
 
-    auto tuple_of_ranges = detail::vectorize_tuple<tuple_type>(range_size, indexes);
+    auto tuple_of_ranges = detail::vectorize_tuple<tuple_type>(indexes);
     tuple_for_each([range_size](auto& rng) { rng.reserve(range_size); }, tuple_of_ranges);
 
-    for (std::size_t i = 0; i < range_size; ++i) {
-        detail::unzip_impl(tuple_of_ranges, i, std::move(range_of_tuples[i]), indexes);
+    for (auto&& v : range_of_tuples) {
+        detail::unzip_impl(tuple_of_ranges, std::move(v), indexes);
     }
 
     return tuple_of_ranges;
+}
+
+// maybe unzip //
+
+namespace detail {
+
+    template<typename ValueT>
+    struct maybe_unzip_impl
+    {
+        template<typename Rng>
+        static constexpr Rng&& impl(Rng&& rng)
+        {
+            return std::forward<Rng>(rng);
+        }
+    };
+
+    template<typename... Ts>
+    struct maybe_unzip_impl<std::tuple<Ts...>>
+    {
+        template<typename Rng>
+        static decltype(auto) impl(Rng&& rng)
+        {
+            return unzip(std::forward<Rng>(rng));
+        }
+    };
+
+}  // namespace detail
+
+/// Unzips a range of tuples to a tuple of ranges if it is a range of std::tuples.
+///
+/// Example:
+/// \code
+///     std::vector<std::tuple<int, double>> data{};
+///     data.emplace_back(1, 5.);
+///     data.emplace_back(2, 6.);
+///     data.emplace_back(3, 7.);
+///
+///     std::vector<int> va;
+///     std::vector<double> vb;
+///     std::tie(va, vb) = maybe_unzip(data);
+///
+///     auto vc = maybe_unzip(va);
+/// \endcode
+template<typename RangeT>
+decltype(auto) maybe_unzip(RangeT range)
+{
+    using value_type = ranges::range_value_type_t<RangeT>;
+    return detail::maybe_unzip_impl<value_type>::impl(std::move(range));
 }
 
 // range to tuple //

@@ -56,7 +56,6 @@ BOOST_AUTO_TEST_CASE(test_simple)
     std::vector<std::tuple<IntVec2d>> data = {batch2, batch4};
 
     auto stream = data
-      | create<IntVec2d>
       | random_fill(from<IntVec2d>, to<Random>, 1, gen);
 
     int batch_i = 0;

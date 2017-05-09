@@ -83,7 +83,7 @@ namespace detail {
 ///     CXTREAM_DEFINE_COLUMN(value, double)
 ///     std::vector<std::tuple<int, double>> data = {{{3},{5.}}, {{1},{2.}}};
 ///     auto rng = data
-///       | create<id, value>
+///       | create<id, value>()
 ///       | transform(from<id>, to<value>, [](int id) { return id * 5. + 1.; });
 /// \endcode
 ///

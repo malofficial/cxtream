@@ -30,7 +30,7 @@ namespace cxtream::stream {
 ///     CXTREAM_DEFINE_COLUMN(category, std::uint64_t)
 ///     std::vector<int> data = {3, 1, 2};
 ///     auto rng = data
-///       | create<id>
+///       | create<id>()
 ///       | random_fill(from<id>, to<category>);
 ///       | transform(from<id, category>, [](...){ ... });
 /// \endcode

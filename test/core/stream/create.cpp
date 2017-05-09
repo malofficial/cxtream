@@ -30,9 +30,33 @@ CXTREAM_DEFINE_COLUMN(Unique2, std::unique_ptr<int>)
 BOOST_AUTO_TEST_CASE(test_int_column)
 {
     // create a new column
-    auto generated = view::iota(0, 10) | create<Int>;
+    auto generated = view::iota(0, 10) | create<Int>();
     std::vector<std::tuple<Int>> desired = view::iota(0, 10);
     test_ranges_equal(generated, desired);
+}
+
+BOOST_AUTO_TEST_CASE(test_one_batch_column)
+{
+    // create a new column with a single batch
+    auto generated = view::iota(0, 10) | create<Int>(50);
+    BOOST_TEST(ranges::distance(generated) == 1);
+    std::vector<int> generated_batch0 = std::get<Int>(*generated.begin()).value();
+    std::vector<int> desired_batch0 = ranges::view::iota(0, 10);
+    test_ranges_equal(generated_batch0, desired_batch0);
+}
+
+BOOST_AUTO_TEST_CASE(test_two_batch_column)
+{
+    // create a new column with two batches
+    auto generated = view::iota(0, 10) | create<Int>(5);
+    BOOST_TEST(ranges::distance(generated) == 2);
+    auto it = generated.begin();
+    std::vector<int> generated_batch0 = std::get<Int>(*it).value();
+    std::vector<int> desired_batch0 = ranges::view::iota(0, 5);
+    test_ranges_equal(generated_batch0, desired_batch0);
+    std::vector<int> generated_batch1 = std::get<Int>(*++it).value();
+    std::vector<int> desired_batch1 = ranges::view::iota(5, 10);
+    test_ranges_equal(generated_batch1, desired_batch1);
 }
 
 BOOST_AUTO_TEST_CASE(test_move_only_column)
@@ -44,7 +68,7 @@ BOOST_AUTO_TEST_CASE(test_move_only_column)
 
     auto generated = data
       | view::move 
-      | create<Unique>
+      | create<Unique>(1)
       | view::transform([](auto t) {
             return *(std::get<0>(std::move(t)).value()[0]);
         });
@@ -55,13 +79,13 @@ BOOST_AUTO_TEST_CASE(test_move_only_column)
 BOOST_AUTO_TEST_CASE(test_multiple_columns)
 {
     // create multiple columns
-    std::vector<std::tuple<Unique, Unique2>> data;
+    std::vector<std::tuple<std::unique_ptr<int>, std::unique_ptr<int>>> data;
     data.emplace_back(std::make_unique<int>(1), std::make_unique<int>(5));
     data.emplace_back(std::make_unique<int>(2), std::make_unique<int>(6));
 
     auto generated = data
       | view::move
-      | create<Unique, Unique2>
+      | create<Unique, Unique2>(1)
       | view::transform([](auto t) {
           return std::make_tuple(*(std::get<0>(std::move(t)).value()[0]),
                                  *(std::get<1>(std::move(t)).value()[0]));

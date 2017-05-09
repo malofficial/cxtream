@@ -34,7 +34,7 @@ constexpr auto drop_fn()
 ///     CXTREAM_DEFINE_COLUMN(id, int)
 ///     CXTREAM_DEFINE_COLUMN(value, double)
 ///     std::vector<std::tuple<int, double>> data = {{{3},{5.}}, {{1},{2.}}};
-///     auto rng = data | cxtream::create<id, value> | cxtream::drop<id>;
+///     auto rng = data | cxtream::create<id, value>() | cxtream::drop<id>;
 /// \endcode
 template <typename... Columns>
 auto drop = drop_fn<Columns...>();
