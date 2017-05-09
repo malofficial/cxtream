@@ -48,30 +48,29 @@ namespace detail {
     template<int Dim>
     struct wrap_fun_for_dim
     {
-      template<typename Fun>
-      static constexpr auto impl(Fun fun)
-      {
-        return [fun=std::move(fun)](auto&& tuple_of_ranges) {
-          auto range_of_tuples =
-              std::experimental::apply(
-                  ranges::view::zip,
-                  std::forward<decltype(tuple_of_ranges)>(tuple_of_ranges))
-            | ranges::view::transform(wrap_fun_for_dim<Dim - 1>::impl(fun));
-          return utility::unzip(std::move(range_of_tuples));
-        };
-      }
+        template<typename Fun>
+        static constexpr auto impl(Fun fun)
+        {
+            return [fun = std::move(fun)](auto&& tuple_of_ranges) {
+                auto range_of_tuples =
+                  std::experimental::apply(ranges::view::zip,
+                                           std::forward<decltype(tuple_of_ranges)>(tuple_of_ranges))
+                  | ranges::view::transform(wrap_fun_for_dim<Dim - 1>::impl(fun));
+                return utility::unzip(std::move(range_of_tuples));
+            };
+        }
     };
 
     template<>
     struct wrap_fun_for_dim<0>
     {
-      template<typename Fun>
-      static constexpr auto impl(Fun fun)
-      {
-        return [fun=std::move(fun)](auto&& tuple) {
-          return std::experimental::apply(fun, std::forward<decltype(tuple)>(tuple));
-        };
-      }
+        template<typename Fun>
+        static constexpr auto impl(Fun fun)
+        {
+            return [fun = std::move(fun)](auto&& tuple) {
+                return std::experimental::apply(fun, std::forward<decltype(tuple)>(tuple));
+            };
+        }
     };
 
 } // namespace detail
@@ -88,7 +87,7 @@ namespace detail {
 ///       | transform(from<id>, to<value>, [](int id) { return id * 5. + 1.; });
 /// \endcode
 ///
-/// \param f The columns to be exctracted out of the tuple of columns and passed to fun.
+/// \param f The columns to be extracted out of the tuple of columns and passed to fun.
 /// \param t The columns where the result will be saved. If the stream does not contain
 ///          the selected columns, they are added to the stream. This parameter can
 ///          overlap with the parameter f.
