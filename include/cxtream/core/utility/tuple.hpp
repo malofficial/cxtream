@@ -20,6 +20,25 @@
 
 namespace cxtream::utility {
 
+/// Get the first index of a type in a variadic template list
+///
+/// The first template argument is the argument to be searched.
+/// The rest of the arguments is the variadic template.
+///
+/// Example:
+/// \code
+///     variadic_find<int, int, double, double>::value == 0
+///     variadic_find<double, int, double, double>::value == 1
+///     variadic_find<float, int, double, float>::value == 2
+/// \endcode
+template<typename T1, typename T2, typename... Ts>
+struct variadic_find : std::integral_constant<std::size_t, variadic_find<T1, Ts...>{}+1> {
+};
+
+template<typename T, typename... Ts>
+struct variadic_find<T, T, Ts...> : std::integral_constant<std::size_t, 0> {
+};
+
 // tuple_for_each //
 
 namespace detail {

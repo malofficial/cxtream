@@ -26,6 +26,13 @@ using namespace cxtream::utility;
 // this is forbidden by the standard (simple workarounds?)
 namespace std { using cxtream::utility::operator<<; }
 
+BOOST_AUTO_TEST_CASE(test_variadic_find)
+{
+    static_assert(variadic_find<int, int, double, double>::value == 0);
+    static_assert(variadic_find<double, int, double, double>::value == 1);
+    static_assert(variadic_find<float, int, double, float>::value == 2);
+}
+
 BOOST_AUTO_TEST_CASE(test_tuple_contains)
 {
     // tuple_contains
