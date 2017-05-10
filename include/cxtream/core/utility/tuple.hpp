@@ -328,7 +328,7 @@ namespace detail {
     template<typename ToR, typename Tuple, std::size_t... Is>
     void unzip_impl(ToR& tuple_of_ranges, Tuple&& tuple, std::index_sequence<Is...>)
     {
-        (..., (std::get<Is>(tuple_of_ranges).emplace_back(std::get<Is>(std::forward<Tuple>(tuple)))));
+        (..., (std::get<Is>(tuple_of_ranges).push_back(std::get<Is>(std::forward<Tuple>(tuple)))));
     }
 
     template<typename Rng, CONCEPT_REQUIRES_(ranges::SizedRange<Rng>())>
@@ -418,10 +418,10 @@ namespace detail {
 ///     auto vc = maybe_unzip(va);
 /// \endcode
 template<typename RangeT>
-decltype(auto) maybe_unzip(RangeT range)
+decltype(auto) maybe_unzip(RangeT&& range)
 {
     using value_type = ranges::range_value_type_t<RangeT>;
-    return detail::maybe_unzip_impl<value_type>::impl(std::move(range));
+    return detail::maybe_unzip_impl<value_type>::impl(std::forward<RangeT>(range));
 }
 
 // range to tuple //
