@@ -33,10 +33,10 @@ constexpr auto partial_transform(from_t<FromTypes...>, to_t<ToTypes...>,
     return ranges::view::transform([fun = std::move(fun), proj = std::move(proj)]
       (auto&& source) mutable {
         // build the view for the transformer, i.e., slice and project
-        const auto slice_view =
+        auto slice_view =
           utility::tuple_transform(proj, utility::tuple_type_view<FromTypes...>(source));
         // process the transformer's result and convert it to the requested types
-        std::tuple<ToTypes...> result{std::invoke(fun, slice_view)};
+        std::tuple<ToTypes...> result{std::invoke(fun, std::move(slice_view))};
         // replace the corresponding fields
         return utility::tuple_cat_unique(std::move(result), std::forward<decltype(source)>(source));
     });
@@ -81,7 +81,7 @@ namespace detail {
 /// \code
 ///     CXTREAM_DEFINE_COLUMN(id, int)
 ///     CXTREAM_DEFINE_COLUMN(value, double)
-///     std::vector<std::tuple<int, double>> data = {{{3},{5.}}, {{1},{2.}}};
+///     std::vector<std::tuple<int, double>> data = {{3, 5.}, {1, 2.}};
 ///     auto rng = data
 ///       | create<id, value>()
 ///       | transform(from<id>, to<value>, [](int id) { return id * 5. + 1.; });

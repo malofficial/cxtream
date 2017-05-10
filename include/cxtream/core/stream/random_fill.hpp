@@ -24,6 +24,11 @@ namespace cxtream::stream {
 /// This function uses utility::vector::random_fill(). Furthermore, the column to be filled
 /// is first resized so that it has the same shape as the selected source column.
 ///
+/// The selected `from` column has to be a multidimensional std::vector with dimension
+/// at least as large as the column to be filled. This can be worked around by manually
+/// preparing the size of the column to be filled and than using it as both `from` column
+/// and `to` column.
+///
 /// Example:
 /// \code
 ///     CXTREAM_DEFINE_COLUMN(id, int)
@@ -52,7 +57,8 @@ constexpr auto random_fill(from_t<FromColumn> size_from,
         std::vector<std::vector<long>> target_size = utility::ndim_size(source);
         target_size = target_size | ranges::view::take(utility::ndims<TargetVector>{}());
         TargetVector target;
-        utility::ndim_resize(target, target_size);
+        if (!std::is_same<FromColumn, ToColumn>{})
+            utility::ndim_resize(target, target_size);
         utility::random_fill(target, ndims, gen);
         return target;
     };

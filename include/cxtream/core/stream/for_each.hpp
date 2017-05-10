@@ -31,10 +31,10 @@ constexpr auto partial_for_each(from_t<FromTypes...>, Fun fun, Projection proj =
     return ranges::view::transform([fun = std::move(fun), proj = std::move(proj)]
       (auto&& source) mutable {
           // build the view for the transformer, i.e., slice and project
-          const auto slice_view =
+          auto slice_view =
             utility::tuple_transform(proj, utility::tuple_type_view<FromTypes...>(source));
           // apply the function
-          std::invoke(fun, slice_view);
+          std::invoke(fun, std::move(slice_view));
           // return the original
           return std::forward<decltype(source)>(source);
     });
