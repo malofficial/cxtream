@@ -41,6 +41,18 @@ public:
       : value_{rhs}
     {}
 
+    // conversion operators //
+
+    operator std::vector<T>&() &
+    {
+        return value_;
+    }
+
+    operator std::vector<T>&&() &&
+    {
+        return std::move(value_);
+    }
+
     // value accessors //
 
     std::vector<T>& value() { return value_; }

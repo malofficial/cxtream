@@ -26,6 +26,13 @@ using namespace cxtream::utility;
 // this is forbidden by the standard (simple workarounds?)
 namespace std { using cxtream::utility::operator<<; }
 
+BOOST_AUTO_TEST_CASE(test_variadic_find)
+{
+    static_assert(variadic_find<int, int, double, double>::value == 0);
+    static_assert(variadic_find<double, int, double, double>::value == 1);
+    static_assert(variadic_find<float, int, double, float>::value == 2);
+}
+
 BOOST_AUTO_TEST_CASE(test_tuple_contains)
 {
     // tuple_contains
@@ -60,6 +67,31 @@ BOOST_AUTO_TEST_CASE(test_tuple_type_view_writethrough)
 
     // double writethrough
     auto t3 = tuple_type_view<double&>(t2);
+    std::get<double&>(t3) = 3.;
+    BOOST_TEST(std::get<double>(t1) == 3);
+}
+
+BOOST_AUTO_TEST_CASE(test_tuple_index_view)
+{
+    auto t1 = std::make_tuple(0, 5., 'c');
+    auto t2 = tuple_index_view<1, 0>(t1);
+    auto t3 = tuple_index_view<2, 0>(t1);
+    static_assert(std::is_same<std::tuple<char&, int&>, decltype(t3)>{});
+    BOOST_TEST(t2 == std::make_tuple(5., 0));
+    BOOST_TEST(t2 == std::make_tuple(5., 0));
+    BOOST_TEST(t3 == std::make_tuple('c', 0));
+}
+
+BOOST_AUTO_TEST_CASE(test_tuple_index_view_writethrough)
+{
+    // index_view writethrough
+    auto t1 = std::make_tuple(0, 5., 'c');
+    auto t2 = tuple_index_view<1, 0>(t1);
+    std::get<int&>(t2) = 1;
+    BOOST_TEST(std::get<int>(t1) == 1);
+
+    // double writethrough
+    auto t3 = tuple_index_view<0>(t2);
     std::get<double&>(t3) = 3.;
     BOOST_TEST(std::get<double>(t1) == 3);
 }
@@ -403,6 +435,49 @@ BOOST_AUTO_TEST_CASE(test_unzip_move_only)
     BOOST_TEST(va == va_desired);
     for (std::size_t i = 0; i < 3; ++i) {
         BOOST_TEST(*vb[i] == (int)i + 5);
+    }
+}
+
+BOOST_AUTO_TEST_CASE(test_maybe_unzip)
+{
+    std::vector<std::tuple<int, double>> data{};
+    data.emplace_back(1, 5.);
+    data.emplace_back(2, 6.);
+    data.emplace_back(3, 7.);
+
+    std::vector<int> va;
+    std::vector<double> vb;
+    std::tie(va, vb) = maybe_unzip(data);
+
+    std::vector<int> va_desired{1, 2, 3};
+    std::vector<double> vb_desired{5., 6., 7.};
+    BOOST_TEST(va == va_desired);
+    BOOST_TEST(vb == vb_desired);
+
+    std::vector<int> vc = maybe_unzip(va);
+    BOOST_TEST(vc == va);
+}
+
+BOOST_AUTO_TEST_CASE(test_maybe_unzip_move_only)
+{
+    std::vector<std::tuple<int, std::unique_ptr<int>>> data{};
+    data.emplace_back(1, std::make_unique<int>(5));
+    data.emplace_back(2, std::make_unique<int>(6));
+    data.emplace_back(3, std::make_unique<int>(7));
+
+    std::vector<int> va;
+    std::vector<std::unique_ptr<int>> vb;
+    std::tie(va, vb) = maybe_unzip(std::move(data));
+
+    std::vector<int> va_desired{1, 2, 3};
+    BOOST_TEST(va == va_desired);
+    for (std::size_t i = 0; i < 3; ++i) {
+        BOOST_TEST(*vb[i] == (int)i + 5);
+    }
+
+    std::vector<std::unique_ptr<int>> vc = maybe_unzip(std::move(vb));
+    for (std::size_t i = 0; i < 3; ++i) {
+        BOOST_TEST(*vc[i] == (int)i + 5);
     }
 }
 

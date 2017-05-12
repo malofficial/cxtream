@@ -33,10 +33,10 @@ constexpr auto partial_transform(from_t<FromTypes...>, to_t<ToTypes...>,
     return ranges::view::transform([fun = std::move(fun), proj = std::move(proj)]
       (auto&& source) mutable {
         // build the view for the transformer, i.e., slice and project
-        const auto slice_view =
+        auto slice_view =
           utility::tuple_transform(proj, utility::tuple_type_view<FromTypes...>(source));
         // process the transformer's result and convert it to the requested types
-        std::tuple<ToTypes...> result{std::invoke(fun, slice_view)};
+        std::tuple<ToTypes...> result{std::invoke(fun, std::move(slice_view))};
         // replace the corresponding fields
         return utility::tuple_cat_unique(std::move(result), std::forward<decltype(source)>(source));
     });
@@ -48,30 +48,29 @@ namespace detail {
     template<int Dim>
     struct wrap_fun_for_dim
     {
-      template<typename Fun>
-      static constexpr auto impl(Fun fun)
-      {
-        return [fun=std::move(fun)](auto&& tuple_of_ranges) {
-          auto range_of_tuples =
-              std::experimental::apply(
-                  ranges::view::zip,
-                  std::forward<decltype(tuple_of_ranges)>(tuple_of_ranges))
-            | ranges::view::transform(wrap_fun_for_dim<Dim - 1>::impl(fun));
-          return utility::unzip(std::move(range_of_tuples));
-        };
-      }
+        template<typename Fun>
+        static constexpr auto impl(Fun fun)
+        {
+            return [fun = std::move(fun)](auto&& tuple_of_ranges) {
+                auto range_of_tuples =
+                  std::experimental::apply(ranges::view::zip,
+                                           std::forward<decltype(tuple_of_ranges)>(tuple_of_ranges))
+                  | ranges::view::transform(wrap_fun_for_dim<Dim - 1>::impl(fun));
+                return utility::unzip(std::move(range_of_tuples));
+            };
+        }
     };
 
     template<>
     struct wrap_fun_for_dim<0>
     {
-      template<typename Fun>
-      static constexpr auto impl(Fun fun)
-      {
-        return [fun=std::move(fun)](auto&& tuple) {
-          return std::experimental::apply(fun, std::forward<decltype(tuple)>(tuple));
-        };
-      }
+        template<typename Fun>
+        static constexpr auto impl(Fun fun)
+        {
+            return [fun = std::move(fun)](auto&& tuple) {
+                return std::experimental::apply(fun, std::forward<decltype(tuple)>(tuple));
+            };
+        }
     };
 
 } // namespace detail
@@ -82,13 +81,13 @@ namespace detail {
 /// \code
 ///     CXTREAM_DEFINE_COLUMN(id, int)
 ///     CXTREAM_DEFINE_COLUMN(value, double)
-///     std::vector<std::tuple<int, double>> data = {{{3},{5.}}, {{1},{2.}}};
+///     std::vector<std::tuple<int, double>> data = {{3, 5.}, {1, 2.}};
 ///     auto rng = data
-///       | create<id, value>
+///       | create<id, value>()
 ///       | transform(from<id>, to<value>, [](int id) { return id * 5. + 1.; });
 /// \endcode
 ///
-/// \param f The columns to be exctracted out of the tuple of columns and passed to fun.
+/// \param f The columns to be extracted out of the tuple of columns and passed to fun.
 /// \param t The columns where the result will be saved. If the stream does not contain
 ///          the selected columns, they are added to the stream. This parameter can
 ///          overlap with the parameter f.

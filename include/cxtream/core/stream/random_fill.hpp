@@ -24,13 +24,18 @@ namespace cxtream::stream {
 /// This function uses utility::vector::random_fill(). Furthermore, the column to be filled
 /// is first resized so that it has the same shape as the selected source column.
 ///
+/// The selected `from` column has to be a multidimensional std::vector with dimension
+/// at least as large as the column to be filled. This can be worked around by manually
+/// preparing the size of the column to be filled and than using it as both `from` column
+/// and `to` column.
+///
 /// Example:
 /// \code
 ///     CXTREAM_DEFINE_COLUMN(id, int)
 ///     CXTREAM_DEFINE_COLUMN(category, std::uint64_t)
 ///     std::vector<int> data = {3, 1, 2};
 ///     auto rng = data
-///       | create<id>
+///       | create<id>()
 ///       | random_fill(from<id>, to<category>);
 ///       | transform(from<id, category>, [](...){ ... });
 /// \endcode
@@ -45,14 +50,15 @@ constexpr auto random_fill(from_t<FromColumn> size_from,
                            long ndims = std::numeric_limits<long>::max(),
                            Prng&& gen = Prng{std::random_device{}()})
 {
-    auto fun = [ndims, &gen](const auto& source) {
+    auto fun = [ndims, &gen](const auto& source) -> ToColumn {
         using SourceVector = std::decay_t<decltype(source)>;
         using TargetVector = std::decay_t<decltype(std::declval<ToColumn>().value())>;
         static_assert(utility::ndims<TargetVector>{} <= utility::ndims<SourceVector>{});
         std::vector<std::vector<long>> target_size = utility::ndim_size(source);
         target_size = target_size | ranges::view::take(utility::ndims<TargetVector>{}());
         TargetVector target;
-        utility::ndim_resize(target, target_size);
+        if (!std::is_same<FromColumn, ToColumn>{})
+            utility::ndim_resize(target, target_size);
         utility::random_fill(target, ndims, gen);
         return target;
     };

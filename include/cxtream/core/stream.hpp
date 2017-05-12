@@ -15,6 +15,7 @@
 #include <cxtream/core/stream/column.hpp>
 #include <cxtream/core/stream/create.hpp>
 #include <cxtream/core/stream/drop.hpp>
+#include <cxtream/core/stream/filter.hpp>
 #include <cxtream/core/stream/for_each.hpp>
 #include <cxtream/core/stream/random_fill.hpp>
 #include <cxtream/core/stream/transform.hpp>

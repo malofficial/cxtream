@@ -30,6 +30,14 @@ struct to_t {
 template <typename... Columns>
 auto to = to_t<Columns...>{};
 
+/// Helper type representing columns by which one should filter etc.
+template <typename... Columns>
+struct by_t {
+};
+
+template <typename... Columns>
+auto by = by_t<Columns...>{};
+
 /// Helper type representing dimension.
 template <int Dim>
 struct dim_t {
