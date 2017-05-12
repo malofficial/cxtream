@@ -52,7 +52,7 @@ BOOST_AUTO_TEST_CASE(test_to_itself)
     // transform a single column to itself
     std::vector<std::tuple<Int, Double>> data = {{{3}, {5.}}, {{1}, {2.}}};
     auto generated = data
-      | transform(from<Int>, to<Int>, [](const int& v) { return std::make_tuple(v - 1); });
+      | transform(from<Int>, to<Int>, [](const int& v) { return v - 1; });
     std::vector<std::tuple<Int, Double>> desired = {{{2}, {5.}}, {{0}, {2.}}};
     test_ranges_equal(generated, desired);
 }
@@ -91,7 +91,7 @@ BOOST_AUTO_TEST_CASE(test_two_to_one)
   
     auto generated = data
       | transform(from<Int, Double>, to<Double>, [](int i, double d) {
-            return std::make_tuple((double)(i + d));
+            return (double)(i + d);
         });
   
     std::vector<std::tuple<Double, Int>> desired = {{{3 + 5.}, {3}}, {{1 + 2.}, {1}}};

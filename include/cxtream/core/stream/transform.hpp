@@ -45,7 +45,7 @@ constexpr auto partial_transform(from_t<FromTypes...>, to_t<ToTypes...>,
 namespace detail {
 
     // apply fun to each element in tuple of ranges in the given dimension
-    template<int Dim>
+    template<std::size_t Dim, std::size_t NOuts>
     struct wrap_fun_for_dim
     {
         template<typename Fun>
@@ -55,14 +55,14 @@ namespace detail {
                 auto range_of_tuples =
                   std::experimental::apply(ranges::view::zip,
                                            std::forward<decltype(tuple_of_ranges)>(tuple_of_ranges))
-                  | ranges::view::transform(wrap_fun_for_dim<Dim - 1>::impl(fun));
-                return utility::unzip(std::move(range_of_tuples));
+                  | ranges::view::transform(wrap_fun_for_dim<Dim-1, NOuts>::impl(fun));
+                return utility::unzip_if<(NOuts > 1)>(std::move(range_of_tuples));
             };
         }
     };
 
-    template<>
-    struct wrap_fun_for_dim<0>
+    template<std::size_t NOuts>
+    struct wrap_fun_for_dim<0, NOuts>
     {
         template<typename Fun>
         static constexpr auto impl(Fun fun)
@@ -91,7 +91,9 @@ namespace detail {
 /// \param t The columns where the result will be saved. If the stream does not contain
 ///          the selected columns, they are added to the stream. This parameter can
 ///          overlap with the parameter f.
-/// \param fun The function to be applied.
+/// \param fun The function to be applied. The function should return the type represented
+///            by the target column in the given dimension. If there are multiple target
+///            columns, the function should return a tuple of the corresponding types.
 /// \param d The dimension in which the function is applied. Choose 0 for the function to
 ///          be applied to the whole batch.
 template<typename... FromColumns, typename... ToColumns, typename Fun, int Dim = 1>
@@ -101,7 +103,7 @@ constexpr auto transform(from_t<FromColumns...> f,
                          dim_t<Dim> d = dim_t<1>{})
 {
     // wrap the function to be applied in the appropriate dimension
-    auto fun_wrapper = detail::wrap_fun_for_dim<Dim>::impl(std::move(fun));
+    auto fun_wrapper = detail::wrap_fun_for_dim<Dim, sizeof...(ToColumns)>::impl(std::move(fun));
 
     return partial_transform(f, t, std::move(fun_wrapper),
                              [](auto& column) { return std::ref(column.value()); });
