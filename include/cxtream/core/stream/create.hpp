@@ -17,10 +17,10 @@
 
 namespace cxtream::stream {
 
-/// Converts a range to a stream (i.e., a range of tuples of columns).
+/// Converts a range to a stream (i.e., to a range of tuples of columns).
 ///
-/// The value type of the input range of this operation is supposed
-/// to be either the type requested by the column to be created,
+/// The value type of the input range is supposed
+/// to be either the type represented by the column to be created,
 /// or a tuple of such types if there are more columns to be created.
 ///
 /// Example:
@@ -43,10 +43,11 @@ template<typename... Columns>
 constexpr auto create(std::size_t batch_size = 1)
 {
     assert(batch_size >= 1);
-    return ranges::view::chunk(batch_size) | ranges::view::transform([](auto&& source) {
-               return std::tuple<Columns...>{
-                 utility::maybe_unzip(std::forward<decltype(source)>(source))};
-           });
+    return ranges::view::chunk(batch_size)
+      | ranges::view::transform([](auto&& source) {
+            return std::tuple<Columns...>{
+              utility::unzip_if<(sizeof...(Columns) > 1)>(std::forward<decltype(source)>(source))};
+        });
 }
 
 } // end namespace cxtream::stream
