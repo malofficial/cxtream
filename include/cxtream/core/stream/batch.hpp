@@ -58,20 +58,30 @@ private:
 
         using batch_t_ = ranges::range_value_type_t<Rng>;
         using column_idxs_t = std::make_index_sequence<std::tuple_size<batch_t_>{}>;
+        // the batch into which we accumulate the data
         // the batch will be a pointer to allow moving from it in const functions
         std::shared_ptr<batch_t_> batch_ = std::make_shared<batch_t_>();
 
-        std::size_t subbatch_idx_ = 0;
+        // the subbatch of the original range
         std::shared_ptr<batch_t_> subbatch_;
+        // the current index into the batch of the original range
+        std::size_t subbatch_idx_ = 0;
 
         bool done_ = false;
+
+        // reserve space in subbatch
+        template <std::size_t... Is>
+        void reserve_batch(std::index_sequence<Is...>)
+        {
+            (..., (std::get<Is>(*batch_).value().reserve(rng_->n_)));
+        }
 
         // move i-th element from subbatch_ to batch_
         template <std::size_t... Is>
         void move_from_subbatch(std::size_t i, std::index_sequence<Is...>)
         {
             (..., (std::get<Is>(*batch_).value().push_back(
-                    std::move(std::get<Is>(*subbatch_).value()[i]))));
+                   std::move(std::get<Is>(*subbatch_).value()[i]))));
         }
 
         // find the first non-empty subbatch and return if successful
@@ -95,6 +105,7 @@ private:
         // fill the batch_ with the elements from the current subbatch_
         void fill_batch()
         {
+            reserve_batch(column_idxs_t{});
             do {
                 move_from_subbatch(subbatch_idx_++, column_idxs_t{});
             } while (batch_size(*batch_) < rng_->n_ && find_next());
