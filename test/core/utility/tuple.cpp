@@ -438,7 +438,7 @@ BOOST_AUTO_TEST_CASE(test_unzip_move_only)
     }
 }
 
-BOOST_AUTO_TEST_CASE(test_maybe_unzip)
+BOOST_AUTO_TEST_CASE(test_unzip_if)
 {
     std::vector<std::tuple<int, double>> data{};
     data.emplace_back(1, 5.);
@@ -447,18 +447,18 @@ BOOST_AUTO_TEST_CASE(test_maybe_unzip)
 
     std::vector<int> va;
     std::vector<double> vb;
-    std::tie(va, vb) = maybe_unzip(data);
+    std::tie(va, vb) = unzip_if<true>(data);
 
     std::vector<int> va_desired{1, 2, 3};
     std::vector<double> vb_desired{5., 6., 7.};
     BOOST_TEST(va == va_desired);
     BOOST_TEST(vb == vb_desired);
 
-    std::vector<int> vc = maybe_unzip(va);
+    std::vector<int> vc = unzip_if<false>(va);
     BOOST_TEST(vc == va);
 }
 
-BOOST_AUTO_TEST_CASE(test_maybe_unzip_move_only)
+BOOST_AUTO_TEST_CASE(test_unzip_if_move_only)
 {
     std::vector<std::tuple<int, std::unique_ptr<int>>> data{};
     data.emplace_back(1, std::make_unique<int>(5));
@@ -467,7 +467,7 @@ BOOST_AUTO_TEST_CASE(test_maybe_unzip_move_only)
 
     std::vector<int> va;
     std::vector<std::unique_ptr<int>> vb;
-    std::tie(va, vb) = maybe_unzip(std::move(data));
+    std::tie(va, vb) = unzip_if<true>(std::move(data));
 
     std::vector<int> va_desired{1, 2, 3};
     BOOST_TEST(va == va_desired);
@@ -475,7 +475,7 @@ BOOST_AUTO_TEST_CASE(test_maybe_unzip_move_only)
         BOOST_TEST(*vb[i] == (int)i + 5);
     }
 
-    std::vector<std::unique_ptr<int>> vc = maybe_unzip(std::move(vb));
+    std::vector<std::unique_ptr<int>> vc = unzip_if<false>(std::move(vb));
     for (std::size_t i = 0; i < 3; ++i) {
         BOOST_TEST(*vc[i] == (int)i + 5);
     }

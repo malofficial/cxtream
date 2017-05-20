@@ -399,18 +399,8 @@ auto unzip(RangeT range_of_tuples)
 
 namespace detail {
 
-    template<typename ValueT>
-    struct maybe_unzip_impl
-    {
-        template<typename Rng>
-        static constexpr Rng&& impl(Rng&& rng)
-        {
-            return std::forward<Rng>(rng);
-        }
-    };
-
-    template<typename... Ts>
-    struct maybe_unzip_impl<std::tuple<Ts...>>
+    template<bool Enable>
+    struct unzip_if_impl
     {
         template<typename Rng>
         static decltype(auto) impl(Rng&& rng)
@@ -419,9 +409,23 @@ namespace detail {
         }
     };
 
+    template<>
+    struct unzip_if_impl<false>
+    {
+        template<typename Rng>
+        static constexpr Rng&& impl(Rng&& rng)
+        {
+            return std::forward<Rng>(rng);
+        }
+    };
+
 }  // namespace detail
 
-/// Unzips a range of tuples to a tuple of ranges if it is a range of std::tuples.
+/// Unzips a range of tuples to a tuple of ranges if a constexpr condition holds.
+///
+/// This method is enabled or disabled by its first template parameter.
+/// If disabled, it returns identity. If enabled, it returns the same
+/// thing as unzip() would return.
 ///
 /// Example:
 /// \code
@@ -432,15 +436,14 @@ namespace detail {
 ///
 ///     std::vector<int> va;
 ///     std::vector<double> vb;
-///     std::tie(va, vb) = maybe_unzip(data);
+///     std::tie(va, vb) = unzip_if<true>(data);
 ///
-///     auto vc = maybe_unzip(va);
+///     auto vc = unzip_if<false>(va);
 /// \endcode
-template<typename RangeT>
-decltype(auto) maybe_unzip(RangeT&& range)
+template<bool Enable, typename RangeT>
+decltype(auto) unzip_if(RangeT&& range)
 {
-    using value_type = ranges::range_value_type_t<RangeT>;
-    return detail::maybe_unzip_impl<value_type>::impl(std::forward<RangeT>(range));
+    return detail::unzip_if_impl<Enable>::impl(std::forward<RangeT>(range));
 }
 
 // range to tuple //
