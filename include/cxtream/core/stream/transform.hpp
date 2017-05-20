@@ -21,7 +21,10 @@
 
 namespace cxtream::stream {
 
-/// Transform a subset of tuple elements for each tuple in a range.
+/// Transform a subset of tuple elements for each tuple in a range and concatenate the result
+/// with the source tuple.
+///
+/// The result tuple overrides the corresponding types from the source tuple.
 template<typename... FromTypes, typename... ToTypes,
          typename Fun, typename Projection = ref_wrap_t>
 constexpr auto partial_transform(from_t<FromTypes...>, to_t<ToTypes...>,
