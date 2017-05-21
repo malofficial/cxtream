@@ -23,7 +23,6 @@
 #include <functional>
 #include <iomanip>
 #include <iostream>
-#include <unordered_map>
 #include <vector>
 
 namespace cxtream {
@@ -352,7 +351,9 @@ public:
 
     /// Return an indexed typed view of a single column.
     ///
-    /// This function returns a hashmap indexed by a given key column with values of another column.
+    /// This function returns a range of tuples, where the first element is 
+    /// from the key column and the second element is from the value column.
+    /// This range can be used to construct a map or a hashmap.
     ///
     /// Example:
     /// \code
@@ -363,11 +364,10 @@ public:
     /// \param val_col_index Index of the column to be used as value.
     /// \returns A hashmap.
     template <typename IndexT, typename ColT>
-    std::unordered_map<IndexT, ColT>
-    index_icol(std::size_t key_col_index,
-               std::size_t val_col_index,
-               std::function<IndexT(std::string)> key_col_cvt = utility::string_to<IndexT>,
-               std::function<ColT(std::string)> val_col_cvt = utility::string_to<ColT>) const
+    auto index_icol(std::size_t key_col_index,
+                    std::size_t val_col_index,
+                    std::function<IndexT(std::string)> key_col_cvt = utility::string_to<IndexT>,
+                    std::function<ColT(std::string)> val_col_cvt = utility::string_to<ColT>) const
     {
         auto key_col = icol<IndexT>(key_col_index, std::move(key_col_cvt));
         auto val_col = icol<ColT>(val_col_index, std::move(val_col_cvt));
@@ -378,11 +378,10 @@ public:
     ///
     /// This function is the same as index_icol, but columns are selected by name.
     template<typename IndexT, typename ColT>
-    std::unordered_map<IndexT, ColT>
-    index_col(const std::string& key_col_name,
-              const std::string& val_col_name,
-              std::function<IndexT(std::string)> key_col_cvt = utility::string_to<IndexT>,
-              std::function<ColT(std::string)> val_col_cvt = utility::string_to<ColT>) const
+    auto index_col(const std::string& key_col_name,
+                   const std::string& val_col_name,
+                   std::function<IndexT(std::string)> key_col_cvt = utility::string_to<IndexT>,
+                   std::function<ColT(std::string)> val_col_cvt = utility::string_to<ColT>) const
     {
         assert(header_.size() && "Dataframe has no header, cannot index by column name.");
         return index_icol(header_.index_for(key_col_name),
@@ -397,13 +396,12 @@ public:
     ///
     /// This function is similar to index_icol, but value type is a tuple of Ts.
     template<typename IndexT, typename... Ts>
-    std::unordered_map<IndexT, std::tuple<Ts...>>
-    index_icols(std::size_t key_col_index,
-                std::vector<std::size_t> val_col_indexes,
-                std::function<IndexT(std::string)> key_col_cvt =
-                  utility::string_to<IndexT>,
-                std::tuple<std::function<Ts(std::string)>...> val_col_cvts =
-                  std::make_tuple(utility::string_to<Ts>...)) const
+    auto index_icols(std::size_t key_col_index,
+                     std::vector<std::size_t> val_col_indexes,
+                     std::function<IndexT(std::string)> key_col_cvt =
+                       utility::string_to<IndexT>,
+                     std::tuple<std::function<Ts(std::string)>...> val_col_cvts =
+                       std::make_tuple(utility::string_to<Ts>...)) const
     {
         auto key_col = icol<IndexT>(key_col_index, std::move(key_col_cvt));
         auto val_cols = irows<Ts...>(std::move(val_col_indexes), std::move(val_col_cvts));
@@ -415,13 +413,12 @@ public:
     ///
     /// This function is similar to index_icols, columns are selected by name.
     template<typename IndexT, typename... Ts>
-    std::unordered_map<IndexT, std::tuple<Ts...>>
-    index_cols(const std::string& key_col_name,
-               const std::vector<std::string>& val_col_names,
-               std::function<IndexT(std::string)> key_col_cvt =
-                 utility::string_to<IndexT>,
-               std::tuple<std::function<Ts(std::string)>...> val_col_cvts =
-                 std::make_tuple(utility::string_to<Ts>...)) const
+    auto index_cols(const std::string& key_col_name,
+                    const std::vector<std::string>& val_col_names,
+                    std::function<IndexT(std::string)> key_col_cvt =
+                      utility::string_to<IndexT>,
+                    std::tuple<std::function<Ts(std::string)>...> val_col_cvts =
+                      std::make_tuple(utility::string_to<Ts>...)) const
     {
         assert(header_.size() && "Dataframe has no header, cannot index by column name.");
         return index_icols(header_.index_for(key_col_name),
