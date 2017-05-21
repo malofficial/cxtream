@@ -36,24 +36,6 @@ std::vector<std::tuple<int, std::vector<int>>> generate_data()
     return {{3, {1, 4}}, {1, {8, 2}}, {7, {2, 5}}};
 }
 
-std::vector<std::tuple<int, std::vector<std::unique_ptr<int>>>> generate_move_only_data()
-{
-    std::vector<std::tuple<int, std::vector<std::unique_ptr<int>>>> data;
-    std::vector<std::unique_ptr<int>> unique_data1;
-    unique_data1.push_back(std::make_unique<int>(1));
-    unique_data1.push_back(std::make_unique<int>(4));
-    data.emplace_back(std::make_tuple(3, std::move(unique_data1)));
-    std::vector<std::unique_ptr<int>> unique_data2;
-    unique_data2.push_back(std::make_unique<int>(8));
-    unique_data2.push_back(std::make_unique<int>(2));
-    data.emplace_back(std::make_tuple(3, std::move(unique_data2)));
-    std::vector<std::unique_ptr<int>> unique_data3;
-    unique_data3.push_back(std::make_unique<int>(2));
-    unique_data3.push_back(std::make_unique<int>(5));
-    data.emplace_back(std::make_tuple(3, std::move(unique_data3)));
-    return data;
-}
-
 BOOST_AUTO_TEST_CASE(test_unpack_dim0)
 {
     auto data = generate_data();
@@ -75,7 +57,7 @@ BOOST_AUTO_TEST_CASE(test_unpack_dim1)
     std::vector<int> unp_int;
     std::vector<std::vector<int>> unp_intvec;
     std::tie(unp_int, unp_intvec) = unpack(rng, from<Int, IntVec>);
-    test_ranges_equal(data, data_original);
+    BOOST_CHECK(data == data_original);
     test_ranges_equal(unp_int, std::vector<int>{3, 1, 7});
     test_ranges_equal(unp_intvec, std::vector<std::vector<int>>{{1, 4}, {8, 2}, {2, 5}});
 }

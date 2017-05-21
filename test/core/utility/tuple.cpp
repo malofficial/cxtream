@@ -408,6 +408,7 @@ BOOST_AUTO_TEST_CASE(test_unzip)
     data.emplace_back(1, 5.);
     data.emplace_back(2, 6.);
     data.emplace_back(3, 7.);
+    auto data_orig = data;
 
     std::vector<int> va;
     std::vector<double> vb;
@@ -417,6 +418,7 @@ BOOST_AUTO_TEST_CASE(test_unzip)
     std::vector<double> vb_desired{5., 6., 7.};
     BOOST_TEST(va == va_desired);
     BOOST_TEST(vb == vb_desired);
+    BOOST_CHECK(data == data_orig);
 }
 
 BOOST_AUTO_TEST_CASE(test_unzip_move_only)
