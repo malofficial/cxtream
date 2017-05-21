@@ -267,7 +267,7 @@ std::vector<long> shape(const std::vector<T>& vec)
 
 namespace detail {
 
-    // join the vecor and recurse
+    // recursively join the vector
     template<typename VecT, long Dim>
     struct flat_view_impl {
         static auto impl()
