@@ -12,6 +12,7 @@
 
 #include "../common.hpp"
 
+#include <cxtream/core/stream/create.hpp>
 #include <cxtream/core/stream/for_each.hpp>
 
 #include <boost/test/unit_test.hpp>
@@ -26,6 +27,8 @@
 using namespace cxtream::stream;
 using namespace ranges;
 using namespace boost;
+
+CXTREAM_DEFINE_COLUMN(UniqueVec, std::vector<std::unique_ptr<int>>)
 
 BOOST_AUTO_TEST_CASE(test_partial_for_each)
 {
@@ -78,7 +81,6 @@ BOOST_AUTO_TEST_CASE(test_for_each_move_only)
     data.emplace_back(1, std::make_unique<int>(2));
   
     std::vector<int> generated;
-  
     data
       | view::move
       | for_each(from<Int, Unique>,
@@ -88,4 +90,40 @@ BOOST_AUTO_TEST_CASE(test_for_each_move_only)
       | to_vector;
   
     test_ranges_equal(generated, std::vector<int>{8, 3});
+}
+
+BOOST_AUTO_TEST_CASE(test_for_each_dim0)
+{
+    std::vector<std::tuple<Int, Unique>> data;
+    data.emplace_back(3, std::make_unique<int>(5));
+    data.emplace_back(1, std::make_unique<int>(2));
+  
+    std::vector<int> generated;
+    data
+      | view::move
+      | for_each(from<Int, Unique>,
+          [&generated](const std::vector<int>& int_batch,
+                       const std::vector<std::unique_ptr<int>>& ptr_batch) {
+              generated.push_back(*(ptr_batch[0]) + int_batch[0]);
+        }, dim<0>)
+      | to_vector;
+  
+    test_ranges_equal(generated, std::vector<int>{8, 3});
+}
+
+BOOST_AUTO_TEST_CASE(test_for_each_dim2_move_only)
+{
+    auto data = generate_move_only_data();
+
+    std::vector<int> generated;
+    auto rng = data
+      | view::move
+      | create<Int, UniqueVec>(2)
+      | for_each(from<UniqueVec>, [&generated](std::unique_ptr<int>& ptr) {
+            generated.push_back(*ptr);
+        }, dim<2>)
+      | to_vector;
+
+    std::vector<int> desired = {1, 4, 8, 2, 2, 5};
+    BOOST_CHECK(generated == desired);
 }
