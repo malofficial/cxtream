@@ -329,3 +329,20 @@ BOOST_AUTO_TEST_CASE(test_random_fill_3d)
     random_fill(vec, 3, gen);
     check(vec, {{3, 2, 1}, {1, 2}}, 9);
 }
+
+BOOST_AUTO_TEST_CASE(test_same_size)
+{
+    const std::vector<int> v1 = {1, 2, 3};
+    const std::vector<bool> v2 = {true, false, true};
+    const std::vector<char> v3 = {'a', 'b'};
+    const std::vector<double> v4 = {};
+    BOOST_TEST(same_size(std::tuple<>{}));
+    BOOST_TEST(same_size(std::tie(v4)));
+    BOOST_TEST(same_size(std::tie(v1, v2)));
+    BOOST_TEST(!same_size(std::tie(v1, v3)));
+    BOOST_TEST(!same_size(std::tie(v1, v4)));
+    BOOST_TEST(same_size(std::tie(v3, v3, v3)));
+    BOOST_TEST(same_size(std::tie(v1, v2, v1)));
+    BOOST_TEST(!same_size(std::tie(v1, v2, v3)));
+    BOOST_TEST(!same_size(std::tie(v1, v2, v3, v4)));
+}

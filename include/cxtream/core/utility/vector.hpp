@@ -476,6 +476,41 @@ constexpr void random_fill(std::vector<T>& vec,
     detail::random_fill_impl<std::vector<T>, 0>::impl(vec, ndims, gen);
 }
 
+namespace detail {
+
+    struct same_size_impl {
+        template<typename Rng, typename... Rngs>
+        constexpr bool operator()(Rng&& rng, Rngs&&... rngs) const
+        {
+            return ((ranges::size(rng) == ranges::size(rngs)) && ...);
+        }
+
+        constexpr bool operator()() const
+        {
+            return true;
+        }
+    };
+
+}  // namespace detail
+
+/// Utility function which checks that all the ranges in a tuple have the same size.
+///
+/// Example:
+/// \code
+///     std::vector<int> v1 = {1, 2, 3};
+///     std::vector<double> v2 = {1., 2., 3.};
+///     std::vector<bool> v3 = {true};
+///     assert(same_size(std::tie(v1, v2)) == true);
+///     assert(same_size(std::tie(v1, v3)) == false);
+/// \endcode
+///
+/// \param rngs A tuple of ranges.
+template<typename Tuple>
+constexpr bool same_size(Tuple&& rngs)
+{
+    return std::experimental::apply(detail::same_size_impl{}, rngs);
+}
+
 }  // namespace cxtream::utility
 
 #endif
