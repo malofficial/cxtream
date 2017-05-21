@@ -15,9 +15,11 @@
 #include <cxtream/core/stream/batch.hpp>
 
 #include <boost/test/unit_test.hpp>
+#include <range/v3/view/indirect.hpp>
 #include <range/v3/view/iota.hpp>
 #include <range/v3/view/move.hpp>
 
+#include <limits>
 #include <vector>
 #include <memory>
 
@@ -152,4 +154,22 @@ BOOST_AUTO_TEST_CASE(test_batch_empty_stream)
     auto data = generate_batched_data({});
     auto rng = data | view::move | batch(1);
     BOOST_CHECK(rng.begin() == rng.end());
+}
+
+BOOST_AUTO_TEST_CASE(test_infinite_batch)
+{
+    auto data = generate_regular_batched_data(3, 4);
+    // make batch of infinite size (no parameter given)
+    auto rng = data | view::move | batch(std::numeric_limits<std::size_t>::max());
+    auto rng_it = rng.begin();
+    auto result = std::move(*rng_it);
+    auto result_unique = std::get<0>(result).value() | view::indirect;
+    auto result_shared = std::get<1>(result).value() | view::indirect;
+    BOOST_CHECK(++rng_it == rng.end());
+    BOOST_TEST(result_unique.size() == 12);
+    BOOST_TEST(result_shared.size() == 12);
+
+    auto desired = ranges::view::iota(0, 12);
+    test_ranges_equal(result_unique, desired);
+    test_ranges_equal(result_shared, desired);
 }

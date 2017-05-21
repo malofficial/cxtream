@@ -16,6 +16,8 @@
 #include <range/v3/view/all.hpp>
 #include <range/v3/view/view.hpp>
 
+#include <algorithm>
+
 namespace cxtream::stream {
 
 /// Check whether all columns in a tuple have the same batch size.
@@ -44,6 +46,7 @@ constexpr std::size_t batch_size(const Tuple& tuple)
 /// Accumulates tuples of columns and yields tuples of different batch size.
 /// 
 /// The batch size of accumulated columns may differ between batches.
+/// To make a one large batch of all the data, use std::numeric_limits<std::size_t>::max().
 template <typename Rng>
 struct batch_view : ranges::view_facade<batch_view<Rng>> {
 private:
@@ -73,7 +76,8 @@ private:
         template <std::size_t... Is>
         void reserve_batch(std::index_sequence<Is...>)
         {
-            (..., (std::get<Is>(*batch_).value().reserve(rng_->n_)));
+            std::size_t reserve_n = std::min(rng_->n_, std::size_t{1000});
+            (..., (std::get<Is>(*batch_).value().reserve(reserve_n)));
         }
 
         // move i-th element from subbatch_ to batch_
