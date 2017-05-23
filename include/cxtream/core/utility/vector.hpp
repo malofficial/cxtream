@@ -482,7 +482,7 @@ namespace detail {
         template<typename Rng, typename... Rngs>
         constexpr bool operator()(Rng&& rng, Rngs&&... rngs) const
         {
-            return ((ranges::size(rng) == ranges::size(rngs)) && ...);
+            return (... && (ranges::size(rng) == ranges::size(rngs)));
         }
 
         constexpr bool operator()() const
