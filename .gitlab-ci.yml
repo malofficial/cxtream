@@ -43,7 +43,7 @@ test:ubuntu16.10-gcc-tf_shared:
 
 test:arch-clang-tf_static:
   <<: *test_common
-  image: pritunl/archlinux
+  image: pritunl/archlinux:2017-05-13
   before_script:
     - pacman -S --noconfirm base-devel cmake clang git unzip
         opencv boost python python-numpy
@@ -57,7 +57,7 @@ test:arch-clang-tf_static:
 # Building bazel requires too much memory. Uncomment with stronger runners.
 # test:arch-clang-tf_shared:
 #   <<: *test_common
-#   image: pritunl/archlinux
+#   image: pritunl/archlinux:2017-05-13
 #   tags: [4gb]
 #   before_script:
 #     - pacman -S --noconfirm base-devel cmake clang git unzip sudo
