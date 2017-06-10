@@ -41,6 +41,8 @@ __Ubuntu 16.10+__
 apt install build-essential cmake libopencv-dev libboost-dev libboost-python-dev libboost-test-dev python3-dev python3-numpy
 ```
 
+If you plan to use TensorFlow C++ API, please install the TensorFlow C++ library into your system using [tensorflow_cc](https://github.com/FloopCZ/tensorflow_cc) project.
+
 ## Installation
 
 __Build__
