@@ -63,4 +63,4 @@ sudo make install
 
 ## Example
 
-Please refer to [Cognexa/mnist-example](https://gitlab.com/Cognexa/mnist-example) repository for a usage example.
+Please refer to [Cognexa/cxMNIST](https://gitlab.com/Cognexa/cxMNIST) repository for a usage example.
