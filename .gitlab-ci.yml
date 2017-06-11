@@ -6,7 +6,7 @@
 
 test:arch-gcc:
   <<: *test_common
-  image: pritunl/archlinux:2017-05-13
+  image: pritunl/archlinux:2017-06-10
   before_script:
     - pacman -S --noconfirm base-devel cmake opencv boost python python-numpy
   script:
@@ -44,64 +44,10 @@ test:ubuntu16.10-gcc-tf_static:
     - mkdir build && cd build
     - cmake ..
     - make > log.txt 2>&1 && make install
-    - cd ../..
+    - cd ../../..
   script:
     - mkdir build && cd build
     - cmake -DBUILD_TENSORFLOW=ON
             -DCMAKE_BUILD_TYPE=Debug ..
-    - make
-    - make test
-
-test:ubuntu16.10-gcc-tf_shared:
-  <<: *test_common
-  image: ubuntu:yakkety
-  tags: [4gb]
-  before_script:
-    - apt update
-    - apt -y install build-essential cmake curl autoconf autogen libtool git unzip mlocate
-        libopencv-dev libboost-dev libboost-python-dev libboost-test-dev
-        python python3-dev python3-numpy python3-pip python3-wheel
-    - updatedb
-    # install bazel
-    - apt -y install python-numpy
-    - echo "deb [arch=amd64] http://storage.googleapis.com/bazel-apt stable jdk1.8" >
-        /etc/apt/sources.list.d/bazel.list
-    - curl https://bazel.build/bazel-release.pub.gpg | apt-key add -
-    - apt update
-    - apt -y install bazel
-    # install tensorflow_cc
-    - git clone https://github.com/FloopCZ/tensorflow_cc.git
-    - cd tensorflow_cc/tensorflow_cc
-    - mkdir build && cd build
-    - cmake -DTENSORFLOW_SHARED=ON ..
-    - make > log.txt 2>&1 && make install
-    - cd ../..
-  script:
-    - mkdir build && cd build
-    - cmake -DCMAKE_BUILD_TYPE=Debug
-            -DBUILD_TENSORFLOW=ON
-    - make
-    - make test
-
-test:arch-clang-tf_shared:
-  <<: *test_common
-  image: pritunl/archlinux:2017-05-13
-  tags: [4gb]
-  before_script:
-    - pacman -S --noconfirm base-devel cmake clang git unzip mlocate
-        opencv boost python python-numpy gcc5 bazel
-    - updatedb
-    # install tensorflow_cc
-    - git clone https://github.com/FloopCZ/tensorflow_cc.git
-    - cd tensorflow_cc/tensorflow_cc
-    - mkdir build && cd build
-    - cmake -DTENSORFLOW_SHARED=ON ..
-    - make > log.txt 2>&1 && make install
-    - cd ../..
-  script:
-    - mkdir build && cd build
-    - cmake -DCMAKE_BUILD_TYPE=Debug
-            -DCMAKE_CXX_COMPILER=clang++
-            -DBUILD_TENSORFLOW=ON
     - make
     - make test
