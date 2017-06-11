@@ -15,6 +15,17 @@ test:arch-gcc:
     - make
     - make test
 
+test:arch-clang:
+  <<: *test_common
+  image: pritunl/archlinux:2017-06-03
+  before_script:
+    - pacman -S --noconfirm base-devel cmake clang opencv boost python python-numpy
+  script:
+    - mkdir build && cd build
+    - cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=clang++ ..
+    - make
+    - make test
+
 test:ubuntu16.10-gcc:
   <<: *test_common
   image: ubuntu:yakkety
