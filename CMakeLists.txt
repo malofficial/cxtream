@@ -58,10 +58,6 @@ endif()
 
 find_package(Boost REQUIRED)
 
-if(BUILD_TENSORFLOW)
-  find_package(TensorflowCC REQUIRED)
-endif()
-
 if(BUILD_PYTHON)
   find_package(PythonInterp 3 REQUIRED)
   find_package(PythonLibs 3 REQUIRED)
@@ -177,10 +173,30 @@ if(BUILD_TENSORFLOW)
   )
   target_link_libraries(
     cxtream_tensorflow
-    cxtream_core
-    TensorflowCC
-    stdc++fs
+    PUBLIC cxtream_core
+    PUBLIC stdc++fs
   )
+  # try the shared tensorflow library first
+  find_package(TensorflowCC COMPONENTS Shared)
+  if(TensorflowCC_Shared_FOUND)
+    target_link_libraries(
+      cxtream_tensorflow
+      PUBLIC TensorflowCC::Shared
+    )
+  # fallback to the static library
+  # static library is linked privately to avoid multiple funtion definitions,
+  # but the include directories are propagated as public
+  else()
+    find_package(TensorflowCC REQUIRED COMPONENTS Static)
+    target_include_directories(
+      cxtream_tensorflow
+      PUBLIC "$<TARGET_PROPERTY:TensorflowCC::Static,INTERFACE_INCLUDE_DIRECTORIES>"
+    )
+    target_link_libraries(
+      cxtream_tensorflow
+      PRIVATE TensorflowCC::Static
+    )
+  endif()
   set_target_properties(
     cxtream_tensorflow
     PROPERTIES VERSION ${PROJECT_VERSION}
