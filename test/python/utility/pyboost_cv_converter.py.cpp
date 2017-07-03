@@ -9,7 +9,6 @@
 
 #include <cxtream/python.hpp>
 #include <opencv2/core/core.hpp>
-#include <iostream>
 
 // chessboard matrix //
 
