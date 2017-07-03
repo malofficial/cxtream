@@ -7,8 +7,9 @@
  *  See the accompanying file LICENSE.txt for the complete license agreement.
  ****************************************************************************/
 
-#include <cxtream/python.hpp>
-#include <opencv2/core/core.hpp>
+#include <cxtream/python/pyboost_initialize.hpp>
+
+#include <boost/python.hpp>
 
 #include <experimental/filesystem>
 
