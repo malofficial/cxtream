@@ -44,7 +44,8 @@ CXTREAM_DEFINE_COLUMN(Double, double)
 
 py::dict columns()
 {
-    return cxtream::python::utility::columns_to_dict(std::tuple<Int, Double>{{{1, 2}}, {{9., 10.}}});
+    using cxtream::python::utility::columns_to_dict;
+    return columns_to_dict(std::tuple<Int, Double>{{1, 2}, {9., 10.}});
 }
 
 BOOST_PYTHON_MODULE(pyboost_column_converter_py_cpp)

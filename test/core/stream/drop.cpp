@@ -29,11 +29,11 @@ CXTREAM_DEFINE_COLUMN(Unique2, std::unique_ptr<int>)
 BOOST_AUTO_TEST_CASE(test_int_column)
 {
     // drop column
-    std::vector<std::tuple<Int, Double>> data = {{{3}, {5.}}, {{1}, {2.}}};
+    std::vector<std::tuple<Int, Double>> data = {{3, 5.}, {1, 2.}};
 
     auto generated = data | drop<Int>;
 
-    std::vector<std::tuple<Double>> desired = {{{5.}}, {{2.}}};
+    std::vector<std::tuple<Double>> desired = {5., 2.};
     test_ranges_equal(generated, desired);
 }
 
