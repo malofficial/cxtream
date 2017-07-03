@@ -44,7 +44,7 @@ namespace detail {
 
 }  // namespace detail
 
-/// Create a python list out of std::vector.
+/// Create a python list out of an std::vector.
 ///
 /// If the vector is multidimensional, i.e., std::vector<std::vector<...>>,
 /// the conversion is applied recursively.
@@ -54,7 +54,7 @@ boost::python::list to_list(Vector&& v)
     return detail::to_list_impl<std::decay_t<Vector>>::impl(std::forward<Vector>(v));
 }
 
-/// Convert a tuple of cxtream columns into python dict.
+/// Convert a tuple of cxtream columns into a python dict.
 ///
 /// The dict is indexed by column.name and the value is column.value.
 /// Batches are converted to python lists. If the batch value is a multidimensional
