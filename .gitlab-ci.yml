@@ -15,9 +15,9 @@ test:arch-gcc:
     - make
     - make test
 
-test:ubuntu16.10-clang:
+test:ubuntu17.04-clang:
   <<: *test_common
-  image: ubuntu:yakkety
+  image: ubuntu:zesty
   before_script:
     - apt update
     - apt -y install build-essential cmake clang
