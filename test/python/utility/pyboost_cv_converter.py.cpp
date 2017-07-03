@@ -12,6 +12,7 @@
 #include <boost/python.hpp>
 #include <opencv2/core/core.hpp>
 
+#include <algorithm>
 #include <vector>
 
 // chessboard matrix //
@@ -55,7 +56,10 @@ cv::Mat rgb_sample()
 // check python -> c++
 bool check_rgb_sample(cv::Mat mat)
 {
-    return cv::countNonZero(mat != rgb_sample()) == 0;
+    // since OpenCV 2 cannot compare matrices with more than one channel,
+    // we will use std::equal instead
+    cv::Mat gold = rgb_sample();
+    return std::equal(mat.begin<float>(), mat.end<float>(), gold.begin<float>());
 }
 
 BOOST_PYTHON_MODULE(pyboost_cv_converter_py_cpp)
