@@ -1,3 +1,5 @@
+add_subdirectory("stream")
+
 add_subdirectory("utility")
 
 build_pyboost_test_module(pyboost_range_iterator_py_cpp pyboost_range_iterator.py.cpp)
