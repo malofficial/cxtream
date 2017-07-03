@@ -19,14 +19,15 @@ namespace cxtream::python::stream {
 
 /// Make Python iterator for a stream (i.e, a range of tuples of columns).
 ///
+/// Beware: The iterator represents only a view of the provided range! Be careful
+/// about the lifetime of the provided range.
 /// Columns represented by n-dimensional std::vectors are automatically
 /// converted to n-dimensional python lists.
 template <typename Rng>
-auto make_iterator(Rng&& rng)
+auto make_iterator(Rng& rng)
 {
     // transform the range of columns to a range of python types
-    auto range_of_dicts =
-      std::forward<Rng&&>(rng)
+    auto range_of_dicts = rng
       | ranges::view::transform([](auto&& tuple) {
             return utility::columns_to_dict(std::forward<decltype(tuple)>(tuple));
         });

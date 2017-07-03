@@ -10,6 +10,7 @@
 #ifndef CXTREAM_CORE_STREAM_COLUMN_HPP
 #define CXTREAM_CORE_STREAM_COLUMN_HPP
 
+#include <initializer_list>
 #include <type_traits>
 #include <vector>
 
@@ -28,9 +29,16 @@ public:
     // constructors //
 
     column_base() = default;
-    column_base(T&& rhs) { value_.emplace_back(std::move(rhs)); }
+    column_base(T&& rhs)
+    {
+        value_.emplace_back(std::move(rhs));
+    }
     column_base(const T& rhs)
       : value_{rhs}
+    {}
+
+    column_base(std::initializer_list<T> rhs)
+      : value_{std::move(rhs)}
     {}
 
     column_base(std::vector<T>&& rhs)
