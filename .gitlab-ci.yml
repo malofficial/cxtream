@@ -15,11 +15,14 @@ test:arch-gcc:
     - make
     - make test
 
-test:arch-clang:
+test:ubuntu16.10-clang:
   <<: *test_common
-  image: pritunl/archlinux:2017-06-03
+  image: ubuntu:yakkety
   before_script:
-    - pacman -S --noconfirm base-devel cmake clang opencv boost python python-numpy
+    - apt update
+    - apt -y install build-essential cmake clang
+        libopencv-dev libboost-dev libboost-python-dev libboost-test-dev
+        python3-dev python3-numpy
   script:
     - mkdir build && cd build
     - cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=clang++ ..
