@@ -12,13 +12,16 @@
 
 #include <cxtream/core/dataframe.hpp>
 
+#include <range/v3/action/insert.hpp>
 #include <range/v3/action/shuffle.hpp>
+#include <range/v3/algorithm/all_of.hpp>
 #include <range/v3/algorithm/copy.hpp>
 #include <range/v3/numeric/accumulate.hpp>
 #include <range/v3/view/concat.hpp>
 #include <range/v3/view/drop.hpp>
 #include <range/v3/view/filter.hpp>
 #include <range/v3/view/iota.hpp>
+#include <range/v3/view/repeat_n.hpp>
 #include <range/v3/view/take.hpp>
 
 #include <random>
@@ -37,12 +40,16 @@ namespace cxtream {
 /// group with non-zero ratio gets all the remaining elements.
 ///
 /// \param size The size of the data, i.e., the number of elements.
-/// \param ratio Cluster size ratio. The sum of ratios has to be positive.
+/// \param ratio Cluster size ratio. The ratios have to be non-negative and
+///              the sum of ratios has to be positive.
 template<typename Prng = std::mt19937>
 std::vector<std::size_t> generate_groups(std::size_t size, std::vector<double> ratio,
                                          Prng&& gen = Prng{std::random_device{}()})
 {
     namespace view = ranges::view;
+
+    // check all ratios non-negative
+    assert(ranges::all_of(ratio, [](double d) { return d >= 0; }));
 
     // check positive ratio sum
     double ratio_sum = ranges::accumulate(ratio, 0.);
@@ -55,23 +62,17 @@ std::vector<std::size_t> generate_groups(std::size_t size, std::vector<double> r
     // scale to [0, 1]
     for (double& r : ratio) r /= ratio_sum;
 
-    std::vector<std::size_t> groups(size);
-    std::vector<std::size_t> indexes = view::iota(0UL, size);
-    ranges::action::shuffle(indexes, gen);
+    std::vector<std::size_t> groups;
+    groups.reserve(size);
 
-    std::size_t group = 0;
-    std::size_t done = 0;
     for (std::size_t i = 0; i < ratio.size(); ++i) {
         std::size_t count = std::lround(ratio[i] * size);
         // take all the remaining elements if this is the last non-zero group
-        if (i + 1 == ratio.size()) count = size - done;
-        for (std::size_t index : indexes | view::drop(done) | view::take(count)) {
-            groups[index] = group;
-        }
-        ++group;
-        done += count;
+        if (i + 1 == ratio.size()) count = size - groups.size();
+        ranges::action::insert(groups, groups.end(), view::repeat_n(i, count));
     }
 
+    ranges::action::shuffle(groups, gen);
     return groups;
 }
 

@@ -44,6 +44,16 @@ BOOST_AUTO_TEST_CASE(test_ndim_type)
       ndim_type<std::vector<std::vector<std::vector<double>>>>::type>{});
 }
 
+BOOST_AUTO_TEST_CASE(test_ndim_type_cutoff)
+{
+    static_assert(std::is_same<std::vector<std::vector<char>>,
+      ndim_type<std::vector<std::vector<char>>, 0>::type>{});
+    static_assert(std::is_same<std::vector<char>,
+      ndim_type<std::vector<std::vector<char>>, 1>::type>{});
+    static_assert(std::is_same<std::vector<double>,
+      ndim_type<std::vector<std::vector<std::vector<double>>>, 2>::type>{});
+}
+
 BOOST_AUTO_TEST_CASE(test_shape)
 {
     const std::vector<int> vec5 = {0, 0, 0, 0, 0};
@@ -120,6 +130,29 @@ BOOST_AUTO_TEST_CASE(test_flatten_identity)
 {
     const std::vector<int> vec = view::iota(1, 16);
     test_ranges_equal(flat_view(vec), view::iota(1, 16));
+}
+
+BOOST_AUTO_TEST_CASE(test_flatten_cutoff_dim1)
+{
+    const std::vector<std::vector<std::vector<int>>> vec = {
+        {{1, 2}, {3, 4}, {5}},
+        {{6}, {7, 8}}
+    };
+    std::vector<std::vector<std::vector<int>>> retrieved = flat_view<1>(vec);
+    BOOST_CHECK(retrieved == vec);
+}
+
+BOOST_AUTO_TEST_CASE(test_flatten_cutoff_dim2)
+{
+    const std::vector<std::vector<std::vector<int>>> vec = {
+        {{1, 2}, {3, 4}, {5}},
+        {{6}, {7, 8}}
+    };
+    const std::vector<std::vector<int>> desired = {
+        {{1, 2}, {3, 4}, {5}, {6}, {7, 8}}
+    };
+    std::vector<std::vector<int>> retrieved = flat_view<2>(vec);
+    BOOST_CHECK(retrieved == desired);
 }
 
 BOOST_AUTO_TEST_CASE(test_flatten_empty)
@@ -295,4 +328,21 @@ BOOST_AUTO_TEST_CASE(test_random_fill_3d)
     check(vec, {{1, 1, 1}, {1, 1}}, 5);
     random_fill(vec, 3, gen);
     check(vec, {{3, 2, 1}, {1, 2}}, 9);
+}
+
+BOOST_AUTO_TEST_CASE(test_same_size)
+{
+    const std::vector<int> v1 = {1, 2, 3};
+    const std::vector<bool> v2 = {true, false, true};
+    const std::vector<char> v3 = {'a', 'b'};
+    const std::vector<double> v4 = {};
+    BOOST_TEST(same_size(std::tuple<>{}));
+    BOOST_TEST(same_size(std::tie(v4)));
+    BOOST_TEST(same_size(std::tie(v1, v2)));
+    BOOST_TEST(!same_size(std::tie(v1, v3)));
+    BOOST_TEST(!same_size(std::tie(v1, v4)));
+    BOOST_TEST(same_size(std::tie(v3, v3, v3)));
+    BOOST_TEST(same_size(std::tie(v1, v2, v1)));
+    BOOST_TEST(!same_size(std::tie(v1, v2, v3)));
+    BOOST_TEST(!same_size(std::tie(v1, v2, v3, v4)));
 }

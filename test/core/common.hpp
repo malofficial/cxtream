@@ -28,6 +28,24 @@ CXTREAM_DEFINE_COLUMN(Double, double)
 CXTREAM_DEFINE_COLUMN(Unique, std::unique_ptr<int>)
 CXTREAM_DEFINE_COLUMN(Shared, std::shared_ptr<int>)
 
+std::vector<std::tuple<int, std::vector<std::unique_ptr<int>>>> generate_move_only_data()
+{
+    std::vector<std::tuple<int, std::vector<std::unique_ptr<int>>>> data;
+    std::vector<std::unique_ptr<int>> unique_data1;
+    unique_data1.push_back(std::make_unique<int>(1));
+    unique_data1.push_back(std::make_unique<int>(4));
+    data.emplace_back(std::make_tuple(3, std::move(unique_data1)));
+    std::vector<std::unique_ptr<int>> unique_data2;
+    unique_data2.push_back(std::make_unique<int>(8));
+    unique_data2.push_back(std::make_unique<int>(2));
+    data.emplace_back(std::make_tuple(3, std::move(unique_data2)));
+    std::vector<std::unique_ptr<int>> unique_data3;
+    unique_data3.push_back(std::make_unique<int>(2));
+    unique_data3.push_back(std::make_unique<int>(5));
+    data.emplace_back(std::make_tuple(3, std::move(unique_data3)));
+    return data;
+}
+
 template<typename T>
 std::ostream& operator<<(std::ostream& out, const std::vector<T>& vec)
 {

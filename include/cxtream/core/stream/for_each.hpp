@@ -12,6 +12,7 @@
 
 #include <cxtream/core/stream/template_arguments.hpp>
 #include <cxtream/core/utility/tuple.hpp>
+#include <cxtream/core/utility/vector.hpp>
 
 #include <range/v3/view/transform.hpp>
 #include <range/v3/view/zip.hpp>
@@ -52,6 +53,7 @@ namespace detail {
         {
             return [fun = std::move(fun)](auto&& tuple_of_ranges)
             {
+                assert(utility::same_size(tuple_of_ranges));
                 auto range_of_tuples = std::experimental::apply(
                   ranges::view::zip, std::forward<decltype(tuple_of_ranges)>(tuple_of_ranges));
 
@@ -86,7 +88,7 @@ namespace detail {
 /// \code
 ///     CXTREAM_DEFINE_COLUMN(Int, int)
 ///     CXTREAM_DEFINE_COLUMN(Double, double)
-///     std::vector<std::tuple<Int, Double>> data = {{{3},{5.}}, {{1},{2.}}};
+///     std::vector<std::tuple<Int, Double>> data = {{3, 5.}, {1, 2.}};
 ///     auto rng = data | for_each(from<Int, Double>, [](int& v, double& d) { std::cout << c + d; });
 /// \endcode
 ///

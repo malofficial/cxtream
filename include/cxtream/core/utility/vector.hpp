@@ -49,23 +49,28 @@ struct ndims<std::vector<std::vector<T>>>
 
 /// Gets the innermost value_type of a multidimensional std::vector type.
 ///
+/// The number of dimensions can be also provided manually.
+///
 /// Example:
 /// \code
 ///     using vec_type = ndim_type<std::vector<std::vector<int>>>::type;
 ///     // vec_type is int
+///     using vec1_type = ndim_type<std::vector<std::vector<int>>, 1>::type;
+///     // vec1_type is std::vector<int>
 /// \endcode
-template<typename T>
-struct ndim_type {
+template<typename VecT, long Dim = -1>
+struct ndim_type
+  : ndim_type<typename VecT::value_type, Dim-1> {
 };
 
 template<typename T>
-struct ndim_type<std::vector<T>> {
+struct ndim_type<T, 0> {
     using type = T;
 };
 
-template<typename T>
-struct ndim_type<std::vector<std::vector<T>>>
-  : ndim_type<std::vector<T>> {
+template<typename VecT>
+struct ndim_type<VecT, -1>
+  : ndim_type<VecT, ndims<VecT>{}> {
 };
 
 // multidimensional std::vector size //
@@ -262,21 +267,36 @@ std::vector<long> shape(const std::vector<T>& vec)
 
 namespace detail {
 
-    template<long Dim>
+    // recursively join the vector
+    template<typename VecT, long Dim>
     struct flat_view_impl {
         static auto impl()
         {
             return ranges::view::for_each([](auto& subvec) {
-                return subvec | flat_view_impl<Dim-1>::impl();
+                return subvec | flat_view_impl<VecT, Dim-1>::impl();
             });
         }
     };
 
-    template<>
-    struct flat_view_impl<1> {
+    // for 0 and 1, return the original vector
+    template<typename VecT>
+    struct flat_view_impl<VecT, 1> {
         static auto impl()
         {
             return ranges::view::all;
+        }
+    };
+
+    template<typename VecT>
+    struct flat_view_impl<VecT, 0> : flat_view_impl<VecT, 1> {
+    };
+
+    // for -1, the number of dimensions is deduced automatically
+    template<typename VecT>
+    struct flat_view_impl<VecT, -1> {
+        static auto impl()
+        {
+            return flat_view_impl<VecT, ndims<VecT>{}>::impl();
         }
     };
 
@@ -288,21 +308,25 @@ namespace detail {
 ///     std::vector<std::vector<int>> vec{{1, 2}, {3}, {}, {4, 5, 6}};
 ///     std::vector<int> rvec = flat_view(vec);
 ///     // rvec == {1, 2, 3, 4, 5, 6};
+///
+///     // the same with manually defined number of dimensions
+///     std::vector<int> rvec = flat_view<2>(vec);
+///     // rvec == {1, 2, 3, 4, 5, 6};
 /// \endcode
 ///
 /// \param vec The vector to be flattened.
 /// \returns Flat view (InputRange) of the given vector.
-template<typename T>
+template<long NDims = -1, typename T>
 auto flat_view(std::vector<T>& vec)
 {
-    return vec | detail::flat_view_impl<ndims<std::vector<T>>{}>::impl();
+    return vec | detail::flat_view_impl<std::vector<T>, NDims>::impl();
 }
 
 /// Const version of flat_view.
-template<typename T>
+template<long NDims = -1, typename T>
 auto flat_view(const std::vector<T>& vec)
 {
-    return vec | detail::flat_view_impl<ndims<std::vector<T>>{}>::impl();
+    return vec | detail::flat_view_impl<std::vector<T>, NDims>::impl();
 }
 
 // std::vector reshape //
@@ -450,6 +474,41 @@ constexpr void random_fill(std::vector<T>& vec,
                            Prng&& gen = Prng{std::random_device{}()})
 {
     detail::random_fill_impl<std::vector<T>, 0>::impl(vec, ndims, gen);
+}
+
+namespace detail {
+
+    struct same_size_impl {
+        template<typename Rng, typename... Rngs>
+        constexpr bool operator()(Rng&& rng, Rngs&&... rngs) const
+        {
+            return (... && (ranges::size(rng) == ranges::size(rngs)));
+        }
+
+        constexpr bool operator()() const
+        {
+            return true;
+        }
+    };
+
+}  // namespace detail
+
+/// Utility function which checks that all the ranges in a tuple have the same size.
+///
+/// Example:
+/// \code
+///     std::vector<int> v1 = {1, 2, 3};
+///     std::vector<double> v2 = {1., 2., 3.};
+///     std::vector<bool> v3 = {true};
+///     assert(same_size(std::tie(v1, v2)) == true);
+///     assert(same_size(std::tie(v1, v3)) == false);
+/// \endcode
+///
+/// \param rngs A tuple of ranges.
+template<typename Tuple>
+constexpr bool same_size(Tuple&& rngs)
+{
+    return std::experimental::apply(detail::same_size_impl{}, rngs);
 }
 
 }  // namespace cxtream::utility
