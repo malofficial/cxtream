@@ -3,7 +3,7 @@ C++17 data pipeline with Python bindings.
 
 ## Development Status
 
-- [![Build Status](https://gitlab.com/Cognexa/cxtream/badges/master/build.svg)](https://gitlab.com/Cognexa/cxtream/builds/)
+- [![CircleCI](https://circleci.com/gh/Cognexa/cxtream/tree/master.svg?style=shield)](https://circleci.com/gh/Cognexa/cxtream/tree/master)
 - [![Development Status](https://img.shields.io/badge/status-CX%20PoC-yellow.svg?style=flat)]()
 - [![Master Developer](https://img.shields.io/badge/master-Filip%20Matzner-lightgrey.svg?style=flat)]()
 
@@ -65,4 +65,4 @@ sudo make install
 
 ## Example
 
-Please refer to [Cognexa/cxMNIST](https://gitlab.com/Cognexa/cxMNIST) repository for a usage example.
+Please refer to [Cognexa/cxMNIST](https://github.com/Cognexa/cxMNIST) repository for a usage example.
