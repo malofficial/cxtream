@@ -120,7 +120,7 @@ public:
 };  // class iterator
 
 // provide definition for the static register_flag variable
-template <typename Rng>
+template<typename Rng>
 std::once_flag iterator<Rng>::register_flag;
 
 }  // end namespace cxtream::python

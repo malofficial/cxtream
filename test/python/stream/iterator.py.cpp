@@ -11,6 +11,8 @@
 #include <cxtream/python/pyboost_initialize.hpp>
 #include <cxtream/python/stream/iterator.hpp>
 
+#include <range/v3/view/all.hpp>
+
 #include <list>
 #include <vector>
 
@@ -31,7 +33,8 @@ auto empty_iterator()
 
 auto empty_batch_iterator()
 {
-    return cxpy::stream::make_iterator(empty_batch_data);
+    // here is also a test of an rvalue of a view
+    return cxpy::stream::make_iterator(empty_batch_data | ranges::view::all);
 }
 
 auto number_iterator()
