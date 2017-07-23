@@ -93,14 +93,14 @@ BOOST_AUTO_TEST_CASE(test_move_only)
 BOOST_AUTO_TEST_CASE(test_two_to_one)
 {
     // transform two columns to a single column
-    std::vector<std::tuple<Int, Double>> data = {{3, 5.}, {1, 2.}};
+    std::vector<std::tuple<Int, Double>> data = {{{3, 7}, {5., 1.}}, {1, 2.}};
   
     auto generated = data
       | transform(from<Int, Double>, to<Double>, [](int i, double d) {
             return (double)(i + d);
         });
   
-    std::vector<std::tuple<Double, Int>> desired = {{3 + 5., 3}, {1 + 2., 1}};
+    std::vector<std::tuple<Double, Int>> desired = {{{3 + 5., 7 + 1.}, {3, 7}}, {1 + 2., 1}};
     test_ranges_equal(generated, desired);
 }
 
@@ -120,7 +120,7 @@ BOOST_AUTO_TEST_CASE(test_one_to_two)
 
 BOOST_AUTO_TEST_CASE(test_dim0)
 {
-    std::vector<std::tuple<Int, Double>> data = {{3, 5.}, {1, 2.}};
+    std::vector<std::tuple<Int, Double>> data = {{{3, 2}, 5.}, {1, 2.}};
     auto data_orig = data;
 
     auto generated = data
@@ -131,7 +131,7 @@ BOOST_AUTO_TEST_CASE(test_dim0)
         }, dim<0>)
       | to_vector;
 
-    std::vector<std::tuple<Int, Double>> desired = {{{3, 4}, 5.}, {{1, 4}, 2.}};
+    std::vector<std::tuple<Int, Double>> desired = {{{3, 2, 4}, 5.}, {{1, 4}, 2.}};
     BOOST_CHECK(generated == desired);
     BOOST_CHECK(data == data_orig);
 }

@@ -67,9 +67,14 @@ BOOST_AUTO_TEST_CASE(test_partial_for_each_move_only)
 BOOST_AUTO_TEST_CASE(test_for_each_of_two)
 {
     // for_each of two columns
-    std::vector<std::tuple<Int, Double>> data = {{3, 5.}, {1, 2.}};
-    auto generated = data | for_each(from<Int, Double>, [](const int& v, double c) {});
-    std::vector<std::tuple<Int, Double>> desired = {{3, 5.}, {1, 2.}};
+    std::vector<std::tuple<Int, Double>> data = {{{1, 3}, {5., 6.}}, {1, 2.}};
+    int sum = 0;
+    auto generated = data
+      | for_each(from<Int, Double>,
+          [&sum](const int& v, double c) { sum += v; })
+      | to_vector;
+    std::vector<std::tuple<Int, Double>> desired = {{{1, 3}, {5., 6.}}, {1, 2.}};
+    BOOST_TEST(sum == 5);
     test_ranges_equal(generated, desired);
 }
 
