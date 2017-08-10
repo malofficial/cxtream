@@ -51,14 +51,14 @@ public:
     std::vector<std::size_t> index_for(const std::vector<T>& vals) const
     {
         return vals |
-          ranges::view::transform([this](const T& val){ return this->val2idx_.at(val); });
+          ranges::view::transform([this](const T& val){ return this->index_for(val); });
     }
 
     /// Returns the values at the given indexes.
     std::vector<T> at(const std::vector<std::size_t>& idxs) const
     {
         return idxs |
-          ranges::view::transform([this](std::size_t idx){ return this->idx2val_.at(idx); });
+          ranges::view::transform([this](std::size_t idx){ return this->at(idx); });
     }
 
     /// Checks whether the mapper contains the given value.
