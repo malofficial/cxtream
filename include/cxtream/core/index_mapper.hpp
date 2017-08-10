@@ -83,7 +83,7 @@ public:
     }
 
     /// Returns all the contained values.
-    std::vector<T> values() const
+    const std::vector<T>& values() const
     {
         return idx2val_;
     }
