@@ -93,6 +93,12 @@ BOOST_AUTO_TEST_CASE(test_insertion_multiple)
     BOOST_TEST(mapper.size() == 5UL);
     test_ranges_equal(mapper.values(),
                       std::vector<std::string>{"second", "fourth", "fifth", "first", "sixth"});
+    // test insertion of a pure view
+    index_mapper<int> int_mapper;
+    int_mapper.insert(ranges::view::iota(3, 5)
+      | ranges::view::transform([](int i) { return i + 1; }));
+    BOOST_TEST(int_mapper.size() == 2UL);
+    test_ranges_equal(int_mapper.values(), std::vector<int>{4, 5});
     // test throw
     BOOST_CHECK_THROW(mapper.insert(std::vector<std::string>{"seventh", "fifth"}),
                       std::invalid_argument);
