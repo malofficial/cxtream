@@ -404,6 +404,7 @@ auto unzip(Rng range_of_tuples)
     return detail::unzip_impl(range_of_tuples);
 }
 
+/// Specialization of unzip function for views.
 template<typename Rng, CONCEPT_REQUIRES_(ranges::View<Rng>())>
 auto unzip(Rng&& view_of_tuples)
 {

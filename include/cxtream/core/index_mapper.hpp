@@ -93,8 +93,20 @@ public:
     {
         assert(!contains(val) && "Index mapper cannot insert already contained value.");
         val2idx_[val] = idx2val_.size();
-        idx2val_.emplace_back(std::move(val));
+        idx2val_.push_back(std::move(val));
         return idx2val_.size() - 1;
+    }
+
+    /// Tries to insert a value into the mapper with index size()-1. If the value is
+    /// already present in the mapper, the operation does nothing.
+    ///
+    /// \param The value to be inserted.
+    /// \returns True if the value insertion was successful.
+    bool try_insert(T val)
+    {
+        if (contains(val)) return false;
+        insert(std::move(val));
+        return true;
     }
 
     /// Returns the size of the mapper.
@@ -113,6 +125,38 @@ private:
     std::unordered_map<T, std::size_t> val2idx_;
     std::vector<T> idx2val_;
 };
+
+/// Make index mapper from unique elements of a range.
+///
+/// Example:
+/// \code
+///     std::vector<std::string> data = {"bum", "bada", "bum", "bum", "bada", "yeah!"};
+///     index_mapper<std::string> mapper = make_unique_index_mapper(data);
+///     // mapper.values() == {"bum", "bada", "yeah!"}
+/// \endcode
+///
+/// \param rng The range of values to be inserted.
+/// \returns The index mapper made of unique values of the range.
+template<typename Rng,
+         typename T = ranges::range_value_type_t<Rng>,
+         CONCEPT_REQUIRES_(ranges::Container<Rng>())>
+index_mapper<T> make_unique_index_mapper(Rng rng)
+{
+    index_mapper<T> mapper;
+    for (auto& val : rng) mapper.try_insert(std::move(val));
+    return mapper;
+}
+
+/// Specialization of make_unique_index_mapper for views.
+template<typename Rng,
+         typename T = std::decay_t<ranges::range_value_type_t<Rng>>,
+         CONCEPT_REQUIRES_(ranges::View<Rng>())>
+index_mapper<T> make_unique_index_mapper(Rng&& rng)
+{
+    index_mapper<T> mapper;
+    for (auto&& val : rng) mapper.try_insert(std::forward<decltype(val)>(val));
+    return mapper;
+}
 
 }  // end namespace cxtream
 #endif

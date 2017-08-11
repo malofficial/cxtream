@@ -15,6 +15,10 @@
 #include <cxtream/core/index_mapper.hpp>
 
 #include <boost/test/unit_test.hpp>
+#include <range/v3/view/all.hpp>
+#include <range/v3/view/cycle.hpp>
+#include <range/v3/view/iota.hpp>
+#include <range/v3/view/take.hpp>
 
 #include <stdexcept>
 
@@ -71,4 +75,35 @@ BOOST_AUTO_TEST_CASE(test_insertion)
     BOOST_TEST(mapper.at(3UL) == "fourth");
     BOOST_TEST(mapper.index_for("fourth") == 3UL);
     BOOST_TEST(mapper.size() == 4UL);
+}
+
+BOOST_AUTO_TEST_CASE(test_try_insertion)
+{
+    index_mapper<std::string> mapper{{"first", "second", "third"}};
+    BOOST_TEST(mapper.try_insert("first") == false);
+    BOOST_TEST(mapper.try_insert("fourth") == true);
+    BOOST_TEST(mapper.try_insert("second") == false);
+    test_ranges_equal(mapper.values(),
+                      std::vector<std::string>{"first", "second", "third", "fourth"});
+}
+
+BOOST_AUTO_TEST_CASE(test_make_unique_index_mapper_container)
+{
+    std::vector<std::string> data = {"bum", "bada", "bum", "bum", "bada", "yeah!"};
+    index_mapper<std::string> mapper = make_unique_index_mapper(data);
+    test_ranges_equal(mapper.values(), std::vector<std::string>{"bum", "bada", "yeah!"});
+}
+
+BOOST_AUTO_TEST_CASE(test_make_unique_index_mapper_view)
+{
+    // test view of a vector
+    std::vector<int> data = {3, 2, 3, 1, 1, 2, 2, 1};
+    index_mapper<int> mapper = make_unique_index_mapper(ranges::view::all(data));
+    test_ranges_equal(mapper.values(), std::vector<int>{3, 2, 1});
+
+    // test pure view
+    mapper = make_unique_index_mapper(ranges::view::iota(2, 5)
+                                        | ranges::view::cycle
+                                        | ranges::view::take(10));
+    test_ranges_equal(mapper.values(), std::vector<int>{2, 3, 4});
 }
