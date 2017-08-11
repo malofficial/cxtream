@@ -14,9 +14,9 @@
 #include <cxtream/core/utility/string.hpp>
 #include <cxtream/core/utility/tuple.hpp>
 
+#include <range/v3/experimental/view/shared.hpp>
 #include <range/v3/view/all.hpp>
 #include <range/v3/view/iota.hpp>
-#include <range/v3/view/shared.hpp>
 #include <range/v3/view/transform.hpp>
 #include <range/v3/view/zip.hpp>
 
@@ -487,7 +487,7 @@ private:
       static auto raw_icols_impl(This this_ptr, std::vector<std::size_t> col_indexes)
       {
         return std::move(col_indexes)
-          | ranges::view::shared
+          | ranges::experimental::view::shared
           | ranges::view::transform([this_ptr](std::size_t idx) {
                 return this_ptr->raw_cols()[idx];
             });

@@ -24,6 +24,8 @@
 
 namespace ranges
 {
+namespace experimental
+{
     inline namespace v3
     {
         template<typename Rng>
@@ -37,11 +39,6 @@ namespace ranges
 
         public:
             shared_view() = default;
-
-            // construct from a shared_ptr
-            shared_view(std::shared_ptr<Rng> pt) noexcept
-              : rng_ptr_{std::move(pt)}
-            {}
 
             // construct from a range rvalue
             explicit shared_view(Rng && t)
@@ -69,12 +66,6 @@ namespace ranges
             {
                 return ranges::size(*rng_ptr_);
             }
-
-            // shared storage access
-            const std::shared_ptr<Rng> & get_shared() const
-            {
-                return rng_ptr_;
-            }
         };
 
         /// \relates all
@@ -85,13 +76,6 @@ namespace ranges
             struct shared_fn : pipeable<shared_fn>
             {
             public:
-                template<typename Rng,
-                    CONCEPT_REQUIRES_(Range<Rng>())>
-                shared_view<Rng> operator()(std::shared_ptr<Rng> pt) const
-                {
-                    return {std::move(pt)};
-                }
-
 #ifndef RANGES_DOXYGEN_INVOKED
                 template<typename Rng,
                     CONCEPT_REQUIRES_(!Range<Rng>())>
@@ -125,7 +109,7 @@ namespace ranges
                     CONCEPT_ASSERT_MSG(!View<Rng>(),
                         "view::shared cannot be constructed from a view."
                         " Please copy the original view instead.");
-                    CONCEPT_ASSERT_MSG(std::is_rvalue_reference<Rng&&>::value,
+                    CONCEPT_ASSERT_MSG(!std::is_reference<Rng>::value,
                         "view::shared needs an rvalue reference"
                         "to build a shared object.");
                 }
@@ -143,6 +127,7 @@ namespace ranges
         } // namespace view
         /// @}
     } // namespace v3
+} // namespace experimental
 } // namespace ranges
 
 #endif // include guard
