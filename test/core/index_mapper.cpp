@@ -16,6 +16,8 @@
 
 #include <boost/test/unit_test.hpp>
 
+#include <stdexcept>
+
 using namespace ranges;
 using namespace cxtream;
 using namespace boost;
@@ -33,6 +35,8 @@ BOOST_AUTO_TEST_CASE(test_mapping)
     BOOST_TEST(mapper.index_for("second") == 1UL);
     BOOST_TEST(mapper.index_for("third") == 2UL);
     BOOST_TEST(mapper.index_for("first") == 0UL);
+    BOOST_TEST(mapper.index_for("fourth", 10UL) == 10UL);
+    BOOST_CHECK_THROW(mapper.index_for("fourth"), std::out_of_range);
     BOOST_TEST(mapper.at(2UL) == "third");
     BOOST_TEST(mapper.at(1UL) == "second");
     BOOST_TEST(mapper.at(0UL) == "first");
@@ -44,10 +48,18 @@ BOOST_AUTO_TEST_CASE(test_mapping)
 BOOST_AUTO_TEST_CASE(test_multi_mapping)
 {
     const index_mapper<std::string> mapper{{"first", "second", "third"}};
+    // value to index - only existing
     std::vector<std::string> vals = {"second", "first", "third"};
     std::vector<std::size_t> idxs = {1UL, 0UL, 2UL};
     test_ranges_equal(mapper.index_for(vals), idxs);
+    // index to value
     test_ranges_equal(mapper.at(idxs), vals);
+    // value to index - also non-existing with default value
+    vals = {"second", "bogus", "first", "third", "fourth"};
+    idxs = {1UL, 10UL, 0UL, 2UL, 10UL};
+    test_ranges_equal(mapper.index_for(vals, 10UL), idxs);
+    // value to index - also non-existing
+    BOOST_CHECK_THROW(mapper.index_for(vals), std::out_of_range);
 }
 
 BOOST_AUTO_TEST_CASE(test_insertion)

@@ -35,10 +35,18 @@ public:
         assert(val2idx_.size() == idx2val_.size() && "Index mapper needs unique values.");
     }
 
-    /// Returns the index of the given value.
+    /// Returns the index of the given value. Throws std::out_of_range if the value does not exist.
     std::size_t index_for(const T& val) const
     {
         return val2idx_.at(val);
+    }
+
+    /// Returns the index of the given value or a default value if it does not exist.
+    std::size_t index_for(const T& val, std::size_t defval) const
+    {
+        auto pos = val2idx_.find(val);
+        if (pos == val2idx_.end()) return defval;
+        return pos->second;
     }
 
     /// Returns the value at the given index.
@@ -47,18 +55,31 @@ public:
         return idx2val_.at(idx);
     }
 
-    /// Returns the indexes of the given values.
+    /// Returns the indexes of the given values. Throws std::out_of_range if any value does not exist.
     std::vector<std::size_t> index_for(const std::vector<T>& vals) const
     {
-        return vals |
-          ranges::view::transform([this](const T& val){ return this->index_for(val); });
+        return vals
+          | ranges::view::transform([this](const T& val) {
+                return this->index_for(val);
+            });
+    }
+
+    /// Returns the indexes of the given values or a default value if they do not exist.
+    std::vector<std::size_t> index_for(const std::vector<T>& vals, std::size_t defval) const
+    {
+        return vals
+          | ranges::view::transform([this, defval](const T& val) {
+                return this->index_for(val, defval);
+            });
     }
 
     /// Returns the values at the given indexes.
     std::vector<T> at(const std::vector<std::size_t>& idxs) const
     {
-        return idxs |
-          ranges::view::transform([this](std::size_t idx){ return this->at(idx); });
+        return idxs
+          | ranges::view::transform([this](std::size_t idx) {
+                return this->at(idx);
+            });
     }
 
     /// Checks whether the mapper contains the given value.
