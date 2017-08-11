@@ -478,7 +478,9 @@ BOOST_AUTO_TEST_CASE(test_unzip_view)
 
     std::vector<int> va2;
     std::vector<std::shared_ptr<int>> vb2;
-    std::tie(va2, vb2) = unzip(ranges::view::zip(ranges::view::iota(0, 3), vb1));
+    // test unzip on lvalue view
+    auto view = ranges::view::zip(ranges::view::iota(0, 3), vb1);
+    std::tie(va2, vb2) = unzip(view);
     for (std::size_t i = 0; i < 3; ++i) {
         BOOST_TEST(va2[i] == (int)i);
         BOOST_TEST(vb2[i].use_count() == 3);

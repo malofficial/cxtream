@@ -397,7 +397,7 @@ namespace detail {
 ///     std::vector<double> vb;
 ///     std::tie(va, vb) = unzip(data);
 /// \endcode
-template<typename Rng, CONCEPT_REQUIRES_(!ranges::View<Rng>())>
+template<typename Rng, CONCEPT_REQUIRES_(ranges::Range<Rng>() && !ranges::View<Rng>())>
 auto unzip(Rng range_of_tuples)
 {
     // copy the given container and move elements out of it
@@ -406,7 +406,7 @@ auto unzip(Rng range_of_tuples)
 
 /// Specialization of unzip function for views.
 template<typename Rng, CONCEPT_REQUIRES_(ranges::View<Rng>())>
-auto unzip(Rng&& view_of_tuples)
+auto unzip(Rng view_of_tuples)
 {
     return unzip(view_of_tuples | ranges::to_vector);
 }
