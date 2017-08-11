@@ -123,7 +123,7 @@ public:
 
     /// Specialization of range insertion for views.
     template<typename Rng, CONCEPT_REQUIRES_(ranges::View<Rng>())>
-    void insert(Rng&& rng)
+    void insert(Rng rng)
     {
         for (auto&& val : rng) insert(std::forward<decltype(val)>(val));
     }
@@ -153,7 +153,7 @@ public:
 
     /// Specialization of try_insert for views.
     template<typename Rng, CONCEPT_REQUIRES_(ranges::View<Rng>())>
-    void try_insert(Rng&& rng)
+    void try_insert(Rng rng)
     {
         for (auto&& val : rng) try_insert(std::forward<decltype(val)>(val));
     }
