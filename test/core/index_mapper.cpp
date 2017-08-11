@@ -66,10 +66,12 @@ BOOST_AUTO_TEST_CASE(test_multi_mapping)
     BOOST_CHECK_THROW(mapper.index_for(vals), std::out_of_range);
 }
 
-BOOST_AUTO_TEST_CASE(test_insertion)
+BOOST_AUTO_TEST_CASE(test_insertion_single)
 {
+    // test insertion of a single value
     index_mapper<std::string> mapper{{"first", "second", "third"}};
-    mapper.insert("fourth");
+    BOOST_TEST(mapper.insert("fourth") == 3UL);
+    BOOST_CHECK_THROW(mapper.insert("fourth"), std::invalid_argument);
     test_ranges_equal(mapper.values(),
                       std::vector<std::string>{"first", "second", "third", "fourth"});
     BOOST_TEST(mapper.at(3UL) == "fourth");
@@ -77,7 +79,26 @@ BOOST_AUTO_TEST_CASE(test_insertion)
     BOOST_TEST(mapper.size() == 4UL);
 }
 
-BOOST_AUTO_TEST_CASE(test_try_insertion)
+BOOST_AUTO_TEST_CASE(test_insertion_multiple)
+{
+    // test insertion of a range
+    index_mapper<std::string> mapper{{"second"}};
+    mapper.insert(std::vector<std::string>{"fourth", "fifth"});
+    BOOST_TEST(mapper.size() == 3UL);
+    test_ranges_equal(mapper.values(),
+                      std::vector<std::string>{"second", "fourth", "fifth"});
+    // test insertion of a view
+    std::vector<std::string> data = {"first", "sixth"};
+    mapper.insert(ranges::view::all(data));
+    BOOST_TEST(mapper.size() == 5UL);
+    test_ranges_equal(mapper.values(),
+                      std::vector<std::string>{"second", "fourth", "fifth", "first", "sixth"});
+    // test throw
+    BOOST_CHECK_THROW(mapper.insert(std::vector<std::string>{"seventh", "fifth"}),
+                      std::invalid_argument);
+}
+
+BOOST_AUTO_TEST_CASE(test_try_insertion_single)
 {
     index_mapper<std::string> mapper{{"first", "second", "third"}};
     BOOST_TEST(mapper.try_insert("first") == false);
@@ -85,6 +106,22 @@ BOOST_AUTO_TEST_CASE(test_try_insertion)
     BOOST_TEST(mapper.try_insert("second") == false);
     test_ranges_equal(mapper.values(),
                       std::vector<std::string>{"first", "second", "third", "fourth"});
+}
+
+BOOST_AUTO_TEST_CASE(test_try_insertion_multiple)
+{
+    // test insertion of a range
+    index_mapper<std::string> mapper{{"second"}};
+    mapper.try_insert(std::vector<std::string>{"fourth", "second", "fifth"});
+    BOOST_TEST(mapper.size() == 3UL);
+    test_ranges_equal(mapper.values(),
+                      std::vector<std::string>{"second", "fourth", "fifth"});
+    // test insertion of a view
+    std::vector<std::string> data = {"second", "sixth"};
+    mapper.try_insert(ranges::view::all(data));
+    BOOST_TEST(mapper.size() == 4UL);
+    test_ranges_equal(mapper.values(),
+                      std::vector<std::string>{"second", "fourth", "fifth", "sixth"});
 }
 
 BOOST_AUTO_TEST_CASE(test_make_unique_index_mapper_container)
