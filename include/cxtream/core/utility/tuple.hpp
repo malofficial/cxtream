@@ -338,44 +338,45 @@ constexpr auto tuple_remove(Tuple tuple)
 
 namespace detail {
 
-    // wrap each type of Tuple in std::vector
+    // wrap each type of a tuple in std::vector, i.e., make a tuple of empty vectors
     template<typename Tuple, std::size_t... Is>
     auto vectorize_tuple(std::index_sequence<Is...>)
     {
         return std::make_tuple(std::vector<std::tuple_element_t<Is, std::decay_t<Tuple>>>()...);
     }
 
+    // push elements from the given tuple to the corresponding vectors in a tuple of vectors
     template<typename ToR, typename Tuple, std::size_t... Is>
     void push_unzipped(ToR& tuple_of_ranges, Tuple&& tuple, std::index_sequence<Is...>)
     {
         (..., (std::get<Is>(tuple_of_ranges).push_back(std::get<Is>(std::forward<Tuple>(tuple)))));
     }
 
+    // if the size of the given range is known, return it, otherwise return 0
     template<typename Rng, CONCEPT_REQUIRES_(ranges::SizedRange<Rng>())>
-    std::size_t safe_init_size(Rng&& rng)
+    std::size_t safe_reserve_size(Rng&& rng)
     {
         return ranges::size(rng);
     }
-
     template<typename Rng, CONCEPT_REQUIRES_(!ranges::SizedRange<Rng>())>
-    std::size_t safe_init_size(Rng&& rng)
+    std::size_t safe_reserve_size(Rng&& rng)
     {
         return 0;
     }
 
-    template<typename Rng, typename T>
-    auto unzip_impl(Rng range_of_tuples)
+    template<typename Rng>
+    auto unzip_impl(Rng& range_of_tuples)
     {
         using tuple_type = ranges::range_value_type_t<Rng>;
         constexpr auto tuple_size = std::tuple_size<tuple_type>{};
-        constexpr auto indexes = std::make_index_sequence<tuple_size>{};
-        auto range_size = detail::safe_init_size(range_of_tuples);
+        constexpr auto indices = std::make_index_sequence<tuple_size>{};
+        std::size_t reserve_size = detail::safe_reserve_size(range_of_tuples);
 
-        auto tuple_of_ranges = detail::vectorize_tuple<tuple_type>(indexes);
-        tuple_for_each([range_size](auto& rng) { rng.reserve(range_size); }, tuple_of_ranges);
+        auto tuple_of_ranges = detail::vectorize_tuple<tuple_type>(indices);
+        tuple_for_each([reserve_size](auto& rng) { rng.reserve(reserve_size); }, tuple_of_ranges);
 
-        for (T v : range_of_tuples) {
-            detail::push_unzipped(tuple_of_ranges, std::move(v), indexes);
+        for (auto& v : range_of_tuples) {
+            detail::push_unzipped(tuple_of_ranges, std::move(v), indices);
         }
 
         return tuple_of_ranges;
@@ -397,19 +398,16 @@ namespace detail {
 ///     std::tie(va, vb) = unzip(data);
 /// \endcode
 template<typename Rng, CONCEPT_REQUIRES_(!ranges::View<Rng>())>
-auto unzip(Rng&& range_of_tuples)
+auto unzip(Rng range_of_tuples)
 {
-    // get container by value and move out from it
-    using T = ranges::range_value_type_t<Rng>&;
-    return detail::unzip_impl<Rng, T>(std::forward<Rng>(range_of_tuples));
+    // copy the given container and move elements out of it
+    return detail::unzip_impl(range_of_tuples);
 }
 
 template<typename Rng, CONCEPT_REQUIRES_(ranges::View<Rng>())>
 auto unzip(Rng&& view_of_tuples)
 {
-    // get view by value and copy out from it
-    using T = ranges::range_value_type_t<Rng>;
-    return detail::unzip_impl<Rng, T>(std::forward<Rng>(view_of_tuples));
+    return unzip(view_of_tuples | ranges::to_vector);
 }
 
 // maybe unzip //

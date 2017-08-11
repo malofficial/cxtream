@@ -15,7 +15,10 @@
 #include <cxtream/core/utility/tuple.hpp>
 
 #include <boost/test/unit_test.hpp>
+#include <range/v3/view/all.hpp>
 #include <range/v3/view/indirect.hpp>
+#include <range/v3/view/iota.hpp>
+#include <range/v3/view/zip.hpp>
 
 #include <memory>
 #include <vector>
@@ -437,6 +440,48 @@ BOOST_AUTO_TEST_CASE(test_unzip_move_only)
     BOOST_TEST(va == va_desired);
     for (std::size_t i = 0; i < 3; ++i) {
         BOOST_TEST(*vb[i] == (int)i + 5);
+    }
+}
+
+BOOST_AUTO_TEST_CASE(test_unzip_keeps_valid_containers)
+{
+    // test that unzip does not move elements out of containers
+    std::vector<std::tuple<int, std::shared_ptr<int>>> data{};
+    data.emplace_back(1, std::make_shared<int>(5));
+    data.emplace_back(2, std::make_shared<int>(6));
+    data.emplace_back(3, std::make_shared<int>(7));
+
+    std::vector<int> va;
+    std::vector<std::shared_ptr<int>> vb;
+    std::tie(va, vb) = unzip(data);
+
+    for (std::size_t i = 0; i < 3; ++i) {
+        BOOST_TEST(*vb[i] == (int)i + 5);
+        BOOST_TEST(vb[i].use_count() == 2);
+    }
+}
+
+BOOST_AUTO_TEST_CASE(test_unzip_view)
+{
+    // test that unzip works on views and that it does not move data out
+    std::vector<std::tuple<int, std::shared_ptr<int>>> data{};
+    data.emplace_back(1, std::make_shared<int>(5));
+    data.emplace_back(2, std::make_shared<int>(6));
+    data.emplace_back(3, std::make_shared<int>(7));
+
+    std::vector<int> va1;
+    std::vector<std::shared_ptr<int>> vb1;
+    std::tie(va1, vb1) = unzip(ranges::view::all(data));
+    for (std::size_t i = 0; i < 3; ++i) {
+        BOOST_TEST(vb1[i].use_count() == 2);
+    }
+
+    std::vector<int> va2;
+    std::vector<std::shared_ptr<int>> vb2;
+    std::tie(va2, vb2) = unzip(ranges::view::zip(ranges::view::iota(0, 3), vb1));
+    for (std::size_t i = 0; i < 3; ++i) {
+        BOOST_TEST(va2[i] == (int)i);
+        BOOST_TEST(vb2[i].use_count() == 3);
     }
 }
 
