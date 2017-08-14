@@ -63,16 +63,15 @@ const auto simple_csv_cols = transpose(simple_csv_rows);
 // complex quoted csv example //
 
 const std::string quoted_csv{
-  "  \"Column, 1\", \t \"Column, 2\"  , " R"(" Column \"3\" ")""\n"
-  "Field 1, \"Field,\n 2\"  , \" Field 3 \"    \n"
-  "\"Field\n1\",   \"Field, 2 \" ,   \" Field 3 \"    "
+  "  *Column| 1*| \t *Column| 2*  | * Column +*3+* *\n"
+  "Field 1| *Field|\n 2*  | * Field 3 *    \n"
+  "*Field\n1*|   *Field| 2 * |   * Field 3 *    "
 };
 const std::vector<std::vector<std::string>> quoted_csv_rows{
-  std::vector<std::string>{"Column, 1", "Column, 2", " Column \"3\" "},
-  std::vector<std::string>{"Field 1", "Field,\n 2", " Field 3 "},
-  std::vector<std::string>{"Field\n1", "Field, 2 ", " Field 3 "}
+  std::vector<std::string>{"Column| 1", "Column| 2", " Column *3* "},
+  std::vector<std::string>{"Field 1", "Field|\n 2", " Field 3 "},
+  std::vector<std::string>{"Field\n1", "Field| 2 ", " Field 3 "}
 };
-const auto quoted_csv_cols = transpose(quoted_csv_rows);
 
 // invalid csv examples //
 
@@ -105,7 +104,7 @@ BOOST_AUTO_TEST_CASE(test_csv_istream_range_simple_csv)
 BOOST_AUTO_TEST_CASE(test_csv_istream_range_quoted_csv)
 {
     std::istringstream quoted_csv_ss{quoted_csv};
-    auto csv_rows = csv_istream_range{quoted_csv_ss};
+    auto csv_rows = csv_istream_range{quoted_csv_ss, '|', '*', '+'};
     test_ranges_equal(csv_rows, quoted_csv_rows);
 }
 
@@ -136,7 +135,7 @@ BOOST_AUTO_TEST_CASE(test_read_csv_from_istream_no_header)
 BOOST_AUTO_TEST_CASE(test_read_quoted_csv_from_istream)
 {
     std::istringstream quoted_csv_ss{quoted_csv};
-    const dataframe<> df = read_csv(quoted_csv_ss);
+    const dataframe<> df = read_csv(quoted_csv_ss, 0, true, '|', '*', '+');
     BOOST_TEST(df.n_cols() == 3);
     BOOST_TEST(df.n_rows() == 2);
     test_ranges_equal(df.header(), quoted_csv_rows[0]);
@@ -147,14 +146,14 @@ BOOST_AUTO_TEST_CASE(test_read_quoted_csv_from_istream)
 BOOST_AUTO_TEST_CASE(test_write_quoted_to_ostream)
 {
     std::istringstream quoted_csv_ss{quoted_csv};
-    const dataframe<> df = read_csv(quoted_csv_ss);
+    const dataframe<> df = read_csv(quoted_csv_ss, 0, true, '|', '*', '+');
   
     std::ostringstream oss;
-    write_csv(oss, df);
+    write_csv(oss, df, '|', '*', '+');
     BOOST_TEST(oss.str() == 
-      "\"Column, 1\",\"Column, 2\",\" Column \\\"3\\\" \"\n"
-      "Field 1,\"Field,\n 2\",\" Field 3 \"\n"
-      "\"Field\n1\",\"Field, 2 \",\" Field 3 \"\n"
+      "*Column| 1*|*Column| 2*|* Column +*3+* *\n"
+      "Field 1|*Field|\n 2*|* Field 3 *\n"
+      "*Field\n1*|*Field| 2 *|* Field 3 *\n"
     );
 }
 
@@ -164,8 +163,8 @@ BOOST_AUTO_TEST_CASE(test_compare_after_write_and_read)
     const dataframe<> df1 = read_csv(quoted_csv_ss);
   
     std::stringstream oss;
-    write_csv(oss, df1);
-    const dataframe<> df2 = read_csv(oss);
+    write_csv(oss, df1, '|', '*', '+');
+    const dataframe<> df2 = read_csv(oss, 0, true, '|', '*', '+');
     test_ranges_equal(df1.header(), df2.header());
     std::vector<std::vector<std::string>> df1_cols = df1.raw_cols();
     std::vector<std::vector<std::string>> df2_cols = df2.raw_cols();
@@ -175,11 +174,11 @@ BOOST_AUTO_TEST_CASE(test_compare_after_write_and_read)
 BOOST_AUTO_TEST_CASE(test_file_write_and_read)
 {
     std::istringstream quoted_csv_ss{quoted_csv};
-    const dataframe<> df1 = read_csv(quoted_csv_ss);
+    const dataframe<> df1 = read_csv(quoted_csv_ss, 0, true, '|', '*', '+');
 
     fs::path csv_file{"test.core.csv.test_file_write_and_read.csv"};
-    write_csv(csv_file, df1);
-    const dataframe<> df2 = read_csv(csv_file);
+    write_csv(csv_file, df1, '|', '*', '+');
+    const dataframe<> df2 = read_csv(csv_file, 0, true, '|', '*', '+');
     fs::remove(csv_file);
     test_ranges_equal(df1.header(), df2.header());
     std::vector<std::vector<std::string>> df1_cols = df1.raw_cols();

@@ -46,6 +46,8 @@ private:
 
     std::istream* in_;
     char separator_;
+    char quote_;
+    char escape_;
 
     std::vector<std::string> row_;
     RowPosition row_position_ = RowPosition::Normal;
@@ -114,8 +116,8 @@ private:
         while (has_next && *in_ >> std::ws) {
             std::string field;
             // process quoted fields
-            if (in_->peek() == '"') {
-                *in_ >> std::quoted(field);
+            if (in_->peek() == quote_) {
+                *in_ >> std::quoted(field, quote_, escape_);
                 if (in_->fail()) throw std::ios_base::failure{"Error while reading CSV field."};
                 std::tie(std::ignore, has_next) = parse_field();
             }
@@ -146,8 +148,14 @@ private:
 public:
     csv_istream_range() = default;
 
-    explicit csv_istream_range(std::istream& in, char separator = ',')
-      : in_{&in}, separator_{separator}
+    explicit csv_istream_range(std::istream& in,
+                               char separator = ',',
+                               char quote = '"',
+                               char escape = '\\')
+      : in_{&in}
+      , separator_{separator}
+      , quote_{quote}
+      , escape_{escape}
     {
         next();
     }
@@ -160,7 +168,14 @@ public:
 /// \param drop How many lines should be ignored at the very beginning of the stream.
 /// \param has_header Whether a header row should be parsed (after drop).
 /// \param separator Field separator.
-dataframe<> read_csv(std::istream& in, int drop = 0, bool has_header = true, char separator = ',')
+/// \param quote Quote character.
+/// \param escape Character used to escape a quote inside quotes.
+dataframe<> read_csv(std::istream& in,
+                     int drop = 0,
+                     bool has_header = true,
+                     char separator = ',',
+                     char quote = '"',
+                     char escape = '\\')
 {
     // header
     std::vector<std::string> header;
@@ -168,7 +183,7 @@ dataframe<> read_csv(std::istream& in, int drop = 0, bool has_header = true, cha
     std::vector<std::vector<std::string>> data;
     // load csv line by line
     auto csv_rows =
-      csv_istream_range(in, separator)
+      csv_istream_range(in, separator, quote, escape)
       | ranges::view::drop(drop)
       | ranges::view::move;
     auto csv_row_it = ranges::begin(csv_rows);
@@ -216,20 +231,28 @@ dataframe<> read_csv(std::istream& in, int drop = 0, bool has_header = true, cha
 }
 
 /// Same as read_csv() but read directly from a file.
-dataframe<> read_csv(const std::experimental::filesystem::path& file, int drop = 0,
-                     bool header = true, char separator = ',')
+dataframe<> read_csv(const std::experimental::filesystem::path& file,
+                     int drop = 0,
+                     bool header = true,
+                     char separator = ',',
+                     char quote = '"',
+                     char escape = '\\')
 {
     std::ifstream fin{file};
-    return read_csv(fin, drop, header, separator);
+    return read_csv(fin, drop, header, separator, quote, escape);
 }
 
 /// Write a single csv row to an std::ostream.
 /// 
-/// Fields containing '"', '\n', or ',' are automatically quoted ('"..."').
+/// Fields containing quote, newline, or separator are quoted automatically.
 ///
 /// \throws std::ios_base::failure if badbit is triggered.
 template <typename Row>
-std::ostream& write_csv_row(std::ostream& out, Row&& row, char separator = ',')
+std::ostream& write_csv_row(std::ostream& out,
+                            Row&& row,
+                            char separator = ',',
+                            char quote = '"',
+                            char escape = '\\')
 {
     // temporarily set badbit exception mask
     auto orig_exceptions = out.exceptions();
@@ -239,9 +262,9 @@ std::ostream& write_csv_row(std::ostream& out, Row&& row, char separator = ',')
         auto& field = row[i];
         // output quoted string if it contains separator, double quote, newline or
         // starts or ends with a whitespace
-        if (ranges::find_first_of(field, {separator, '"', '\n'}) != ranges::end(field) ||
+        if (ranges::find_first_of(field, {separator, quote, '\n'}) != ranges::end(field) ||
             field != utility::trim(field)) {
-            out << std::quoted(field);
+            out << std::quoted(field, quote, escape);
         } else {
             out << field;
         }
@@ -257,26 +280,33 @@ std::ostream& write_csv_row(std::ostream& out, Row&& row, char separator = ',')
 
 /// Write a dataframe to an std::ostream.
 /// 
-/// Fields containing '"', '\n', or ',' are automatically quoted ('"..."').
+/// Fields containing quote, newline, or separator are quoted automatically.
 ///
 /// \throws std::ios_base::failure if badbit is triggered.
 template <typename DataTable>
-std::ostream& write_csv(std::ostream& out, const dataframe<DataTable>& df, char separator = ',')
+std::ostream& write_csv(std::ostream& out,
+                        const dataframe<DataTable>& df,
+                        char separator = ',',
+                        char quote = '"',
+                        char escape = '\\')
 {
-    write_csv_row(out, df.header(), separator);
+    write_csv_row(out, df.header(), separator, quote, escape);
     for (auto&& row : df.raw_rows()) {
-        write_csv_row(out, row, separator);
+        write_csv_row(out, row, separator, quote, escape);
     }
     return out;
 }
 
 /// Same as write_csv(std::ostream...), but write directly to a file.
 template <typename DataTable>
-void write_csv(const std::experimental::filesystem::path& file, const dataframe<DataTable>& df,
-               char separator = ',')
+void write_csv(const std::experimental::filesystem::path& file,
+               const dataframe<DataTable>& df,
+               char separator = ',',
+               char quote = '"',
+               char escape = '\\')
 {
     std::ofstream fout{file};
-    write_csv(fout, df, separator);
+    write_csv(fout, df, separator, quote, escape);
 }
 
 }  // namespace cxtream
