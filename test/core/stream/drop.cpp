@@ -21,8 +21,6 @@
 #include <vector>
 
 using namespace cxtream::stream;
-using namespace ranges;
-using namespace boost;
 
 CXTREAM_DEFINE_COLUMN(Unique2, std::unique_ptr<int>)
 
@@ -45,9 +43,9 @@ BOOST_AUTO_TEST_CASE(test_move_only_column)
     data.emplace_back(std::make_unique<int>(2), std::make_unique<int>(6));
 
     auto generated = data
-      | view::move
+      | ranges::view::move
       | drop<Unique>
-      | view::transform([](auto t) { return *(std::get<0>(std::move(t)).value()[0]); });
+      | ranges::view::transform([](auto t) { return *(std::get<0>(std::move(t)).value()[0]); });
 
     test_ranges_equal(generated, std::vector<int>{5, 6});
 }
@@ -62,10 +60,10 @@ TEST_CASE(test_multiple_columns)
     data.emplace_back(-2, std::make_unique<int>(2), std::make_unique<int>(6));
   
     auto generated = data
-      | view::move
+      | ranges::view::move
       | drop<Int, Unique>
-      | view::transform([](auto t) { return *(std::get<0>(std::move(t)).value()[0]); })
-      | to_vector;
+      | ranges::view::transform([](auto t) { return *(std::get<0>(std::move(t)).value()[0]); })
+      | ranges::to_vector;
   
     test_ranges_equal(generated, std::vector<int>{5, 6});
 }

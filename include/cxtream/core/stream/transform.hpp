@@ -10,6 +10,7 @@
 #ifndef CXTREAM_CORE_STREAM_TRANSFORM_HPP
 #define CXTREAM_CORE_STREAM_TRANSFORM_HPP
 
+#include <cxtream/build_config.hpp>
 #include <cxtream/core/stream/template_arguments.hpp>
 #include <cxtream/core/utility/tuple.hpp>
 #include <cxtream/core/utility/vector.hpp>
@@ -35,7 +36,7 @@ constexpr auto partial_transform(from_t<FromTypes...>, to_t<ToTypes...>,
                                           " use the partial_for_each.");
 
     return ranges::view::transform([fun = std::move(fun), proj = std::move(proj)]
-      (auto&& source) mutable {
+      (auto&& source) CXTREAM_MUTABLE_LAMBDA_V {
         // build the view for the transformer, i.e., slice and project
         auto slice_view =
           utility::tuple_transform(proj, utility::tuple_type_view<FromTypes...>(source));
@@ -55,7 +56,7 @@ namespace detail {
         template<typename Fun>
         static constexpr auto impl(Fun fun)
         {
-            return [fun = std::move(fun)](auto&& tuple_of_ranges) {
+            return [fun = std::move(fun)](auto&& tuple_of_ranges) CXTREAM_MUTABLE_LAMBDA_V {
                 assert(utility::same_size(tuple_of_ranges));
                 auto range_of_tuples =
                   std::experimental::apply(ranges::view::zip,
@@ -72,7 +73,7 @@ namespace detail {
         template<typename Fun>
         static constexpr auto impl(Fun fun)
         {
-            return [fun = std::move(fun)](auto&& tuple) {
+            return [fun = std::move(fun)](auto&& tuple) CXTREAM_MUTABLE_LAMBDA_V {
                 return std::experimental::apply(fun, std::forward<decltype(tuple)>(tuple));
             };
         }

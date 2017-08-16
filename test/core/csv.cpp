@@ -23,9 +23,7 @@
 #include <sstream>
 #include <vector>
 
-using namespace ranges;
 using namespace cxtream;
-using namespace boost;
 namespace fs = std::experimental::filesystem;
 
 // 2d container transposition //
@@ -115,9 +113,9 @@ BOOST_AUTO_TEST_CASE(test_read_csv_from_istream)
     BOOST_TEST(df.n_cols() == 3);
     BOOST_TEST(df.n_rows() == 3);
     test_ranges_equal(df.header(), simple_csv_rows[0]);
-    test_ranges_equal(df.raw_cols()[0], simple_csv_cols[0] | view::slice(1, end));
-    test_ranges_equal(df.raw_cols()[1], simple_csv_cols[1] | view::slice(1, end));
-    test_ranges_equal(df.raw_cols()[2], simple_csv_cols[2] | view::slice(1, end));
+    test_ranges_equal(df.raw_cols()[0], simple_csv_cols[0] | ranges::view::slice(1, ranges::end));
+    test_ranges_equal(df.raw_cols()[1], simple_csv_cols[1] | ranges::view::slice(1, ranges::end));
+    test_ranges_equal(df.raw_cols()[2], simple_csv_cols[2] | ranges::view::slice(1, ranges::end));
 }
 
 BOOST_AUTO_TEST_CASE(test_read_csv_from_istream_no_header)
@@ -127,9 +125,9 @@ BOOST_AUTO_TEST_CASE(test_read_csv_from_istream_no_header)
     BOOST_TEST(df.n_cols() == 3);
     BOOST_TEST(df.n_rows() == 3);
     BOOST_TEST(df.header().empty());
-    test_ranges_equal(df.raw_cols()[0], simple_csv_cols[0] | view::slice(1, end));
-    test_ranges_equal(df.raw_cols()[1], simple_csv_cols[1] | view::slice(1, end));
-    test_ranges_equal(df.raw_cols()[2], simple_csv_cols[2] | view::slice(1, end));
+    test_ranges_equal(df.raw_cols()[0], simple_csv_cols[0] | ranges::view::slice(1, ranges::end));
+    test_ranges_equal(df.raw_cols()[1], simple_csv_cols[1] | ranges::view::slice(1, ranges::end));
+    test_ranges_equal(df.raw_cols()[2], simple_csv_cols[2] | ranges::view::slice(1, ranges::end));
 }
 
 BOOST_AUTO_TEST_CASE(test_read_quoted_csv_from_istream)

@@ -22,9 +22,7 @@
 
 #include <stdexcept>
 
-using namespace ranges;
 using namespace cxtream;
-using namespace boost;
 
 BOOST_AUTO_TEST_CASE(test_construction)
 {
@@ -92,7 +90,8 @@ BOOST_AUTO_TEST_CASE(test_insertion_container)
 BOOST_AUTO_TEST_CASE(test_insertion_lvalue_view)
 {
     index_mapper<int> int_mapper;
-    auto data = ranges::view::iota(3, 5) | ranges::view::transform([](int i) { return i + 1; });
+    auto data = ranges::view::iota(3, 5)
+      | ranges::view::transform([](int i) { return i + 1; });
     int_mapper.insert(data);
     BOOST_TEST(int_mapper.size() == 2UL);
     test_ranges_equal(int_mapper.values(), std::vector<int>{4, 5});

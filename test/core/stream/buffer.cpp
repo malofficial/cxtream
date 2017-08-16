@@ -23,7 +23,6 @@
 #include <vector>
 
 using namespace cxtream::stream;
-using namespace boost;
 using namespace std::chrono_literals;
 
 void test_use_count(const std::vector<std::shared_ptr<int>>& ptrs, const std::vector<int>& desired)

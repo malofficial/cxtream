@@ -43,7 +43,8 @@ public:
 
     // index_for //
 
-    /// Returns the index of the given value. Throws std::out_of_range if the value does not exist.
+    /// Returns the index of the given value.
+    /// \throws std::out_of_range if the value does not exist.
     std::size_t index_for(const T& val) const
     {
         return val2idx_.at(val);
@@ -57,7 +58,8 @@ public:
         return pos->second;
     }
 
-    /// Returns the indexes of the given values. Throws std::out_of_range if any value does not exist.
+    /// Returns the indexes of the given values.
+    /// \throws std::out_of_range if any value does not exist.
     std::vector<std::size_t> index_for(const std::vector<T>& vals) const
     {
         return vals

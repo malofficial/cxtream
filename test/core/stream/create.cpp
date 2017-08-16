@@ -22,23 +22,21 @@
 #include <vector>
 
 using namespace cxtream::stream;
-using namespace ranges;
-using namespace boost;
 
 CXTREAM_DEFINE_COLUMN(Unique2, std::unique_ptr<int>)
 
 BOOST_AUTO_TEST_CASE(test_int_column)
 {
     // create a new column
-    auto generated = view::iota(0, 10) | create<Int>();
-    std::vector<std::tuple<Int>> desired = view::iota(0, 10);
+    auto generated = ranges::view::iota(0, 10) | create<Int>();
+    std::vector<std::tuple<Int>> desired = ranges::view::iota(0, 10);
     test_ranges_equal(generated, desired);
 }
 
 BOOST_AUTO_TEST_CASE(test_one_batch_column)
 {
     // create a new column with a single batch
-    auto generated = view::iota(0, 10) | create<Int>(50);
+    auto generated = ranges::view::iota(0, 10) | create<Int>(50);
     BOOST_TEST(ranges::distance(generated) == 1);
     std::vector<int> generated_batch0 = std::get<Int>(*generated.begin()).value();
     std::vector<int> desired_batch0 = ranges::view::iota(0, 10);
@@ -48,7 +46,7 @@ BOOST_AUTO_TEST_CASE(test_one_batch_column)
 BOOST_AUTO_TEST_CASE(test_two_batch_column)
 {
     // create a new column with two batches
-    auto generated = view::iota(0, 10) | create<Int>(5);
+    auto generated = ranges::view::iota(0, 10) | create<Int>(5);
     BOOST_TEST(ranges::distance(generated) == 2);
     auto it = generated.begin();
     std::vector<int> generated_batch0 = std::get<Int>(*it).value();
@@ -67,9 +65,9 @@ BOOST_AUTO_TEST_CASE(test_move_only_column)
     data.emplace_back(std::make_unique<int>(6));
 
     auto generated = data
-      | view::move 
+      | ranges::view::move 
       | create<Unique>(1)
-      | view::transform([](auto t) {
+      | ranges::view::transform([](auto t) {
             return *(std::get<0>(std::move(t)).value()[0]);
         });
 
@@ -84,9 +82,9 @@ BOOST_AUTO_TEST_CASE(test_multiple_columns)
     data.emplace_back(std::make_unique<int>(2), std::make_unique<int>(6));
 
     auto generated = data
-      | view::move
+      | ranges::view::move
       | create<Unique, Unique2>(1)
-      | view::transform([](auto t) {
+      | ranges::view::transform([](auto t) {
           return std::make_tuple(*(std::get<0>(std::move(t)).value()[0]),
                                  *(std::get<1>(std::move(t)).value()[0]));
         });

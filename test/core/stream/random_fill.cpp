@@ -23,10 +23,8 @@
 
 #include <vector>
 
-using namespace ranges;
 using namespace cxtream::stream;
 using namespace cxtream::utility;
-using namespace boost;
 
 CXTREAM_DEFINE_COLUMN(IntVec2d, std::vector<std::vector<int>>)
 CXTREAM_DEFINE_COLUMN(Random, std::vector<std::uint64_t>)
@@ -35,14 +33,14 @@ template<typename Vector2d>
 void check(Vector2d vec, std::vector<long> unique, long unique_total)
 {
     for (std::size_t i = 0; i < vec.size(); ++i) {
-        vec.at(i) |= action::sort;
-        auto n_unique = distance(vec.at(i) | view::unique);
+        vec.at(i) |= ranges::action::sort;
+        auto n_unique = ranges::distance(vec.at(i) | ranges::view::unique);
         BOOST_TEST(n_unique == unique.at(i));
     }
 
     std::vector<std::uint64_t> all_vals = flat_view(vec);
-    all_vals |= action::sort;
-    auto n_unique = distance(all_vals | view::unique);
+    all_vals |= ranges::action::sort;
+    auto n_unique = ranges::distance(all_vals | ranges::view::unique);
     BOOST_TEST(n_unique == unique_total);
 }
 

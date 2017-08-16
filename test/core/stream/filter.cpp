@@ -24,8 +24,6 @@
 #include <vector>
 
 using namespace cxtream::stream;
-using namespace ranges;
-using namespace boost;
 
 BOOST_AUTO_TEST_CASE(test_dim0)
 {
@@ -48,7 +46,7 @@ BOOST_AUTO_TEST_CASE(test_dim0)
                     break;
             }
         }, dim<0>)
-      | to_vector;
+      | ranges::to_vector;
     BOOST_TEST(i == 2);
 }
 
@@ -60,7 +58,7 @@ BOOST_AUTO_TEST_CASE(test_dim0_move_only)
 
     std::size_t i = 0;
     data
-      | view::move
+      | ranges::view::move
       // for dim0, `from` is ignored anyway
       | filter(from<>, by<Unique>,
           [](const std::vector<std::unique_ptr<int>>& v) { return *(v.at(0)) >= 3; }, dim<0>)
@@ -72,7 +70,7 @@ BOOST_AUTO_TEST_CASE(test_dim0_move_only)
                     break;
             }
         }, dim<0>)
-      | to_vector;
+      | ranges::to_vector;
     BOOST_TEST(i == 1);
 }
 
@@ -95,7 +93,7 @@ BOOST_AUTO_TEST_CASE(test_dim1)
                     break;
             }
         }, dim<0>)
-      | to_vector;
+      | ranges::to_vector;
     BOOST_TEST(i == 2);
 }
 
@@ -118,7 +116,7 @@ BOOST_AUTO_TEST_CASE(test_dim1_partial)
                     break;
             }
         }, dim<0>)
-      | to_vector;
+      | ranges::to_vector;
     BOOST_TEST(i == 2);
 }
 
@@ -132,7 +130,7 @@ BOOST_AUTO_TEST_CASE(test_dim1_move_only)
 
     std::size_t i = 0;
     data
-      | view::move
+      | ranges::view::move
       | filter(from<Unique>, by<Unique>, [](auto& ptr) { return *ptr >= 5.; }, dim<1>)
       | for_each(from<Int, Unique>, [&i](auto& a, auto& b) {
             switch (i++) {
@@ -152,7 +150,7 @@ BOOST_AUTO_TEST_CASE(test_dim1_move_only)
                     break;
             }
         }, dim<0>)
-      | to_vector;
+      | ranges::to_vector;
     BOOST_TEST(i == 4);
 }
 
@@ -177,7 +175,7 @@ BOOST_AUTO_TEST_CASE(test_dim2)
                     break;
             }
         }, dim<0>)
-      | to_vector;
+      | ranges::to_vector;
     BOOST_TEST(i == 2);
 }
 
@@ -201,7 +199,7 @@ BOOST_AUTO_TEST_CASE(test_dim2_partial)
                     break;
             }
         }, dim<0>)
-      | to_vector;
+      | ranges::to_vector;
     BOOST_TEST(i == 2);
 }
 
@@ -224,7 +222,7 @@ BOOST_AUTO_TEST_CASE(test_dim2_move_only)
 
     std::size_t i = 0;
     data
-      | view::move
+      | ranges::view::move
       | filter(from<UniqueVec>, by<UniqueVec>, [](auto& ptr) { return *ptr >= 4.; }, dim<2>)
       | for_each(from<UniqueVec>, [&i](auto& unique_vec) {
             switch (i++) {
@@ -238,6 +236,6 @@ BOOST_AUTO_TEST_CASE(test_dim2_move_only)
                     break;
             }
         }, dim<0>)
-      | to_vector;
+      | ranges::to_vector;
     BOOST_TEST(i == 3);
 }

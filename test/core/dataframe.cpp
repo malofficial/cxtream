@@ -21,9 +21,7 @@
 #include <string>
 #include <vector>
 
-using namespace ranges;
 using namespace cxtream;
-using namespace boost;
 
 const dataframe<> simple_df{
     // columns

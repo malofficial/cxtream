@@ -29,8 +29,6 @@
 #include <vector>
 
 using namespace cxtream::stream;
-using namespace ranges;
-using namespace boost;
 
 CXTREAM_DEFINE_COLUMN(UniqueVec, std::vector<std::unique_ptr<int>>)
 CXTREAM_DEFINE_COLUMN(IntVec, std::vector<int>)
@@ -39,16 +37,16 @@ BOOST_AUTO_TEST_CASE(test_partial_transform)
 {
     // partial_transform (int){'f', ..., 'i'} to (char){'a', ..., 'd'}
     // the char column is appended
-    auto data = view::iota((int)'f', (int)'j')
-      | view::transform(std::make_tuple<int>)
+    auto data = ranges::view::iota((int)'f', (int)'j')
+      | ranges::view::transform(std::make_tuple<int>)
       | partial_transform(from<int>, to<char>, [](std::tuple<int> t) {
             return std::make_tuple((char)(std::get<0>(t) - 5));
         });
 
     auto desired =
-      view::zip(view::iota((char)'a', (char)'e'),
-                view::iota((int)'f', (int)'j'))
-      | view::transform([](auto t) { return std::tuple<char, int>(t); });
+      ranges::view::zip(ranges::view::iota((char)'a', (char)'e'),
+                ranges::view::iota((int)'f', (int)'j'))
+      | ranges::view::transform([](auto t) { return std::tuple<char, int>(t); });
 
     test_ranges_equal(data, desired);
 }
@@ -71,12 +69,12 @@ BOOST_AUTO_TEST_CASE(test_move_only)
     data.emplace_back(1, std::make_unique<int>(2));
 
     auto generated = data
-      | view::move
+      | ranges::view::move
       | transform(from<Unique>, to<Unique, Double>,
           [](const std::unique_ptr<int> &ptr) {
             return std::make_tuple(std::make_unique<int>(*ptr), (double)*ptr);
         })
-      | to_vector;
+      | ranges::to_vector;
 
     // check unique pointers
     std::vector<int> desired_ptr_vals{5, 2};
@@ -85,9 +83,28 @@ BOOST_AUTO_TEST_CASE(test_move_only)
     }
 
     // check other
-    auto to_check = generated | view::move | drop<Unique>;
+    auto to_check = generated | ranges::view::move | drop<Unique>;
     std::vector<std::tuple<Double, Int>> desired = {{5., 3}, {2., 1}};
     test_ranges_equal(to_check, desired);
+}
+
+BOOST_AUTO_TEST_CASE(test_mutable)
+{
+#ifdef CXTREAM_MUTABLE_LAMBDA
+    std::vector<std::tuple<Int>> data = {{{1, 3}}, {{5, 7}}};
+
+    auto generated = data
+      | ranges::view::move
+      | transform(from<Int>, to<Int>, [i = 0](const int&) mutable {
+            return i++;
+        })
+      | ranges::to_vector;
+
+    std::vector<std::tuple<Int>> desired = {{{0, 1}}, {{0, 1}}};
+    test_ranges_equal(generated, desired);
+#else
+    BOOST_TEST_MESSAGE("Cxtream does not support mutable lambdas in this compiler version.");
+#endif
 }
 
 BOOST_AUTO_TEST_CASE(test_two_to_one)
@@ -129,7 +146,7 @@ BOOST_AUTO_TEST_CASE(test_dim0)
             new_batch.push_back(4);
             return new_batch;
         }, dim<0>)
-      | to_vector;
+      | ranges::to_vector;
 
     std::vector<std::tuple<Int, Double>> desired = {{{3, 2, 4}, 5.}, {{1, 4}, 2.}};
     BOOST_CHECK(generated == desired);
@@ -141,19 +158,43 @@ BOOST_AUTO_TEST_CASE(test_dim2_move_only)
     auto data = generate_move_only_data();
 
     auto rng = data
-      | view::move
+      | ranges::view::move
       | create<Int, UniqueVec>(2)
       | transform(from<UniqueVec>, to<UniqueVec>, [](std::unique_ptr<int>& ptr) {
-            (*ptr)++;
-            return std::move(ptr);
+            return std::make_unique<int>(*ptr + 1);
         }, dim<2>)
       | drop<Int>
       | transform(from<UniqueVec>, to<IntVec>, [](auto&& ptrs) {
-            return ptrs | view::indirect;
+            return ptrs | ranges::view::indirect;
         }, dim<1>)
       | drop<UniqueVec>;
 
     std::vector<std::vector<std::vector<int>>> generated = unpack(rng, from<IntVec>, dim<0>);
     std::vector<std::vector<std::vector<int>>> desired = {{{2, 5}, {9, 3}}, {{3, 6}}};
     BOOST_CHECK(generated == desired);
+}
+
+BOOST_AUTO_TEST_CASE(test_dim2_move_only_mutable)
+{
+#ifdef CXTREAM_MUTABLE_LAMBDA
+    auto data = generate_move_only_data();
+
+    auto rng = data
+      | ranges::view::move
+      | create<Int, UniqueVec>(2)
+      | transform(from<UniqueVec>, to<UniqueVec>, [i = 4](std::unique_ptr<int>&) mutable {
+            return std::make_unique<int>(i++);
+        }, dim<2>)
+      | drop<Int>
+      | transform(from<UniqueVec>, to<IntVec>, [](auto&& ptrs) {
+            return ptrs | ranges::view::indirect;
+        }, dim<1>)
+      | drop<UniqueVec>;
+
+    std::vector<std::vector<std::vector<int>>> generated = unpack(rng, from<IntVec>, dim<0>);
+    std::vector<std::vector<std::vector<int>>> desired = {{{4, 5}, {4, 5}}, {{4, 5}}};
+    BOOST_CHECK(generated == desired);
+#else
+    BOOST_TEST_MESSAGE("Cxtream does not support mutable lambdas in this compiler version.");
+#endif
 }

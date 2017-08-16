@@ -188,7 +188,7 @@ dataframe<> read_csv(std::istream& in,
       | ranges::view::move;
     auto csv_row_it = ranges::begin(csv_rows);
     // load header if requested
-    std::size_t n_cols;
+    std::size_t n_cols = -1;
     if (has_header) {
         if (csv_row_it == ranges::end(csv_rows)) {
             throw std::ios_base::failure{"There has to be at least the header row."};

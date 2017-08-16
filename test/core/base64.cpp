@@ -18,7 +18,6 @@
 #include <vector>
 
 using namespace cxtream;
-using namespace boost;
 
 std::vector<std::vector<unsigned char>> data{
   {},

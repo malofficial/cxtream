@@ -10,10 +10,12 @@
 #ifndef CXTREAM_CORE_STREAM_FOR_EACH_HPP
 #define CXTREAM_CORE_STREAM_FOR_EACH_HPP
 
+#include <cxtream/build_config.hpp>
 #include <cxtream/core/stream/template_arguments.hpp>
 #include <cxtream/core/utility/tuple.hpp>
 #include <cxtream/core/utility/vector.hpp>
 
+#include <range/v3/algorithm/for_each.hpp>
 #include <range/v3/view/transform.hpp>
 #include <range/v3/view/zip.hpp>
 
@@ -30,7 +32,7 @@ template<typename... FromTypes, typename Fun, typename Projection = ref_wrap_t>
 constexpr auto partial_for_each(from_t<FromTypes...>, Fun fun, Projection proj = Projection{})
 {
     return ranges::view::transform([fun = std::move(fun), proj = std::move(proj)]
-      (auto&& source) mutable {
+      (auto&& source) CXTREAM_MUTABLE_LAMBDA_V {
           // build the view for the transformer, i.e., slice and project
           auto slice_view =
             utility::tuple_transform(proj, utility::tuple_type_view<FromTypes...>(source));
@@ -51,15 +53,12 @@ namespace detail {
         template<typename Fun>
         static constexpr auto impl(Fun fun)
         {
-            return [fun = std::move(fun)](auto&& tuple_of_ranges)
-            {
+            return [fun = std::move(fun)](auto&& tuple_of_ranges) CXTREAM_MUTABLE_LAMBDA_V {
                 assert(utility::same_size(tuple_of_ranges));
                 auto range_of_tuples = std::experimental::apply(
                   ranges::view::zip, std::forward<decltype(tuple_of_ranges)>(tuple_of_ranges));
 
-                for (auto&& tuple : range_of_tuples) {
-                    wrap_void_fun_for_dim<Dim - 1>::impl(fun)(std::forward<decltype(tuple)>(tuple));
-                }
+                ranges::for_each(range_of_tuples, wrap_void_fun_for_dim<Dim - 1>::impl(fun));
             };
         }
     };
@@ -69,8 +68,7 @@ namespace detail {
         template<typename Fun>
         static constexpr auto impl(Fun fun)
         {
-            return [fun = std::move(fun)](auto&& tuple)
-            {
+            return [fun = std::move(fun)](auto&& tuple) CXTREAM_MUTABLE_LAMBDA_V {
                 std::experimental::apply(fun, std::forward<decltype(tuple)>(tuple));
             };
         }
@@ -89,7 +87,8 @@ namespace detail {
 ///     CXTREAM_DEFINE_COLUMN(Int, int)
 ///     CXTREAM_DEFINE_COLUMN(Double, double)
 ///     std::vector<std::tuple<Int, Double>> data = {{3, 5.}, {1, 2.}};
-///     auto rng = data | for_each(from<Int, Double>, [](int& v, double& d) { std::cout << c + d; });
+///     auto rng = data
+///       | for_each(from<Int, Double>, [](int& v, double& d) { std::cout << c + d; });
 /// \endcode
 ///
 /// \param f The columns to be exctracted out of the tuple of columns and passed to fun.

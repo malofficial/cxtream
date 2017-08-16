@@ -25,8 +25,6 @@
 #include <vector>
 
 using namespace cxtream::stream;
-using namespace ranges;
-using namespace boost;
 
 CXTREAM_DEFINE_COLUMN(IntVec, std::vector<int>)
 CXTREAM_DEFINE_COLUMN(UniqueVec, std::vector<std::unique_ptr<int>>)
@@ -74,10 +72,10 @@ BOOST_AUTO_TEST_CASE(test_unpack_dim2)
 BOOST_AUTO_TEST_CASE(test_unpack_dim2_move_only)
 {
     auto data = generate_move_only_data();
-    auto rng = data | view::move | create<Int, UniqueVec>(2);
+    auto rng = data | ranges::view::move | create<Int, UniqueVec>(2);
 
     std::vector<std::unique_ptr<int>> unp_uniquevec;
     unp_uniquevec = unpack(rng, from<UniqueVec>, dim<2>);
-    std::vector<int> values = unp_uniquevec | view::indirect;
+    std::vector<int> values = unp_uniquevec | ranges::view::indirect;
     test_ranges_equal(values, std::vector<int>{1, 4, 8, 2, 2, 5});
 }

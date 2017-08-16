@@ -23,9 +23,7 @@
 #include <vector>
 #include <memory>
 
-using namespace ranges;
 using namespace cxtream::stream;
-using namespace boost;
 
 auto generate_batched_data(std::vector<int> batch_sizes)
 {
@@ -52,7 +50,7 @@ auto generate_regular_batched_data(int batches, int batch_size)
 template<typename Data>
 void check_20_elems_batch_size_2(Data data)
 {
-    auto rng = data | view::move | batch(3);
+    auto rng = data | ranges::view::move | batch(3);
     using tuple_type = decltype(*ranges::begin(rng));
     static_assert(std::is_same<std::tuple<Unique, Shared>&, tuple_type>{});
     using first_type = decltype(std::get<0>(*ranges::begin(rng)).value()[0]);
@@ -100,7 +98,7 @@ BOOST_AUTO_TEST_CASE(test_batch_larger_batches)
     // batch out of larger batches
     auto data = generate_regular_batched_data(3, 4);
 
-    auto rng = data | view::move | batch(1);
+    auto rng = data | ranges::view::move | batch(1);
     using tuple_type = decltype(*ranges::begin(rng));
     static_assert(std::is_same<std::tuple<Unique, Shared>&, tuple_type>{});
     using first_type = decltype(std::get<0>(*ranges::begin(rng)).value()[0]);
@@ -144,7 +142,7 @@ BOOST_AUTO_TEST_CASE(test_batch_empty_batches)
 {
     // batch out of empty batches
     auto data = generate_batched_data({0, 0, 0, 0});
-    auto rng = data | view::move | batch(1);
+    auto rng = data | ranges::view::move | batch(1);
     BOOST_CHECK(rng.begin() == rng.end());
 }
 
@@ -152,7 +150,7 @@ BOOST_AUTO_TEST_CASE(test_batch_empty_stream)
 {
     // batch out of empty range
     auto data = generate_batched_data({});
-    auto rng = data | view::move | batch(1);
+    auto rng = data | ranges::view::move | batch(1);
     BOOST_CHECK(rng.begin() == rng.end());
 }
 
@@ -160,11 +158,11 @@ BOOST_AUTO_TEST_CASE(test_infinite_batch)
 {
     auto data = generate_regular_batched_data(3, 4);
     // make batch of infinite size (no parameter given)
-    auto rng = data | view::move | batch(std::numeric_limits<std::size_t>::max());
+    auto rng = data | ranges::view::move | batch(std::numeric_limits<std::size_t>::max());
     auto rng_it = rng.begin();
     auto result = std::move(*rng_it);
-    auto result_unique = std::get<0>(result).value() | view::indirect;
-    auto result_shared = std::get<1>(result).value() | view::indirect;
+    auto result_unique = std::get<0>(result).value() | ranges::view::indirect;
+    auto result_shared = std::get<1>(result).value() | ranges::view::indirect;
     BOOST_CHECK(++rng_it == rng.end());
     BOOST_TEST(result_unique.size() == 12);
     BOOST_TEST(result_shared.size() == 12);
