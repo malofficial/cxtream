@@ -7,44 +7,14 @@
  *  See the accompanying file LICENSE.txt for the complete license agreement.
  ****************************************************************************/
 
+// The tests for stream::transform are split to multiple
+// files to speed up compilation in case of multiple CPUs.
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE transform_test
+#define BOOST_TEST_MODULE transform1_test
 
-#include "../common.hpp"
-
-#include <cxtream/core/stream/create.hpp>
-#include <cxtream/core/stream/drop.hpp>
-#include <cxtream/core/stream/transform.hpp>
-#include <cxtream/core/stream/unpack.hpp>
-
-#include <boost/test/unit_test.hpp>
-#include <range/v3/algorithm/count.hpp>
-#include <range/v3/to_container.hpp>
-#include <range/v3/view/indirect.hpp>
-#include <range/v3/view/iota.hpp>
-#include <range/v3/view/move.hpp>
-#include <range/v3/view/zip.hpp>
-
-#include <memory>
-#include <tuple>
-#include <vector>
+#include "transform.hpp"
 
 using namespace cxtream::stream;
-
-// test with a seeded random generator
-std::mt19937 prng{1000003};
-
-CXTREAM_DEFINE_COLUMN(UniqueVec, std::vector<std::unique_ptr<int>>)
-CXTREAM_DEFINE_COLUMN(IntVec, std::vector<int>)
-
-auto unique_vec_to_int_vec()
-{
-    return
-        transform(from<UniqueVec>, to<IntVec>, [](auto&& ptrs) {
-            return ptrs | ranges::view::indirect;
-        }, dim<1>)
-      | drop<UniqueVec>;
-}
 
 BOOST_AUTO_TEST_CASE(test_partial_transform)
 {
@@ -204,75 +174,4 @@ BOOST_AUTO_TEST_CASE(test_dim2_move_only_mutable)
 #else
     BOOST_TEST_MESSAGE("Cxtream does not support mutable lambdas in this compiler version.");
 #endif
-}
-
-BOOST_AUTO_TEST_CASE(test_probabilistic_simple)
-{
-    CXTREAM_DEFINE_COLUMN(dogs, int)
-    std::vector<int> data = {3, 1, 5, 7, 2, 13};
-    auto rng = data
-      | create<dogs>()
-      | transform(from<dogs>, to<dogs>, 1.0, [](int dog) { return 1; }, prng)
-      | transform(from<dogs>, to<dogs>, 0.5, [](int dog) { return 2; }, prng)
-      | transform(from<dogs>, to<dogs>, 0.0, [](int dog) { return 3; }, prng);
-
-    std::vector<int> generated = unpack(rng, from<dogs>, dim<1>);
-    BOOST_CHECK(generated.size() == 6);
-    long number1 = ranges::count(generated, 1);
-    long number2 = ranges::count(generated, 2);
-    long number3 = ranges::count(generated, 3);
-    BOOST_TEST(number1 >= 1);
-    BOOST_TEST(number1 <= 5);
-    BOOST_TEST(number1 == 6 - number2);
-    BOOST_TEST(number3 == 0);
-}
-
-BOOST_AUTO_TEST_CASE(test_probabilistic_dim2_move_only)
-{
-    auto data = generate_move_only_data();
-
-    auto rng = data
-      | ranges::view::move
-      | create<Int, UniqueVec>(2)
-      | drop<Int>
-      | transform(from<UniqueVec>, to<UniqueVec>, 0.5, [](std::unique_ptr<int>& ptr) {
-            return std::make_unique<int>(19);
-        }, prng, dim<2>)
-      | unique_vec_to_int_vec();
-
-    std::vector<int> generated = unpack(rng, from<IntVec>, dim<2>);
-    long number = ranges::count(generated, 19);
-    BOOST_TEST(generated.size() == 6);
-    BOOST_TEST(number >= 1);
-    BOOST_TEST(number <= 5);
-}
-
-BOOST_AUTO_TEST_CASE(test_probabilistic_dim2_move_only_multicol)
-{
-    auto data = generate_move_only_data();
-
-    auto rng = data
-      | ranges::view::move
-      | create<Int, UniqueVec>(2)
-      | drop<Int>
-      // create IntVec column
-      | transform(from<UniqueVec>, to<IntVec>, [](auto&&) {
-            return 7;
-        }, dim<2>)
-      // probabilistically transform two columns to two columns
-      | transform(from<UniqueVec, IntVec>, to<IntVec, UniqueVec>, 0.5,
-          [](std::unique_ptr<int>& ptr, int val) {
-            return std::make_tuple(val, std::make_unique<int>(19));
-        }, prng, dim<2>)
-      // probabilistically transform two columns to one column
-      | transform(from<IntVec, UniqueVec>, to<UniqueVec>, 0.5,
-          [](int, std::unique_ptr<int>& ptr) {
-            return std::make_unique<int>(19);
-        }, prng, dim<2>)
-      | unique_vec_to_int_vec();  // the original IntVec gets overwritten here
-
-    std::vector<int> generated = unpack(rng, from<IntVec>, dim<2>);
-    long number19 = ranges::count(generated, 19);
-    BOOST_TEST(generated.size() == 6);
-    BOOST_TEST(number19 >= 3);
 }

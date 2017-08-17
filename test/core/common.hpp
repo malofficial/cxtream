@@ -27,6 +27,8 @@ CXTREAM_DEFINE_COLUMN(Int, int)
 CXTREAM_DEFINE_COLUMN(Double, double)
 CXTREAM_DEFINE_COLUMN(Unique, std::unique_ptr<int>)
 CXTREAM_DEFINE_COLUMN(Shared, std::shared_ptr<int>)
+CXTREAM_DEFINE_COLUMN(UniqueVec, std::vector<std::unique_ptr<int>>)
+CXTREAM_DEFINE_COLUMN(IntVec, std::vector<int>)
 
 std::vector<std::tuple<int, std::vector<std::unique_ptr<int>>>> generate_move_only_data()
 {

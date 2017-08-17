@@ -186,7 +186,7 @@ namespace detail {
 /// Example:
 /// \code
 ///     CXTREAM_DEFINE_COLUMN(dogs, int)
-///     std::vector<std::tuple<int>> data = {3, 1, 5, 7};
+///     std::vector<int> data = {3, 1, 5, 7};
 ///     auto rng = data
 ///       | create<dogs>()
 ///       // In 50% of the cases, the number of dogs increase,

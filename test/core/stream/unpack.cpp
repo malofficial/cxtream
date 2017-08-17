@@ -26,9 +26,6 @@
 
 using namespace cxtream::stream;
 
-CXTREAM_DEFINE_COLUMN(IntVec, std::vector<int>)
-CXTREAM_DEFINE_COLUMN(UniqueVec, std::vector<std::unique_ptr<int>>)
-
 std::vector<std::tuple<int, std::vector<int>>> generate_data()
 {
     return {{3, {1, 4}}, {1, {8, 2}}, {7, {2, 5}}};
