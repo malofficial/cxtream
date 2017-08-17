@@ -10,7 +10,7 @@
 #ifndef CXTREAM_CORE_GROUPS_HPP
 #define CXTREAM_CORE_GROUPS_HPP
 
-#include <cxtream/core/dataframe.hpp>
+#include <cxtream/core/utility/random.hpp>
 
 #include <range/v3/action/insert.hpp>
 #include <range/v3/action/shuffle.hpp>
@@ -24,7 +24,6 @@
 #include <range/v3/view/repeat_n.hpp>
 #include <range/v3/view/take.hpp>
 
-#include <random>
 #include <vector>
 
 namespace cxtream {
@@ -44,7 +43,7 @@ namespace cxtream {
 ///              the sum of ratios has to be positive.
 template<typename Prng = std::mt19937>
 std::vector<std::size_t> generate_groups(std::size_t size, std::vector<double> ratio,
-                                         Prng&& gen = Prng{std::random_device{}()})
+                                         Prng&& gen = utility::random_generator)
 {
     namespace view = ranges::view;
 
@@ -100,7 +99,7 @@ std::vector<std::vector<std::size_t>>
 generate_groups(std::size_t n, std::size_t size,
                 const std::vector<double>& volatile_ratio,
                 const std::vector<double>& fixed_ratio,
-                Prng&& gen = Prng{std::random_device{}()})
+                Prng&& gen = utility::random_generator)
 {
     namespace view = ranges::view;
 
