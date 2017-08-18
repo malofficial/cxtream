@@ -28,10 +28,10 @@ BOOST_AUTO_TEST_CASE(test_probabilistic_dim2_move_only)
       | transform(from<UniqueVec>, to<IntVec>, [](auto&&) {
             return 7;
         }, dim<2>)
-      // probabilistically transform a single columns to itself
-      | transform(from<UniqueVec>, to<UniqueVec>, 0.0,
-          [](std::unique_ptr<int>& ptr) {
-            return std::make_unique<int>(20);
+      // probabilistically transform a single columns to a different column
+      | transform(from<IntVec>, to<UniqueVec>, 1.0,
+          [](int) {
+            return std::make_unique<int>(18);
         }, prng, dim<2>)
       // probabilistically transform two columns to two columns
       | transform(from<UniqueVec, IntVec>, to<IntVec, UniqueVec>, 0.5,
@@ -46,9 +46,9 @@ BOOST_AUTO_TEST_CASE(test_probabilistic_dim2_move_only)
       | unique_vec_to_int_vec();  // the original IntVec gets overwritten here
 
     std::vector<int> generated = unpack(rng, from<IntVec>, dim<2>);
+    long number18 = ranges::count(generated, 18);
     long number19 = ranges::count(generated, 19);
-    long number20 = ranges::count(generated, 20);
     BOOST_TEST(generated.size() == 6);
     BOOST_TEST(number19 >= 3);
-    BOOST_TEST(number20 == 0);
+    BOOST_TEST(number19 == 6 - number18);
 }

@@ -150,23 +150,33 @@ namespace detail {
     template<std::size_t NOuts>
     struct wrap_fun_with_prob
     {
-        template<typename Fun, typename Prng, typename ToIndices>
+        template<
+          typename Fun,
+          typename Prng,
+          std::size_t... FromIndices,
+          std::size_t... ToIndices>
         static constexpr auto impl(
           double prob,
           Fun fun,
           Prng& prng,
-          ToIndices to_indices)
+          std::index_sequence<FromIndices...> from_indices,
+          std::index_sequence<ToIndices...> to_indices)
         {
-            return [fun = std::move(fun), &prng, prob, to_indices]
+            return [fun = std::move(fun), &prng, prob, from_indices, to_indices]
               (auto&... cols) CXTREAM_MUTABLE_LAMBDA_V {
                 std::uniform_real_distribution<> dis(0, 1);
+                // make a tuple of all arguments
+                auto args_view = std::forward_as_tuple<decltype(cols)...>(cols...);
                 // apply the function if the dice roll succeeds
                 if (dis(prng) < prob) {
-                    return std::invoke(fun, std::forward<decltype(cols)>(cols)...);
+                    // the function is applied only on a subset of the arguments
+                    // representing FromColumns
+                    return std::experimental::apply(fun,
+                      utility::tuple_index_view<FromIndices...>(args_view));
                 // return the original arguments if the dice roll fails
                 } else {
-                    auto args_view = std::forward_as_tuple<decltype(cols)...>(cols...);
-                    // Note: We can force std::move in here, because
+                    // only a subset of the arguments representing ToColumns is returned
+                    // note: We can force std::move in here, because
                     // we are only copying data to themselves.
                     return move_to_maybe_make_tuple<NOuts>::impl(args_view, to_indices);
                 }
@@ -195,7 +205,8 @@ namespace detail {
 /// \endcode
 ///
 /// \param f The columns to be extracted out of the tuple of columns and passed to fun.
-/// \param t The columns where the result will be saved. This has to be a subset of f.
+/// \param t The columns where the result will be saved. Those have to already exist
+///          in the stream.
 /// \param prob The probability of transformation. If the dice roll fails, the transformer
 ///             applies an identity on the target columns.
 /// \param fun The function to be applied. The function should return the type represented
@@ -219,14 +230,20 @@ constexpr auto transform(
   Prng& prng = utility::random_generator,
   dim_t<Dim> d = dim_t<1>{})
 {
-    // find out which indexes in FromColumns... are for ToColumns...
-    std::index_sequence<utility::variadic_find<ToColumns, FromColumns...>::value...> to_indices;
+    // make index sequences for source and target columns when they
+    // are concatenated in a single tuple
+    constexpr std::size_t n_from = sizeof...(FromColumns);
+    constexpr std::size_t n_to = sizeof...(ToColumns);
+    std::make_index_sequence<n_from> from_indices;
+    utility::make_offset_index_sequence<n_from, n_to> to_indices;
 
     // wrap the function to be applied in the appropriate dimension with the given probabiliy
-    auto prob_fun = detail::wrap_fun_with_prob<sizeof...(ToColumns)>::impl(
-      prob, std::move(fun), prng, to_indices);
+    auto prob_fun = detail::wrap_fun_with_prob<n_to>::impl(
+      prob, std::move(fun), prng, from_indices, to_indices);
 
-    return transform(f, t, std::move(prob_fun), d);
+    // transform from both, FromColumns and ToColumns into ToColumns
+    // the wrapper function takes care of extracting the parameters for the original function
+    return transform(from_t<FromColumns..., ToColumns...>{}, t, std::move(prob_fun), d);
 }
 
 } // namespace cxtream::stream
