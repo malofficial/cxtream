@@ -7,13 +7,20 @@
  *  See the accompanying file LICENSE.txt for the complete license agreement.
  ****************************************************************************/
 
-#ifndef CXTREAM_CORE_UTILITY_HPP
-#define CXTREAM_CORE_UTILITY_HPP
+#ifndef TEST_STREAM_FILTER_HPP
+#define TEST_STREAM_FILTER_HPP
 
-#include <cxtream/core/utility/filesystem.hpp>
-#include <cxtream/core/utility/random.hpp>
-#include <cxtream/core/utility/string.hpp>
-#include <cxtream/core/utility/tuple.hpp>
-#include <cxtream/core/utility/vector.hpp>
+#include "../common.hpp"
+
+#include <cxtream/core/stream/create.hpp>
+#include <cxtream/core/stream/filter.hpp>
+#include <cxtream/core/stream/for_each.hpp>
+
+#include <boost/test/unit_test.hpp>
+#include <range/v3/to_container.hpp>
+#include <range/v3/view/move.hpp>
+
+#include <tuple>
+#include <vector>
 
 #endif

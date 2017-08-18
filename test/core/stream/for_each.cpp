@@ -26,8 +26,6 @@
 
 using namespace cxtream::stream;
 
-CXTREAM_DEFINE_COLUMN(UniqueVec, std::vector<std::unique_ptr<int>>)
-
 BOOST_AUTO_TEST_CASE(test_partial_for_each)
 {
     // partial_for_each

@@ -7,31 +7,14 @@
  *  See the accompanying file LICENSE.txt for the complete license agreement.
  ****************************************************************************/
 
+// The tests for stream::transform are split to multiple
+// files to speed up compilation in case of multiple CPUs.
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE transform_test
+#define BOOST_TEST_MODULE transform1_test
 
-#include "../common.hpp"
-
-#include <cxtream/core/stream/create.hpp>
-#include <cxtream/core/stream/drop.hpp>
-#include <cxtream/core/stream/transform.hpp>
-#include <cxtream/core/stream/unpack.hpp>
-
-#include <boost/test/unit_test.hpp>
-#include <range/v3/to_container.hpp>
-#include <range/v3/view/indirect.hpp>
-#include <range/v3/view/iota.hpp>
-#include <range/v3/view/move.hpp>
-#include <range/v3/view/zip.hpp>
-
-#include <memory>
-#include <tuple>
-#include <vector>
+#include "transform.hpp"
 
 using namespace cxtream::stream;
-
-CXTREAM_DEFINE_COLUMN(UniqueVec, std::vector<std::unique_ptr<int>>)
-CXTREAM_DEFINE_COLUMN(IntVec, std::vector<int>)
 
 BOOST_AUTO_TEST_CASE(test_partial_transform)
 {
@@ -164,10 +147,7 @@ BOOST_AUTO_TEST_CASE(test_dim2_move_only)
             return std::make_unique<int>(*ptr + 1);
         }, dim<2>)
       | drop<Int>
-      | transform(from<UniqueVec>, to<IntVec>, [](auto&& ptrs) {
-            return ptrs | ranges::view::indirect;
-        }, dim<1>)
-      | drop<UniqueVec>;
+      | unique_vec_to_int_vec();
 
     std::vector<std::vector<std::vector<int>>> generated = unpack(rng, from<IntVec>, dim<0>);
     std::vector<std::vector<std::vector<int>>> desired = {{{2, 5}, {9, 3}}, {{3, 6}}};
@@ -186,10 +166,7 @@ BOOST_AUTO_TEST_CASE(test_dim2_move_only_mutable)
             return std::make_unique<int>(i++);
         }, dim<2>)
       | drop<Int>
-      | transform(from<UniqueVec>, to<IntVec>, [](auto&& ptrs) {
-            return ptrs | ranges::view::indirect;
-        }, dim<1>)
-      | drop<UniqueVec>;
+      | unique_vec_to_int_vec();
 
     std::vector<std::vector<std::vector<int>>> generated = unpack(rng, from<IntVec>, dim<0>);
     std::vector<std::vector<std::vector<int>>> desired = {{{4, 5}, {4, 5}}, {{4, 5}}};

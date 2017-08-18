@@ -40,6 +40,29 @@ template<typename T, typename... Ts>
 struct variadic_find<T, T, Ts...> : std::integral_constant<std::size_t, 0> {
 };
 
+/// Add a number to all values in std::index_sequence.
+///
+/// Example:
+/// \code
+///     std::is_same<decltype(plus<2>(std::index_sequence<1, 3, 4>{})),
+///                                   std::index_sequence<3, 5, 6>>;
+/// \endcode
+template<std::size_t Value, std::size_t... Is>
+constexpr std::index_sequence<(Value + Is)...> plus(std::index_sequence<Is...>)
+{
+    return {};
+}
+
+/// Make std::index_sequence with the given offset.
+///
+/// Example:
+/// \code
+///     std::is_same<decltype(make_offset_index_sequence<3, 4>()),
+///                           std::index_sequence<3, 4, 5, 6>>;
+/// \endcode
+template <std::size_t Offset, std::size_t N>
+using make_offset_index_sequence = decltype(plus<Offset>(std::make_index_sequence<N>{}));
+
 // tuple_for_each //
 
 namespace detail {

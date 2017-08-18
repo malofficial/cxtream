@@ -36,6 +36,24 @@ BOOST_AUTO_TEST_CASE(test_variadic_find)
     static_assert(variadic_find<float, int, double, float>::value == 2);
 }
 
+BOOST_AUTO_TEST_CASE(test_plus_index_sequence)
+{
+    static_assert(std::is_same<decltype(plus<2>(std::index_sequence<1, 3, 4>{})),
+                                                std::index_sequence<3, 5, 6>>{});
+    static_assert(std::is_same<decltype(plus<0>(std::index_sequence<1, 3, 4>{})),
+                                                std::index_sequence<1, 3, 4>>{});
+    static_assert(std::is_same<decltype(plus<1>(std::index_sequence<>{})),
+                                                std::index_sequence<>>{});
+}
+
+BOOST_AUTO_TEST_CASE(test_make_offset_index_sequence)
+{
+    static_assert(std::is_same<decltype(make_offset_index_sequence<3, 4>()),
+                               std::index_sequence<3, 4, 5, 6>>{});
+    static_assert(std::is_same<decltype(make_offset_index_sequence<3, 0>()),
+                               std::index_sequence<>>{});
+}
+
 BOOST_AUTO_TEST_CASE(test_tuple_contains)
 {
     // tuple_contains

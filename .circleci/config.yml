@@ -38,7 +38,8 @@ references:
       name: Build by g++.
       command: |
         mkdir build && cd build
-        cmake -DCMAKE_BUILD_TYPE=Debug ..
+        # decrease the debug level to reduce g++ memory usage
+        cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS_DEBUG="-g0" ..
         make
         make install
 

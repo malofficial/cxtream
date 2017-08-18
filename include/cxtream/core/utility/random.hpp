@@ -7,13 +7,16 @@
  *  See the accompanying file LICENSE.txt for the complete license agreement.
  ****************************************************************************/
 
-#ifndef CXTREAM_CORE_UTILITY_HPP
-#define CXTREAM_CORE_UTILITY_HPP
+#ifndef CXTREAM_CORE_UTILITY_RANDOM_HPP
+#define CXTREAM_CORE_UTILITY_RANDOM_HPP
 
-#include <cxtream/core/utility/filesystem.hpp>
-#include <cxtream/core/utility/random.hpp>
-#include <cxtream/core/utility/string.hpp>
-#include <cxtream/core/utility/tuple.hpp>
-#include <cxtream/core/utility/vector.hpp>
+#include <random>
+
+namespace cxtream::utility {
+
+/// Thread local pseudo-random number generator seeded by the std::random_device.
+static thread_local std::mt19937 random_generator{std::random_device{}()};
+
+}  // namespace cxtream::utility
 
 #endif
