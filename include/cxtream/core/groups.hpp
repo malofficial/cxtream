@@ -43,7 +43,7 @@ namespace cxtream {
 ///              the sum of ratios has to be positive.
 template<typename Prng = std::mt19937>
 std::vector<std::size_t> generate_groups(std::size_t size, std::vector<double> ratio,
-                                         Prng&& gen = utility::random_generator)
+                                         Prng& gen = utility::random_generator)
 {
     namespace view = ranges::view;
 
@@ -99,7 +99,7 @@ std::vector<std::vector<std::size_t>>
 generate_groups(std::size_t n, std::size_t size,
                 const std::vector<double>& volatile_ratio,
                 const std::vector<double>& fixed_ratio,
-                Prng&& gen = utility::random_generator)
+                Prng& gen = utility::random_generator)
 {
     namespace view = ranges::view;
 
