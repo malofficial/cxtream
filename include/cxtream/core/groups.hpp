@@ -41,9 +41,9 @@ namespace cxtream {
 /// \param size The size of the data, i.e., the number of elements.
 /// \param ratio Cluster size ratio. The ratios have to be non-negative and
 ///              the sum of ratios has to be positive.
-template<typename Prng = std::mt19937>
+template<typename Prng = std::mt19937&>
 std::vector<std::size_t> generate_groups(std::size_t size, std::vector<double> ratio,
-                                         Prng& gen = utility::random_generator)
+                                         Prng&& gen = utility::random_generator)
 {
     namespace view = ranges::view;
 
@@ -94,12 +94,12 @@ std::vector<std::size_t> generate_groups(std::size_t size, std::vector<double> r
 /// \param volatile_ratio The ratio of volatile groups (i.e., groups that change between groupings).
 /// \param fixed_groups The ratio of groups that are assigned equally in all groupings.
 /// \param ratio Cluster size ratio. The sum of ratios has to be positive.
-template<typename Prng = std::mt19937>
+template<typename Prng = std::mt19937&>
 std::vector<std::vector<std::size_t>>
 generate_groups(std::size_t n, std::size_t size,
                 const std::vector<double>& volatile_ratio,
                 const std::vector<double>& fixed_ratio,
-                Prng& gen = utility::random_generator)
+                Prng&& gen = utility::random_generator)
 {
     namespace view = ranges::view;
 
