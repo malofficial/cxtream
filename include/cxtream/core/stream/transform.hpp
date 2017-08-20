@@ -212,10 +212,10 @@ namespace detail {
 /// \param fun The function to be applied. The function should return the type represented
 ///            by the selected column in the given dimension. If there are multiple target
 ///            columns, the function should return a tuple of the corresponding types.
-/// \param d The dimension in which the function is applied. Choose 0 for the function to
-///          be applied to the whole batch.
 /// \param prng The random generator to be used. Defaults to a thread_local
 ///             std::mt19937.
+/// \param d The dimension in which the function is applied. Choose 0 for the function to
+///          be applied to the whole batch.
 template<
   typename... FromColumns,
   typename... ToColumns,
