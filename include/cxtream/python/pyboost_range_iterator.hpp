@@ -14,6 +14,7 @@
 #include <range/v3/core.hpp>
 
 #include <functional>
+#include <memory>
 #include <mutex>
 #include <string>
 #include <typeinfo>
@@ -42,9 +43,9 @@ private:
     using iterator_t = decltype(ranges::begin(std::declval<Rng&>()));
     using sentinel_t = decltype(ranges::end(std::declval<Rng&>()));
 
+    std::shared_ptr<Rng> rng_ptr_;
     iterator_t iterator_;
-    sentinel_t sentinel_;
-    Rng rng_;
+    bool first_iteration_;
 
     // function to register the type of this class in boost::python
     // makes sure the type is registered only once
@@ -66,41 +67,25 @@ public:
     iterator() = default;
 
     explicit iterator(Rng rng)
-      : rng_{std::move(rng)}
+      : rng_ptr_{std::make_shared<Rng>(std::move(rng))},
+        iterator_{ranges::begin(*rng_ptr_)},
+        first_iteration_{true}
     {
-        initialize_iterators();
         register_iterator();
     }
 
-    iterator(const iterator& rhs)
-      : rng_{rhs.rng_}
-    {
-        initialize_iterators();
-    }
-
-    iterator<Rng>& operator=(const iterator& rhs)
-    {
-        rng_ = rhs.rng_;
-        initialize_iterators();
-    }
-
-    void initialize_iterators()
-    {
-        iterator_ = ranges::begin(rng_);
-        sentinel_ = ranges::end(rng_);
-    }
-
-    auto iter()
+    iterator<Rng> iter()
     {
         return *this;
     }
 
     auto next()
     {
-        if (iterator_ == sentinel_) throw stop_iteration_exception();
-        auto val = *iterator_;
-        ++iterator_;
-        return val;
+        // do not increment the iterator in the first iteration, just return *begin()
+        if (!first_iteration_ && iterator_ != ranges::end(*rng_ptr_)) ++iterator_;
+        first_iteration_ = false;
+        if (iterator_ == ranges::end(*rng_ptr_)) throw stop_iteration_exception();
+        return *iterator_;
     }
 
 };  // class iterator

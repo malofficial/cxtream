@@ -10,6 +10,8 @@
 #include <cxtream/python/pyboost_initialize.hpp>
 #include <cxtream/python/pyboost_range_iterator.hpp>
 
+#include <range/v3/view/all.hpp>
+
 #include <list>
 #include <vector>
 
@@ -28,6 +30,13 @@ vec_iter_t fib_iterator()
     return vec_iter_t{std::vector<long>{1, 1, 2, 3, 5, 8}};
 }
 
+const std::vector<long> data = {1, 1, 2, 3, 5, 8};
+using view_iter_t = cxpy::iterator<ranges::view::all_t<const std::vector<long>>>;
+view_iter_t view_iterator()
+{
+    return view_iter_t{ranges::view::all(data)};
+}
+
 BOOST_PYTHON_MODULE(pyboost_range_iterator_py_cpp)
 {
     // initialize cxtream OpenCV converters, exceptions, etc.
@@ -36,4 +45,5 @@ BOOST_PYTHON_MODULE(pyboost_range_iterator_py_cpp)
     // expose the functions
     py::def("empty_iterator", empty_iterator);
     py::def("fib_iterator", fib_iterator);
+    py::def("view_iterator", fib_iterator);
 }
