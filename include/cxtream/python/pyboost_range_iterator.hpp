@@ -20,31 +20,18 @@
 
 namespace cxtream::python {
 
+/// Exception which is translated to Python's StopIteration when thrown.
 struct stop_iteration_exception : public std::runtime_error {
     stop_iteration_exception()
       : std::runtime_error{"stop iteration"}
     { }
 };
 
-namespace detail {
-
-    void stop_iteration_translator(const stop_iteration_exception& x)
-    {
-        PyErr_SetNone(PyExc_StopIteration);
-    }
-
-    // function to register exception for StopIteration
-    // the exception type is only registered once
-    std::once_flag register_stop_iteration_flag;
-    void register_stop_iterator()
-    {
-        namespace py = boost::python;
-        std::call_once(register_stop_iteration_flag, []() {
-            py::register_exception_translator<stop_iteration_exception>(stop_iteration_translator);
-        });
-    }
-
-}  // namespace detail
+/// boost::python translation function for the stop_iteration_exception.
+void stop_iteration_translator(const stop_iteration_exception& x)
+{
+    PyErr_SetNone(PyExc_StopIteration);
+}
 
 /// Python adapter for C++ ranges.
 ///
@@ -67,7 +54,6 @@ private:
         namespace py = boost::python;
         using this_t = iterator<Rng>;
 
-        detail::register_stop_iterator();
         std::call_once(register_flag, []() {
             std::string this_t_name = std::string("cxtream_") + typeid(this_t).name();
             py::class_<this_t>(this_t_name.c_str(), py::no_init)

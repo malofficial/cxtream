@@ -9,6 +9,7 @@
 
 #include <cxtream/build_config.hpp>
 #include <cxtream/python/pyboost_initialize.hpp>
+#include <cxtream/python/pyboost_range_iterator.hpp>
 
 #ifdef CXTREAM_BUILD_PYTHON_OPENCV
 // the header file for pyboost_initialize sets NO_IMPORT_ARRAY
@@ -38,6 +39,9 @@ void initialize()
 
     // initialize python module
     Py_Initialize();
+
+    // register stop_iteration_exception
+    py::register_exception_translator<stop_iteration_exception>(stop_iteration_translator);
 
 #ifdef CXTREAM_BUILD_PYTHON_OPENCV
     // initialize numpy array
