@@ -168,7 +168,7 @@ namespace detail {
                 // make a tuple of all arguments
                 auto args_view = std::forward_as_tuple<decltype(cols)...>(cols...);
                 // apply the function if the dice roll succeeds
-                if (dis(prng) < prob) {
+                if (prob == 1. || (prob > 0. && dis(prng) < prob)) {
                     // the function is applied only on a subset of the arguments
                     // representing FromColumns
                     return std::experimental::apply(fun,
