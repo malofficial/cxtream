@@ -10,12 +10,12 @@
 #ifndef CXTREAM_PYTHON_PYBOOST_RANGE_ITERATOR_HPP
 #define CXTREAM_PYTHON_PYBOOST_RANGE_ITERATOR_HPP
 
+#include <cxtream/python/utility/pyboost_is_registered.hpp>
+
 #include <boost/python.hpp>
 #include <range/v3/core.hpp>
 
-#include <functional>
 #include <memory>
-#include <mutex>
 #include <string>
 #include <typeinfo>
 
@@ -49,18 +49,17 @@ private:
 
     // function to register the type of this class in boost::python
     // makes sure the type is registered only once
-    static std::once_flag register_flag;
     static void register_iterator()
     {
         namespace py = boost::python;
         using this_t = iterator<Rng>;
 
-        std::call_once(register_flag, []() {
+        if (!utility::is_registered<this_t>()) {
             std::string this_t_name = std::string("cxtream_") + typeid(this_t).name();
             py::class_<this_t>(this_t_name.c_str(), py::no_init)
               .def("__iter__", &this_t::iter)
               .def("__next__", &this_t::next);
-        });
+        };
     }
 
 public:
@@ -89,10 +88,6 @@ public:
     }
 
 };  // class iterator
-
-// provide definition for the static register_flag variable
-template<typename Rng>
-std::once_flag iterator<Rng>::register_flag;
 
 }  // end namespace cxtream::python
 #endif
