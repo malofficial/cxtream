@@ -27,31 +27,26 @@ namespace detail {
     // conversion of std::vector to a python list-like type //
 
     template<typename T>
-    struct to_python_impl {
+    struct vector_to_python_impl {
         template<typename U>
-        static void impl(U)
+        static U&& impl(U& u)
         {
-            static_assert("Only std::vector is supported in to_python function.");
+            return std::move(u);
         }
     };
 
     template<typename T>
-    struct to_python_impl<std::vector<T>> {
-        static auto impl(std::vector<T>& vec)
+    struct vector_to_python_impl<std::vector<T>> {
+        static boost::python::list impl(std::vector<T>& vec)
         {
-            return range<std::vector<T>>{std::move(vec)};
-        }
-    };
-
-    template<typename T>
-    struct to_python_impl<std::vector<std::vector<T>>> {
-        static auto impl(std::vector<std::vector<T>>& vec)
-        {
-            using inner_type = decltype(to_python_impl<std::vector<T>>::impl(vec[0]));
-            std::vector<inner_type> py_data;
-            py_data.reserve(vec.size());
-            for (auto& val : vec) py_data.push_back(to_python_impl<std::vector<T>>::impl(val));
-            return range<std::vector<inner_type>>{std::move(py_data)};
+            namespace py = boost::python;
+            py::handle<> handle{PyList_New(vec.size())};
+            for (std::size_t i = 0; i < vec.size(); ++i) {
+                py::object val{vector_to_python_impl<T>::impl(vec[i])};
+                Py_INCREF(val.ptr());
+                PyList_SET_ITEM(handle.get(), i, val.ptr());
+            }
+            return py::list(handle);
         }
     };
 
@@ -61,10 +56,10 @@ namespace detail {
 ///
 /// If the vector is multidimensional, i.e., std::vector<std::vector<...>>,
 /// the resulting structure will be multidimensional as well.
-template<typename Vector>
-auto to_python(Vector v)
+template<typename T>
+boost::python::list to_python(std::vector<T> v)
 {
-    return detail::to_python_impl<Vector>::impl(v);
+    return detail::vector_to_python_impl<std::vector<T>>::impl(v);
 }
 
 /// Convert a tuple of cxtream columns into a python dict.
