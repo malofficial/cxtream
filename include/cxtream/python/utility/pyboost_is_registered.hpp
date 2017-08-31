@@ -7,8 +7,8 @@
  *  See the accompanying file LICENSE.txt for the complete license agreement.
  ****************************************************************************/
 
-#ifndef CXTREAM_PYTHON_PYBOOST_IS_REGISTERED_HPP
-#define CXTREAM_PYTHON_PYBOOST_IS_REGISTERED_HPP
+#ifndef CXTREAM_PYTHON_UTILITY_PYBOOST_IS_REGISTERED_HPP
+#define CXTREAM_PYTHON_UTILITY_PYBOOST_IS_REGISTERED_HPP
 
 #include <boost/python.hpp>
 

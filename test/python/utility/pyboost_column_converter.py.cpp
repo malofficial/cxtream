@@ -20,21 +20,26 @@ std::vector<int> vec1d = {1, 2, 3};
 std::vector<std::vector<int>> vec2d = {vec1d, vec1d, vec1d};
 std::vector<std::vector<std::vector<int>>> vec3d = {vec2d, vec2d, vec2d};
 
-// test to_list //
+// test to_python //
 
-py::list list1d()
+auto py_vector1d_empty()
 {
-    return cxtream::python::utility::to_list(vec1d);
+    return cxtream::python::utility::to_python(std::vector<int>{});
 }
 
-py::list list2d()
+auto py_vector1d()
 {
-    return cxtream::python::utility::to_list(vec2d);
+    return cxtream::python::utility::to_python(vec1d);
 }
 
-py::list list3d()
+auto py_vector2d()
 {
-    return cxtream::python::utility::to_list(vec3d);
+    return cxtream::python::utility::to_python(vec2d);
+}
+
+auto py_vector3d()
+{
+    return cxtream::python::utility::to_python(vec3d);
 }
 
 // test columns_to_dict //
@@ -54,8 +59,9 @@ BOOST_PYTHON_MODULE(pyboost_column_converter_py_cpp)
     cxtream::python::initialize();
 
     // expose the functions
-    py::def("list1d", list1d);
-    py::def("list2d", list2d);
-    py::def("list3d", list3d);
+    py::def("py_vector1d_empty", py_vector1d_empty);
+    py::def("py_vector1d", py_vector1d);
+    py::def("py_vector2d", py_vector2d);
+    py::def("py_vector3d", py_vector3d);
     py::def("columns", columns);
 }

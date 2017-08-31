@@ -11,6 +11,7 @@
 #define CXTREAM_PYTHON_UTILITY_PYBOOST_COLUMN_CONVERTER_HPP
 
 #include <cxtream/core/utility/tuple.hpp>
+#include <cxtream/python/pyboost_range_iterator.hpp>
 
 #include <boost/python.hpp>
 
@@ -19,52 +20,64 @@
 
 namespace cxtream::python::utility {
 
-// recursive transformation from a multidimensional vector to a python list //
+// recursive transformation from a multidimensional vector to a python iterator //
 
 namespace detail {
 
-    template <typename T>
-    struct to_list_impl {
-        template <typename U>
-        static U&& impl(U&& val)
+    // conversion of std::vector to a python list-like type //
+
+    template<typename T>
+    struct to_python_impl {
+        template<typename U>
+        static void impl(U)
         {
-            return std::forward<U>(val);
+            static_assert("Only std::vector is supported in to_python function.");
         }
     };
 
-    template <typename T>
-    struct to_list_impl<std::vector<T>> {
-        static boost::python::list impl(std::vector<T> vec)
+    template<typename T>
+    struct to_python_impl<std::vector<T>> {
+        static auto impl(std::vector<T>& vec)
         {
-            boost::python::list res;
-            for (auto& val : vec) res.append(to_list_impl<T>::impl(std::move(val)));
-            return res;
+            return iterator<std::vector<T>>{std::move(vec)};
+        }
+    };
+
+    template<typename T>
+    struct to_python_impl<std::vector<std::vector<T>>> {
+        static auto impl(std::vector<std::vector<T>>& vec)
+        {
+            using inner_type = decltype(to_python_impl<std::vector<T>>::impl(vec[0]));
+            std::vector<inner_type> py_data;
+            py_data.reserve(vec.size());
+            for (auto& val : vec) py_data.push_back(to_python_impl<std::vector<T>>::impl(val));
+            return iterator<std::vector<inner_type>>{std::move(py_data)};
         }
     };
 
 }  // namespace detail
 
-/// Create a python list out of an std::vector.
+/// Create a python list-like object out of a multidimensional std::vector.
 ///
 /// If the vector is multidimensional, i.e., std::vector<std::vector<...>>,
-/// the conversion is applied recursively.
-template <typename Vector>
-boost::python::list to_list(Vector&& v)
+/// the resulting structure will be multidimensional as well.
+template<typename Vector>
+auto to_python(Vector v)
 {
-    return detail::to_list_impl<std::decay_t<Vector>>::impl(std::forward<Vector>(v));
+    return detail::to_python_impl<Vector>::impl(v);
 }
 
 /// Convert a tuple of cxtream columns into a python dict.
 ///
 /// The dict is indexed by column.name and the value is column.value.
-/// Batches are converted to python lists. If the batch value is a multidimensional
-/// std::vector<std::vector<...>>, it is converted to multidimensional python list.
-template <typename Tuple>
+/// Batches are converted to python iterators. If the batch value is a multidimensional
+/// std::vector<std::vector<...>>, it is converted to multidimensional python iterator.
+template<typename Tuple>
 boost::python::dict columns_to_dict(Tuple tuple)
 {
     boost::python::dict res;
     cxtream::utility::tuple_for_each([&res](auto& column) {
-        res[column.name()] = to_list(std::move(column.value()));
+        res[column.name()] = to_python(std::move(column.value()));
     }, tuple);
     return res;
 }
