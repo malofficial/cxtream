@@ -8,7 +8,7 @@
  ****************************************************************************/
 
 #include <cxtream/core/stream/column.hpp>
-#include <cxtream/python/pyboost_initialize.hpp>
+#include <cxtream/python/initialize.hpp>
 #include <cxtream/python/stream/converter.hpp>
 
 #include <range/v3/view/all.hpp>

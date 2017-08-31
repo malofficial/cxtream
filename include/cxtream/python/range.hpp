@@ -7,8 +7,8 @@
  *  See the accompanying file LICENSE.txt for the complete license agreement.
  ****************************************************************************/
 
-#ifndef CXTREAM_PYTHON_PYBOOST_RANGE_HPP
-#define CXTREAM_PYTHON_PYBOOST_RANGE_HPP
+#ifndef CXTREAM_PYTHON_RANGE_HPP
+#define CXTREAM_PYTHON_RANGE_HPP
 
 #include <cxtream/python/utility/pyboost_is_registered.hpp>
 
@@ -19,6 +19,7 @@
 #include <stdexcept>
 #include <string>
 #include <typeinfo>
+#include <vector>
 
 namespace cxtream::python {
 

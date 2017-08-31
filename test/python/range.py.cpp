@@ -7,8 +7,8 @@
  *  See the accompanying file LICENSE.txt for the complete license agreement.
  ****************************************************************************/
 
-#include <cxtream/python/pyboost_initialize.hpp>
-#include <cxtream/python/pyboost_range.hpp>
+#include <cxtream/python/initialize.hpp>
+#include <cxtream/python/range.hpp>
 
 #include <range/v3/view/all.hpp>
 
@@ -42,7 +42,7 @@ view_iter_t view_range()
     return view_iter_t{ranges::view::all(data)};
 }
 
-BOOST_PYTHON_MODULE(pyboost_range_py_cpp)
+BOOST_PYTHON_MODULE(range_py_cpp)
 {
     // initialize cxtream OpenCV converters, exceptions, etc.
     cxtream::python::initialize();

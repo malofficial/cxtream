@@ -10,7 +10,7 @@
 #ifndef CXTREAM_PYTHON_STREAM_CONVERTER_HPP
 #define CXTREAM_PYTHON_STREAM_CONVERTER_HPP
 
-#include <cxtream/python/pyboost_range.hpp>
+#include <cxtream/python/range.hpp>
 #include <cxtream/python/utility/pyboost_column_converter.hpp>
 
 #include <range/v3/view/transform.hpp>

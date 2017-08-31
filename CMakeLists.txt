@@ -113,7 +113,7 @@ if(BUILD_PYTHON)
 
   add_library(
     cxtream_python SHARED
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/python/pyboost_initialize.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/python/initialize.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/python/utility/pyboost_fs_path_converter.cpp"
   )
   set_target_properties(

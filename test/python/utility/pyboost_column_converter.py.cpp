@@ -8,7 +8,7 @@
  ****************************************************************************/
 
 #include <cxtream/core/stream/column.hpp>
-#include <cxtream/python/pyboost_initialize.hpp>
+#include <cxtream/python/initialize.hpp>
 #include <cxtream/python/utility/pyboost_column_converter.hpp>
 
 #include <tuple>

@@ -8,12 +8,12 @@
  ****************************************************************************/
 
 #include <cxtream/build_config.hpp>
-#include <cxtream/python/pyboost_initialize.hpp>
-#include <cxtream/python/pyboost_range_iterator.hpp>
+#include <cxtream/python/initialize.hpp>
+#include <cxtream/python/range.hpp>
 
 #ifdef CXTREAM_BUILD_PYTHON_OPENCV
-// the header file for pyboost_initialize sets NO_IMPORT_ARRAY
-// but we really import_array here (this is the only place), so unset it.
+// the header file for python::initialize sets NO_IMPORT_ARRAY
+// but we actually really import_array here (this is the only place), so unset it.
 #undef NO_IMPORT_ARRAY
 #define PY_ARRAY_UNIQUE_SYMBOL CXTREAM_PYTHON_UTILITY_PYBOOST_CV_CONVERTER
 #include <cxtream/python/utility/pyboost_cv_converter.hpp>

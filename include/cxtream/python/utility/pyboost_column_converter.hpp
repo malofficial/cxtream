@@ -11,7 +11,7 @@
 #define CXTREAM_PYTHON_UTILITY_PYBOOST_COLUMN_CONVERTER_HPP
 
 #include <cxtream/core/utility/tuple.hpp>
-#include <cxtream/python/pyboost_range.hpp>
+#include <cxtream/python/range.hpp>
 
 #include <boost/python.hpp>
 

@@ -7,8 +7,8 @@
  *  See the accompanying file LICENSE.txt for the complete license agreement.
  ****************************************************************************/
 
-#ifndef CXTREAM_PYTHON_PYBOOST_INITIALIZE_HPP
-#define CXTREAM_PYTHON_PYBOOST_INITIALIZE_HPP
+#ifndef CXTREAM_PYTHON_INITIALIZE_HPP
+#define CXTREAM_PYTHON_INITIALIZE_HPP
 
 #include <cxtream/build_config.hpp>
 
