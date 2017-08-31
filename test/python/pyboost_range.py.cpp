@@ -8,7 +8,7 @@
  ****************************************************************************/
 
 #include <cxtream/python/pyboost_initialize.hpp>
-#include <cxtream/python/pyboost_range_iterator.hpp>
+#include <cxtream/python/pyboost_range.hpp>
 
 #include <range/v3/view/all.hpp>
 
@@ -18,32 +18,38 @@
 namespace py = boost::python;
 namespace cxpy = cxtream::python;
 
-using list_iter_t = cxpy::iterator<std::list<long>>;
-list_iter_t empty_iterator()
+using list_iter_t = cxpy::range<std::list<long>>;
+list_iter_t empty_list_range()
 {
     return list_iter_t{std::list<long>{}};
 }
 
-using vec_iter_t = cxpy::iterator<std::vector<long>>;
-vec_iter_t fib_iterator()
+list_iter_t list_range()
+{
+    return list_iter_t{std::list<long>{1, 1, 2, 3, 5, 8}};
+}
+
+using vec_iter_t = cxpy::range<std::vector<long>>;
+vec_iter_t vector_range()
 {
     return vec_iter_t{std::vector<long>{1, 1, 2, 3, 5, 8}};
 }
 
 const std::vector<long> data = {1, 1, 2, 3, 5, 8};
-using view_iter_t = cxpy::iterator<ranges::view::all_t<const std::vector<long>>>;
-view_iter_t view_iterator()
+using view_iter_t = cxpy::range<ranges::view::all_t<const std::vector<long>>>;
+view_iter_t view_range()
 {
     return view_iter_t{ranges::view::all(data)};
 }
 
-BOOST_PYTHON_MODULE(pyboost_range_iterator_py_cpp)
+BOOST_PYTHON_MODULE(pyboost_range_py_cpp)
 {
     // initialize cxtream OpenCV converters, exceptions, etc.
     cxtream::python::initialize();
 
     // expose the functions
-    py::def("empty_iterator", empty_iterator);
-    py::def("fib_iterator", fib_iterator);
-    py::def("view_iterator", fib_iterator);
+    py::def("empty_list_range", empty_list_range);
+    py::def("list_range", list_range);
+    py::def("vector_range", vector_range);
+    py::def("view_range", view_range);
 }

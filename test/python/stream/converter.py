@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
 
-import iterator_py_cpp as pycpp
+import converter_py_cpp as pycpp
 
 
 def main():
-    assert(list(pycpp.empty_iterator()) == [])
+    assert(list(pycpp.empty_stream()) == [])
 
-    empty_batch_iterator = list(pycpp.empty_batch_iterator())
-    assert(len(empty_batch_iterator) == 1)
-    assert(set(empty_batch_iterator[0].keys()) == {"Int", "Double"})
-    assert(list(empty_batch_iterator[0]["Int"]) == [])
-    assert(list(empty_batch_iterator[0]["Double"]) == [])
+    empty_batch_stream = list(pycpp.empty_batch_stream())
+    assert(len(empty_batch_stream) == 1)
+    assert(set(empty_batch_stream[0].keys()) == {"Int", "Double"})
+    assert(list(empty_batch_stream[0]["Int"]) == [])
+    assert(list(empty_batch_stream[0]["Double"]) == [])
 
-    number_stream = list(pycpp.number_iterator())
+    number_stream = list(pycpp.number_stream())
     assert(len(number_stream)) == 2
     assert(set(number_stream[0].keys()) == {"Int", "Double"})
     assert(set(number_stream[1].keys()) == {"Int", "Double"})

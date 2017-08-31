@@ -21,7 +21,7 @@ def main():
     assert(np.array_equal(pycpp.py_vector1d()[-2:-1], [2]))
 
     # It is not necessary to test the conversion more in here, since it is
-    # already covered in pyboost_range_iterator tests.
+    # already covered by pyboost_range or python's list.
 
     columns = pycpp.columns()
     assert(set(columns.keys()) == {"Int", "Double"})

@@ -42,15 +42,15 @@ auto py_vector3d()
     return cxtream::python::utility::to_python(vec3d);
 }
 
-// test columns_to_dict //
+// test columns_to_python //
 
 CXTREAM_DEFINE_COLUMN(Int, int)
 CXTREAM_DEFINE_COLUMN(Double, double)
 
 py::dict columns()
 {
-    using cxtream::python::utility::columns_to_dict;
-    return columns_to_dict(std::tuple<Int, Double>{{1, 2}, {9., 10.}});
+    using cxtream::python::utility::columns_to_python;
+    return columns_to_python(std::tuple<Int, Double>{{1, 2}, {9., 10.}});
 }
 
 BOOST_PYTHON_MODULE(pyboost_column_converter_py_cpp)

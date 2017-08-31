@@ -7,8 +7,8 @@
  *  See the accompanying file LICENSE.txt for the complete license agreement.
  ****************************************************************************/
 
-#ifndef CXTREAM_PYTHON_PYBOOST_RANGE_ITERATOR_HPP
-#define CXTREAM_PYTHON_PYBOOST_RANGE_ITERATOR_HPP
+#ifndef CXTREAM_PYTHON_PYBOOST_RANGE_HPP
+#define CXTREAM_PYTHON_PYBOOST_RANGE_HPP
 
 #include <cxtream/python/utility/pyboost_is_registered.hpp>
 
@@ -37,43 +37,41 @@ void stop_iteration_translator(const stop_iteration_exception& x)
 
 /// Python adapter for C++ ranges.
 ///
-/// This class provides __next__ and __iter__ methods emulating python iterators.
+/// This class provides __next__, __iter__, __len__, and __getitem__ methods
+/// emulating python containers. __getitem__ and __len__ are provided only for
+/// random access ranges.
 template<typename Rng>
-class iterator {
+class range {
 private:
-    using iterator_t = decltype(ranges::begin(std::declval<Rng&>()));
-    using sentinel_t = decltype(ranges::end(std::declval<Rng&>()));
-    using this_t     = iterator<Rng>;
+    using this_t = range<Rng>;
 
     std::shared_ptr<Rng> rng_ptr_;
-    iterator_t iterator_;
-    bool first_iteration_;
 
     // register __len__ function if it is supported
     CONCEPT_REQUIRES(ranges::SizedRange<const Rng>())
-    static void register_iterator_len(boost::python::class_<this_t>& cls)
+    static void register_len(boost::python::class_<this_t>& cls)
     {
         cls.def("__len__", &this_t::len);
     }
     CONCEPT_REQUIRES(!ranges::SizedRange<const Rng>())
-    static void register_iterator_len(boost::python::class_<this_t>&)
+    static void register_len(boost::python::class_<this_t>&)
     {
     }
 
     // register __getitem__ function if it is supported
     CONCEPT_REQUIRES(ranges::RandomAccessRange<const Rng>())
-    static void register_iterator_getitem(boost::python::class_<this_t>& cls)
+    static void register_getitem(boost::python::class_<this_t>& cls)
     {
         cls.def("__getitem__", &this_t::getitem);
     }
     CONCEPT_REQUIRES(!ranges::RandomAccessRange<const Rng>())
-    static void register_iterator_getitem(boost::python::class_<this_t>&)
+    static void register_getitem(boost::python::class_<this_t>&)
     {
     }
 
     // function to register the type of this class in boost::python
     // makes sure the type is registered only once
-    static void register_iterator()
+    static void register_to_python()
     {
         namespace py = boost::python;
 
@@ -81,49 +79,74 @@ private:
             std::string this_t_name = std::string("cxtream_") + typeid(this_t).name();
             py::class_<this_t> cls{this_t_name.c_str(), py::no_init};
             cls.def("__iter__", &this_t::iter);
-            cls.def("__next__", &this_t::next);
-            register_iterator_len(cls);
-            register_iterator_getitem(cls);
+            register_len(cls);
+            register_getitem(cls);
+
+            py::class_<this_t::iterator>{(this_t_name + "_iterator").c_str(), py::no_init}
+              .def("__next__", &this_t::iterator::next)
+              .def("__iter__", &this_t::iterator::iter);
         };
     }
 
 public:
-    iterator() = default;
-
-    /// Construct iterator from a range.
-    explicit iterator(Rng rng)
-      : rng_ptr_{std::make_shared<Rng>(std::move(rng))},
-        iterator_{ranges::begin(*rng_ptr_)},
-        first_iteration_{true}
+    class iterator
     {
-        register_iterator();
+    private:
+        std::shared_ptr<Rng> rng_ptr_;
+        ranges::iterator_t<Rng> position_;
+        bool first_iteration_;
+
+    public:
+        iterator() = default;
+
+        /// Construct iterator from a range.
+        explicit iterator(range& rng)
+          : rng_ptr_{rng.rng_ptr_},
+            position_{ranges::begin(*rng_ptr_)},
+            first_iteration_{true}
+        {
+        }
+
+        /// Return a copy of this iterator.
+        iterator iter()
+        {
+            return *this;
+        }
+
+        /// Return the next element in the range.
+        ///
+        /// \throws stop_iteration_exception if there are no more elements.
+        auto next()
+        {
+            // do not increment the iterator in the first iteration, just return *begin()
+            if (!first_iteration_ && position_ != ranges::end(*rng_ptr_)) ++position_;
+            first_iteration_ = false;
+            if (position_ == ranges::end(*rng_ptr_)) throw stop_iteration_exception();
+            return *position_;
+        }
+    };
+
+    /// Default empty constructor.
+    range() = default;
+
+    /// Construct python range from a C++ range. This function creates a copy of the range.
+    explicit range(Rng rng)
+      : rng_ptr_{std::make_shared<Rng>(std::move(rng))}
+    {
+        register_to_python();
     }
 
-    /// Construct iterator from std::shared_ptr.
-    iterator(std::shared_ptr<Rng> rng_ptr)
-      : rng_ptr_{std::move(rng_ptr)},
-        iterator_{ranges::begin(*rng_ptr_)},
-        first_iteration_{true}
+    /// Construct python range from a std::shared_ptr to a C++ range.
+    range(std::shared_ptr<Rng> rng_ptr)
+      : rng_ptr_{std::move(rng_ptr)}
     {
-        register_iterator();
+        register_to_python();
     }
 
-    /// Return a copy of this iterator restarted to the beginning of the range.
-    iterator<Rng> iter()
+    /// Get python iterator.
+    iterator iter()
     {
-        return iterator<Rng>{rng_ptr_};
-    }
-
-    /// Return the next element in the range.
-    ///
-    /// \throws stop_iteration_exception if there are no more elements.
-    auto next()
-    {
-        // do not increment the iterator in the first iteration, just return *begin()
-        if (!first_iteration_ && iterator_ != ranges::end(*rng_ptr_)) ++iterator_;
-        first_iteration_ = false;
-        if (iterator_ == ranges::end(*rng_ptr_)) throw stop_iteration_exception();
-        return *iterator_;
+        return iterator{*this};
     }
 
     /// Get an item or a slice.
@@ -136,7 +159,7 @@ public:
         if (PySlice_Check(idx_py)) {
             PySliceObject* slice = static_cast<PySliceObject*>(static_cast<void*>(idx_py));
             if (slice->step != Py_None) {
-                throw std::logic_error("Cxtream python iterator does not support slice steps.");
+                throw std::logic_error("Cxtream python range does not support slice steps.");
             }
 
             auto handle_index = [this](PyObject* idx_py, long def_val) {
@@ -158,7 +181,7 @@ public:
 
             using slice_data_type = std::vector<ranges::range_value_type_t<Rng>>;
             slice_data_type slice_data{rng_ptr_->begin() + start, rng_ptr_->begin() + stop};
-            return boost::python::object{iterator<slice_data_type>{std::move(slice_data)}};
+            return boost::python::object{range<slice_data_type>{std::move(slice_data)}};
         }
 
         // handle indices
@@ -174,7 +197,7 @@ public:
         return ranges::size(*rng_ptr_);
     }
 
-};  // class iterator
+};  // class range
 
 }  // end namespace cxtream::python
 #endif

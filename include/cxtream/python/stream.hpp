@@ -10,6 +10,6 @@
 #ifndef CXTREAM_PYTHON_STREAM_HPP
 #define CXTREAM_PYTHON_STREAM_HPP
 
-#include <cxtream/python/stream/iterator.hpp>
+#include <cxtream/python/stream/converter.hpp>
 
 #endif

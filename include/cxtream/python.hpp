@@ -11,7 +11,7 @@
 #define CXTREAM_PYTHON_HPP
 
 #include <cxtream/python/pyboost_initialize.hpp>
-#include <cxtream/python/pyboost_range_iterator.hpp>
+#include <cxtream/python/pyboost_range.hpp>
 #include <cxtream/python/stream.hpp>
 #include <cxtream/python/utility.hpp>
 

@@ -11,7 +11,7 @@
 #define CXTREAM_PYTHON_UTILITY_PYBOOST_COLUMN_CONVERTER_HPP
 
 #include <cxtream/core/utility/tuple.hpp>
-#include <cxtream/python/pyboost_range_iterator.hpp>
+#include <cxtream/python/pyboost_range.hpp>
 
 #include <boost/python.hpp>
 
@@ -39,7 +39,7 @@ namespace detail {
     struct to_python_impl<std::vector<T>> {
         static auto impl(std::vector<T>& vec)
         {
-            return iterator<std::vector<T>>{std::move(vec)};
+            return range<std::vector<T>>{std::move(vec)};
         }
     };
 
@@ -51,7 +51,7 @@ namespace detail {
             std::vector<inner_type> py_data;
             py_data.reserve(vec.size());
             for (auto& val : vec) py_data.push_back(to_python_impl<std::vector<T>>::impl(val));
-            return iterator<std::vector<inner_type>>{std::move(py_data)};
+            return range<std::vector<inner_type>>{std::move(py_data)};
         }
     };
 
@@ -73,7 +73,7 @@ auto to_python(Vector v)
 /// Batches are converted to python iterators. If the batch value is a multidimensional
 /// std::vector<std::vector<...>>, it is converted to multidimensional python iterator.
 template<typename Tuple>
-boost::python::dict columns_to_dict(Tuple tuple)
+boost::python::dict columns_to_python(Tuple tuple)
 {
     boost::python::dict res;
     cxtream::utility::tuple_for_each([&res](auto& column) {
