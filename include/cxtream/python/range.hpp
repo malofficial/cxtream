@@ -41,32 +41,34 @@ void stop_iteration_translator(const stop_iteration_exception& x)
 /// This class provides __next__, __iter__, __len__, and __getitem__ methods
 /// emulating python containers. __getitem__ and __len__ are provided only for
 /// random access ranges.
+///
+/// Note that this class is useful for infinite ranges and views.
+/// However, for normal finite ranges, it seems to be many times slower
+/// than using boost::python::list.
 template<typename Rng>
 class range {
 private:
-    using this_t = range<Rng>;
-
     std::shared_ptr<Rng> rng_ptr_;
 
     // register __len__ function if it is supported
     CONCEPT_REQUIRES(ranges::SizedRange<const Rng>())
-    static void register_len(boost::python::class_<this_t>& cls)
+    static void register_len(boost::python::class_<range<Rng>>& cls)
     {
-        cls.def("__len__", &this_t::len);
+        cls.def("__len__", &range<Rng>::len<>);
     }
     CONCEPT_REQUIRES(!ranges::SizedRange<const Rng>())
-    static void register_len(boost::python::class_<this_t>&)
+    static void register_len(boost::python::class_<range<Rng>>&)
     {
     }
 
     // register __getitem__ function if it is supported
     CONCEPT_REQUIRES(ranges::RandomAccessRange<const Rng>())
-    static void register_getitem(boost::python::class_<this_t>& cls)
+    static void register_getitem(boost::python::class_<range<Rng>>& cls)
     {
-        cls.def("__getitem__", &this_t::getitem);
+        cls.def("__getitem__", &range<Rng>::getitem<>);
     }
     CONCEPT_REQUIRES(!ranges::RandomAccessRange<const Rng>())
-    static void register_getitem(boost::python::class_<this_t>&)
+    static void register_getitem(boost::python::class_<range<Rng>>&)
     {
     }
 
@@ -76,22 +78,21 @@ private:
     {
         namespace py = boost::python;
 
-        if (!utility::is_registered<this_t>()) {
-            std::string this_t_name = std::string("cxtream_") + typeid(this_t).name();
-            py::class_<this_t> cls{this_t_name.c_str(), py::no_init};
-            cls.def("__iter__", &this_t::iter);
+        if (!utility::is_registered<range<Rng>>()) {
+            std::string this_name = std::string("cxtream_") + typeid(range<Rng>).name();
+            py::class_<range<Rng>> cls{this_name.c_str(), py::no_init};
+            cls.def("__iter__", &range<Rng>::iter);
             register_len(cls);
             register_getitem(cls);
 
-            py::class_<this_t::iterator>{(this_t_name + "_iterator").c_str(), py::no_init}
-              .def("__next__", &this_t::iterator::next)
-              .def("__iter__", &this_t::iterator::iter);
+            py::class_<range<Rng>::iterator>{(this_name + "_iterator").c_str(), py::no_init}
+              .def("__next__", &range<Rng>::iterator::next)
+              .def("__iter__", &range<Rng>::iterator::iter);
         };
     }
 
 public:
-    class iterator
-    {
+    class iterator {
     private:
         std::shared_ptr<Rng> rng_ptr_;
         ranges::iterator_t<Rng> position_;
