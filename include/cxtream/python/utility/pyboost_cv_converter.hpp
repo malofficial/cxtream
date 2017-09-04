@@ -10,7 +10,8 @@
 #ifndef CXTREAM_PYTHON_UTILITY_PYBOOST_CV_CONVERTER_HPP
 #define CXTREAM_PYTHON_UTILITY_PYBOOST_CV_CONVERTER_HPP
 
-#define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
+// this header has to be included before the numpy header
+#include <cxtream/python/initialize.hpp>
 
 #include <Python.h>
 #include <boost/python.hpp>

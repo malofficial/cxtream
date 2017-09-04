@@ -10,11 +10,12 @@
 #ifndef CXTREAM_PYTHON_UTILITY_PYBOOST_NDARRAY_CONVERTER_HPP
 #define CXTREAM_PYTHON_UTILITY_PYBOOST_NDARRAY_CONVERTER_HPP
 
-#define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
+// this header has to be included before the numpy header
+#include <cxtream/python/initialize.hpp>
 
-#include <boost/python.hpp>
-#include <numpy/arrayobject.h>
 #include <Python.h>
+#include <boost/python.hpp>
+#include <numpy/ndarrayobject.h>
 
 #include <stdexcept>
 #include <vector>
@@ -76,7 +77,7 @@ namespace detail {
 
 }  // end namespace detail
 
-/// Convert the given variable to its ndarray type.
+/// Convert the given variable to the corresponding ndarray type.
 ///
 /// If the variable is not one of the selected builtin types, it is
 /// converted using boost::python::object.
@@ -86,18 +87,18 @@ auto to_ndarray_element(T val)
     return detail::to_ndarray_trait<T>::convert(std::move(val));
 }
 
-/// Get ndarray type of the given C++ type.
+/// Get the ndarray type corresponding to the given C++ type.
 template<typename T>
 using ndarray_type_t = typename detail::to_ndarray_trait<T>::type_t;
 
-/// Get ndarray type number for the given c++ type.
+/// Get the ndarray type number corresponding to the given c++ type.
 template<typename T>
 int to_ndarray_typenum()
 {
     return detail::to_ndarray_trait<T>::typenum();
 }
 
-/// Build ndarray from one dimensional std::vector.
+/// Build ndarray from a one dimensional std::vector.
 template<typename T>
 PyObject* to_ndarray(const std::vector<T>& vec)
 {
@@ -112,7 +113,7 @@ PyObject* to_ndarray(const std::vector<T>& vec)
     PyArray_ENABLEFLAGS(reinterpret_cast<PyArrayObject*>(arr), NPY_ARRAY_OWNDATA);
     return arr;
 
-    // When boost::python::numpy is present on Ubuntu (boost>=v1.6.3)
+    // When boost::python::numpy is present on all supported systems (boost>=v1.6.3)
     // the following may be used instead:
     // namespace py = boost::python;
     // namespace np = py::numpy;

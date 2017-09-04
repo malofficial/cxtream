@@ -10,9 +10,6 @@
 #include <opencv2/core/core.hpp>
 #if CV_VERSION_EPOCH == 2 || (!defined CV_VERSION_EPOCH && CV_VERSION_MAJOR == 2)
 
-#define NO_IMPORT_ARRAY
-#define PY_ARRAY_UNIQUE_SYMBOL CXTREAM_PYTHON_UTILITY_PYBOOST_CV_CONVERTER
-
 #include <cxtream/python/utility/pyboost_cv_converter.hpp>
 
 namespace cxtream::python::utility {
