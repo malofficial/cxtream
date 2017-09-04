@@ -12,9 +12,11 @@
 
 #include <cxtream/core/utility/tuple.hpp>
 #include <cxtream/python/range.hpp>
+#include <cxtream/python/utility/pyboost_ndarray_converter.hpp>
 
 #include <boost/python.hpp>
 
+#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -29,24 +31,30 @@ namespace detail {
     template<typename T>
     struct vector_to_python_impl {
         template<typename U>
-        static U&& impl(U& u)
+        static U&& impl(U&)
         {
-            return std::move(u);
+            static_assert("Only std::vectors are supported in vector_to_python function.");
         }
     };
 
     template<typename T>
     struct vector_to_python_impl<std::vector<T>> {
-        static boost::python::list impl(std::vector<T>& vec)
+        static PyObject* impl(std::vector<T>& vec)
         {
-            namespace py = boost::python;
-            py::handle<> handle{PyList_New(vec.size())};
+            return utility::to_ndarray(vec);
+        }
+    };
+
+    template<typename T>
+    struct vector_to_python_impl<std::vector<std::vector<T>>> {
+        static PyObject* impl(std::vector<std::vector<T>>& vec)
+        {
+            PyObject* list{PyList_New(vec.size())};
+            if (!list) throw std::runtime_error{"Unable to create Python list."};
             for (std::size_t i = 0; i < vec.size(); ++i) {
-                py::object val{vector_to_python_impl<T>::impl(vec[i])};
-                Py_INCREF(val.ptr());
-                PyList_SET_ITEM(handle.get(), i, val.ptr());
+                PyList_SET_ITEM(list, i, vector_to_python_impl<std::vector<T>>::impl(vec[i]));
             }
-            return py::list(handle);
+            return list;
         }
     };
 
@@ -57,9 +65,11 @@ namespace detail {
 /// If the vector is multidimensional, i.e., std::vector<std::vector<...>>,
 /// the resulting structure will be multidimensional as well.
 template<typename T>
-boost::python::list to_python(std::vector<T> v)
+boost::python::object to_python(std::vector<T> v)
 {
-    return detail::vector_to_python_impl<std::vector<T>>::impl(v);
+    namespace py = boost::python;
+    py::handle<> py_obj_handle{detail::vector_to_python_impl<std::vector<T>>::impl(v)};
+    return py::object{py_obj_handle};
 }
 
 /// Convert a tuple of cxtream columns into a python dict.
