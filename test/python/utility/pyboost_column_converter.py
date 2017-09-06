@@ -9,6 +9,7 @@ def main():
 
     # test whole range
     assert(np.array_equal(pycpp.py_vector1d(), [1, 2, 3]))
+    assert(pycpp.py_vector1d().dtype == np.int32)
     assert(np.array_equal(pycpp.py_vector2d(), [[1, 2, 3]] * 3))
     assert(np.array_equal(pycpp.py_vector3d(), [[[1, 2, 3]] * 3] * 3))
 
@@ -21,7 +22,8 @@ def main():
     assert(np.array_equal(pycpp.py_vector1d()[-2:-1], [2]))
 
     # It is not necessary to test the conversion more in here, since it is
-    # already covered by cxtream::python::range or python's list.
+    # already covered by cxtream::python::range,
+    # cxtream::python::utility::to_ndarray or python's list.
 
     columns = pycpp.columns()
     assert(set(columns.keys()) == {"Int", "Double"})

@@ -16,15 +16,15 @@
 
 namespace py = boost::python;
 
-std::vector<int> vec1d = {1, 2, 3};
-std::vector<std::vector<int>> vec2d = {vec1d, vec1d, vec1d};
-std::vector<std::vector<std::vector<int>>> vec3d = {vec2d, vec2d, vec2d};
+std::vector<std::int32_t> vec1d = {1, 2, 3};
+std::vector<std::vector<std::int32_t>> vec2d = {vec1d, vec1d, vec1d};
+std::vector<std::vector<std::vector<std::int32_t>>> vec3d = {vec2d, vec2d, vec2d};
 
 // test to_python //
 
 auto py_vector1d_empty()
 {
-    return cxtream::python::utility::to_python(std::vector<int>{});
+    return cxtream::python::utility::to_python(std::vector<std::int32_t>{});
 }
 
 auto py_vector1d()

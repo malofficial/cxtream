@@ -27,13 +27,17 @@ namespace cxtream::python::utility {
 namespace detail {
 
     // conversion of std::vector to a python list-like type //
+    // Vectors of builtin primitive types (e.g., int, bool, ...) are converted
+    // to numpy ndarrays. Vector of other types are converted to lists and
+    // their elements are converted using boost::python::object
 
     template<typename T>
     struct vector_to_python_impl {
-        template<typename U>
-        static U&& impl(U&)
+        static PyObject* impl(T& val)
         {
-            static_assert("Only std::vectors are supported in vector_to_python function.");
+            boost::python::object obj{std::move(val)};
+            Py_INCREF(obj.ptr());
+            return obj.ptr();
         }
     };
 
@@ -41,18 +45,14 @@ namespace detail {
     struct vector_to_python_impl<std::vector<T>> {
         static PyObject* impl(std::vector<T>& vec)
         {
-            return utility::to_ndarray(vec);
-        }
-    };
+            if (std::is_arithmetic<T>{}) {
+                return utility::to_ndarray(vec);
+            }
 
-    template<typename T>
-    struct vector_to_python_impl<std::vector<std::vector<T>>> {
-        static PyObject* impl(std::vector<std::vector<T>>& vec)
-        {
             PyObject* list{PyList_New(vec.size())};
             if (!list) throw std::runtime_error{"Unable to create Python list."};
             for (std::size_t i = 0; i < vec.size(); ++i) {
-                PyList_SET_ITEM(list, i, vector_to_python_impl<std::vector<T>>::impl(vec[i]));
+                PyList_SET_ITEM(list, i, vector_to_python_impl<T>::impl(vec[i]));
             }
             return list;
         }
