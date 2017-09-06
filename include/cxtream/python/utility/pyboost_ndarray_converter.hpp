@@ -112,19 +112,6 @@ PyObject* to_ndarray(const std::vector<T>& vec)
     // we have to tell NumPy to delete the data when the array is removed
     PyArray_ENABLEFLAGS(reinterpret_cast<PyArrayObject*>(arr), NPY_ARRAY_OWNDATA);
     return arr;
-
-    // When boost::python::numpy is present on all supported systems (boost>=v1.6.3)
-    // the following may be used instead:
-    // namespace py = boost::python;
-    // namespace np = py::numpy;
-    // np::dtype dtype = np::dtype::get_builtin<T>();
-    // np::ndarray arr =
-    //   np::from_data(vec.data(),
-    //                 dtype,
-    //                 py::make_tuple(vec.size()),
-    //                 py::make_tuple(sizeof(T)),
-    //                 py::object());
-    // return arr;
 }
 
 }  // namespace cxtream::python::utility
