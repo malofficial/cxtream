@@ -1,2 +1,2 @@
-build_pyboost_test_module(iterator_py_cpp iterator.py.cpp)
-add_python_test("test.python.stream.iterator" "iterator.py")
+build_pyboost_test_module(converter_py_cpp converter.py.cpp)
+add_python_test("test.python.stream.converter" "converter.py")

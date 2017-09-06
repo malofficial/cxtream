@@ -13,5 +13,6 @@
 #include <cxtream/python/utility/pyboost_column_converter.hpp>
 #include <cxtream/python/utility/pyboost_cv_converter.hpp>
 #include <cxtream/python/utility/pyboost_fs_path_converter.hpp>
+#include <cxtream/python/utility/pyboost_is_registered.hpp>
 
 #endif

@@ -7,7 +7,7 @@
  *  See the accompanying file LICENSE.txt for the complete license agreement.
  ****************************************************************************/
 
-#include <cxtream/python/pyboost_initialize.hpp>
+#include <cxtream/python/initialize.hpp>
 
 #include <boost/python.hpp>
 
