@@ -20,6 +20,7 @@
 #include <range/v3/view/iota.hpp>
 #include <range/v3/view/unique.hpp>
 
+#include <list>
 #include <memory>
 #include <random>
 #include <vector>
@@ -30,7 +31,7 @@ BOOST_AUTO_TEST_CASE(test_ndims)
 {
     BOOST_TEST(ndims<std::vector<int>>{} == 1);
     BOOST_TEST(ndims<std::vector<std::vector<int>>>{} == 2);
-    BOOST_TEST(ndims<std::vector<std::vector<std::vector<int>>>>{} == 3);
+    BOOST_TEST(ndims<std::list<std::vector<std::list<int>>>>{} == 3);
 }
 
 BOOST_AUTO_TEST_CASE(test_ndim_type)
@@ -38,19 +39,77 @@ BOOST_AUTO_TEST_CASE(test_ndim_type)
     static_assert(std::is_same<int,
       ndim_type<std::vector<int>>::type>{});
     static_assert(std::is_same<char,
-      ndim_type<std::vector<std::vector<char>>>::type>{});
+      ndim_type<std::vector<std::list<char>>>::type>{});
     static_assert(std::is_same<double,
-      ndim_type<std::vector<std::vector<std::vector<double>>>>::type>{});
+      ndim_type<std::list<std::vector<std::vector<double>>>>::type>{});
 }
 
 BOOST_AUTO_TEST_CASE(test_ndim_type_cutoff)
 {
-    static_assert(std::is_same<std::vector<std::vector<char>>,
-      ndim_type<std::vector<std::vector<char>>, 0>::type>{});
-    static_assert(std::is_same<std::vector<char>,
-      ndim_type<std::vector<std::vector<char>>, 1>::type>{});
+    static_assert(std::is_same<std::vector<std::list<char>>,
+      ndim_type<std::vector<std::list<char>>, 0>::type>{});
+    static_assert(std::is_same<std::list<char>,
+      ndim_type<std::vector<std::list<char>>, 1>::type>{});
     static_assert(std::is_same<std::vector<double>,
-      ndim_type<std::vector<std::vector<std::vector<double>>>, 2>::type>{});
+      ndim_type<std::list<std::vector<std::vector<double>>>, 2>::type>{});
+}
+
+BOOST_AUTO_TEST_CASE(test_ndim_size)
+{
+    const std::vector<int> vec =
+      {};
+    const std::vector<int> vec5 =
+      {0, 0, 0, 0, 0};
+    std::vector<std::vector<int>> vec3231 =
+      {{0, 0}, {0, 0, 0}, {0}};
+    const std::list<std::vector<std::vector<int>>> vec3302 =
+      {
+        {{0, 0, 0, 0}, {0, 0, 0}, {0, 0}},
+        {},
+        {{0}, {}}
+      };
+    std::vector<std::list<std::vector<int>>> vec200 =
+      {{}, {}};
+
+    test_ranges_equal(ndim_size(vec),
+      std::vector<std::vector<long>>{{0}});
+    test_ranges_equal(ndim_size(vec5),
+      std::vector<std::vector<long>>{{5}});
+    test_ranges_equal(ndim_size(vec3231),
+      std::vector<std::vector<long>>{{3}, {2, 3, 1}});
+    test_ranges_equal(ndim_size(vec3302),
+      std::vector<std::vector<long>>{{3}, {3, 0, 2}, {4, 3, 2, 1, 0}});
+    test_ranges_equal(ndim_size(vec200),
+      std::vector<std::vector<long>>{{2}, {0, 0}, {}});
+}
+
+BOOST_AUTO_TEST_CASE(test_ndim_size_cutoff)
+{
+    const std::vector<int> vec =
+      {};
+    const std::vector<int> vec5 =
+      {0, 0, 0, 0, 0};
+    std::vector<std::vector<int>> vec3231 =
+      {{0, 0}, {0, 0, 0}, {0}};
+    const std::list<std::vector<std::vector<int>>> vec3302 =
+      {
+        {{0, 0, 0, 0}, {0, 0, 0}, {0, 0}},
+        {},
+        {{0}, {}}
+      };
+    std::vector<std::list<std::vector<int>>> vec200 =
+      {{}, {}};
+
+    test_ranges_equal(ndim_size<1>(vec),
+      std::vector<std::vector<long>>{{0}});
+    test_ranges_equal(ndim_size<0>(vec5),
+      std::vector<std::vector<long>>{});
+    test_ranges_equal(ndim_size<1>(vec3231),
+      std::vector<std::vector<long>>{{3}});
+    test_ranges_equal(ndim_size<2>(vec3302),
+      std::vector<std::vector<long>>{{3}, {3, 0, 2}});
+    test_ranges_equal(ndim_size<5>(vec200),
+      std::vector<std::vector<long>>{{2}, {0, 0}, {}});
 }
 
 BOOST_AUTO_TEST_CASE(test_shape)
@@ -66,27 +125,6 @@ BOOST_AUTO_TEST_CASE(test_shape)
     test_ranges_equal(shape(vec23), std::vector<long>{2, 3});
     test_ranges_equal(shape(vec234), std::vector<long>{2, 3, 4});
     test_ranges_equal(shape(vec200), std::vector<long>{2, 0, 0});
-}
-
-BOOST_AUTO_TEST_CASE(test_ndim_size)
-{
-    const std::vector<int> vec5 = {0, 0, 0, 0, 0};
-    std::vector<std::vector<int>> vec3231 = {{0, 0}, {0, 0, 0}, {0}};
-    const std::vector<std::vector<std::vector<int>>> vec3302 = {
-        {{0, 0, 0, 0}, {0, 0, 0}, {0, 0}},
-        {},
-        {{0}, {}}
-    };
-    std::vector<std::vector<std::vector<int>>> vec200 = {{}, {}};
-
-    test_ranges_equal(ndim_size(vec5),
-      std::vector<std::vector<long>>{{5}});
-    test_ranges_equal(ndim_size(vec3231),
-      std::vector<std::vector<long>>{{3}, {2, 3, 1}});
-    test_ranges_equal(ndim_size(vec3302),
-      std::vector<std::vector<long>>{{3}, {3, 0, 2}, {4, 3, 2, 1, 0}});
-    test_ranges_equal(ndim_size(vec200),
-      std::vector<std::vector<long>>{{2}, {0, 0}, {}});
 }
 
 BOOST_AUTO_TEST_CASE(test_ndim_resize)

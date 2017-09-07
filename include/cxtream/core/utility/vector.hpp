@@ -20,6 +20,7 @@
 #include <range/v3/view/for_each.hpp>
 
 #include <cassert>
+#include <cmath>
 #include <memory>
 #include <random>
 #include <type_traits>
@@ -27,40 +28,40 @@
 
 namespace cxtream::utility {
 
-/// Gets the number of dimensions of a multidimensional std::vector type.
+/// Gets the number of dimensions of a multidimensional range.
 ///
 /// Example:
 /// \code
-///     std::size_t vec_ndims = ndims<std::vector<std::vector<int>>>{};
-///     // vec_ndims == 2;
+///     std::size_t rng_ndims = ndims<std::vector<std::list<int>>>{};
+///     // rng_ndims == 2;
 /// \endcode
-template<typename T>
+template<typename T, bool IsRange = ranges::Range<T>()>
 struct ndims {
 };
 
 template<typename T>
-struct ndims<std::vector<T>> : std::integral_constant<long, 1L> {
+struct ndims<T, false> : std::integral_constant<long, 0L> {
 };
 
 template<typename T>
-struct ndims<std::vector<std::vector<T>>>
-  : std::integral_constant<long, ndims<std::vector<T>>{} + 1L> {
+struct ndims<T, true>
+  : std::integral_constant<long, ndims<ranges::range_value_type_t<T>>{} + 1L> {
 };
 
-/// Gets the innermost value_type of a multidimensional std::vector type.
+/// Gets the innermost value_type of a multidimensional range.
 ///
 /// The number of dimensions can be also provided manually.
 ///
 /// Example:
 /// \code
-///     using vec_type = ndim_type<std::vector<std::vector<int>>>::type;
-///     // vec_type is int
-///     using vec1_type = ndim_type<std::vector<std::vector<int>>, 1>::type;
-///     // vec1_type is std::vector<int>
+///     using rng_type = ndim_type<std::vector<std::list<int>>>::type;
+///     // rng_type is int
+///     using rng1_type = ndim_type<std::list<std::vector<int>>, 1>::type;
+///     // rng1_type is std::vector<int>
 /// \endcode
-template<typename VecT, long Dim = -1>
+template<typename Rng, long Dim = -1>
 struct ndim_type
-  : ndim_type<typename VecT::value_type, Dim-1> {
+  : ndim_type<typename ranges::range_value_type_t<Rng>, Dim-1> {
 };
 
 template<typename T>
@@ -68,60 +69,76 @@ struct ndim_type<T, 0> {
     using type = T;
 };
 
-template<typename VecT>
-struct ndim_type<VecT, -1>
-  : ndim_type<VecT, ndims<VecT>{}> {
+template<typename Rng>
+struct ndim_type<Rng, -1>
+  : ndim_type<Rng, ndims<Rng>{}> {
 };
 
-// multidimensional std::vector size //
+// multidimensional range size //
 
 namespace detail {
 
-    template<typename T, long Dim>
+    template<typename Rng, long Dim, long Dims, bool IsRange = ranges::Range<Rng>()>
     struct ndim_size_impl {
     };
 
-    template<typename T, long Dim>
-    struct ndim_size_impl<std::vector<T>, Dim> {
-        static void impl(const std::vector<T>& vec, std::vector<std::vector<long>>& size_out)
+    template<typename Rng, long Dim, long Dims>
+    struct ndim_size_impl<Rng, Dim, Dims, true> {
+        static void impl(const Rng& rng, std::vector<std::vector<long>>& size_out)
         {
-            size_out[Dim].push_back(vec.size());
+            if (Dim == Dims) return;
+            size_out[Dim].push_back(ranges::size(rng));
+            for (auto& subrng : rng) {
+                ndim_size_impl<ranges::range_value_type_t<Rng>, Dim+1, Dims>
+                  ::impl(subrng, size_out);
+            }
         }
     };
 
-    template<typename T, long Dim>
-    struct ndim_size_impl<std::vector<std::vector<T>>, Dim> {
-        static void impl(const std::vector<std::vector<T>>& vec,
-                         std::vector<std::vector<long>>& size_out)
+    template<typename Rng, long Dim, long Dims>
+    struct ndim_size_impl<Rng, Dim, Dims, false> {
+        static void impl(const Rng&, std::vector<std::vector<long>>&)
         {
-            size_out[Dim].push_back(vec.size());
-            for (auto& subvec : vec) {
-                ndim_size_impl<std::vector<T>, Dim+1>::impl(subvec, size_out);
-            }
         }
     };
 
 }  // namespace detail
 
-/// Calculates the size of a multidimensional std::vector.
+/// Calculates the size of a multidimensional range.
 ///
-/// i-th element of the resulting vector are the sizes of the vectors in the i-th dimension.
+/// i-th element of the resulting vector are the sizes of the ranges in the i-th dimension.
 ///
 /// Example:
 /// \code
-///     std::vector<std::vector<int>> vec{{1, 2, 3}, {1}, {5, 6}, {7}};
-///     std::vector<std::vector<long>> vec_size = ndim_size(vec);
-///     // vec_size == {{4}, {3, 1, 2, 1}};
+///     std::vector<std::list<int>> rng{{1, 2, 3}, {1}, {5, 6}, {7}};
+///     std::vector<std::vector<long>> rng_size = ndim_size<2>(rng);
+///     // rng_size == {{4}, {3, 1, 2, 1}};
+///     rng_size = ndim_size(rng); // default number of dimensions is the depth of nested ranges
+///     // rng_size == {{4}, {3, 1, 2, 1}};
+///     rng_size = ndim_size<1>(rng);
+///     // rng_size == {{4}};
 /// \endcode
 ///
-/// \param vec The vector whose size shall be calculated.
-/// \returns The sizes of the given vector.
-template<typename T>
-std::vector<std::vector<long>> ndim_size(const std::vector<T>& vec)
+/// \param rng The multidimensional range whose size shall be calculated.
+/// \tparam Dims The maximum number of dimensions that should be considered.
+/// \returns The sizes of the given range.
+template<long Dims, typename Rng>
+std::vector<std::vector<long>> ndim_size(const Rng& rng)
 {
-    std::vector<std::vector<long>> size_out(ndims<std::vector<T>>{});
-    detail::ndim_size_impl<std::vector<T>, 0>::impl(vec, size_out);
+    // If the range has actually less dimensions, consider only those.
+    constexpr long valid_dims = std::min(ndims<Rng>::value, Dims);
+    std::vector<std::vector<long>> size_out(valid_dims);
+    detail::ndim_size_impl<Rng, 0, valid_dims>::impl(rng, size_out);
     return size_out;
+}
+
+/// Calculates the size of a multidimensional range.
+///
+/// This overload automatically deduces the number of dimension using ndims<Rng>.
+template<typename Rng>
+std::vector<std::vector<long>> ndim_size(const Rng& rng)
+{
+    return ndim_size<ndims<Rng>{}>(rng);
 }
 
 // multidimensional std::vector resize //
@@ -173,7 +190,7 @@ namespace detail {
 /// \endcode
 ///
 /// \param vec The vector to be resized.
-/// \param vec_size The vector to be resized.
+/// \param vec_size The requested size created by ndim_size.
 /// \param val The value to pad with.
 /// \returns The requested size of the given vector.
 template<typename T, typename ValT = typename ndim_type<std::vector<T>>::type>
