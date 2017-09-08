@@ -10,6 +10,8 @@
 #ifndef CXTREAM_CORE_VECTOR_UTILS_HPP
 #define CXTREAM_CORE_VECTOR_UTILS_HPP
 
+#include <cxtream/core/utility/random.hpp>
+
 #include <range/v3/action/reverse.hpp>
 #include <range/v3/algorithm/adjacent_find.hpp>
 #include <range/v3/algorithm/all_of.hpp>
@@ -438,25 +440,25 @@ namespace detail {
 
     template<typename T, long Dim>
     struct random_fill_impl<std::vector<T>, Dim> {
-        template<typename Prng>
-        static void impl(std::vector<T>& vec, long ndims, Prng& gen)
+        template<typename Prng, typename Dist>
+        static void impl(std::vector<T>& vec, long ndims, Prng& gen, Dist& dist)
         {
-            if (Dim >= ndims) ranges::fill(vec, gen());
-            else for (auto& val : vec) val = gen();
+            if (Dim >= ndims) ranges::fill(vec, dist(gen));
+            else for (auto& val : vec) val = dist(gen);
         }
     };
 
     template<typename T, long Dim>
     struct random_fill_impl<std::vector<std::vector<T>>, Dim> {
-        template<typename Prng>
-        static void impl(std::vector<std::vector<T>>& vec, long ndims, Prng& gen)
+        template<typename Prng, typename Dist>
+        static void impl(std::vector<std::vector<T>>& vec, long ndims, Prng& gen, Dist& dist)
         {
             if (Dim >= ndims) {
-                auto val = gen();
+                auto val = dist(gen);
                 for (auto& elem : flat_view(vec)) elem = val;
             } else {
                 for (auto& subvec : vec) {
-                    random_fill_impl<std::vector<T>, Dim+1>::impl(subvec, ndims, gen);
+                    random_fill_impl<std::vector<T>, Dim+1>::impl(subvec, ndims, gen, dist);
                 }
             }
         }
@@ -471,15 +473,16 @@ namespace detail {
 ///
 /// Example:
 /// \code
-///     std::uniform_int_distribution gen = ...;
+///     std::mt19937 gen = ...;
+///     std::uniform_int_distribution dist = ...;
 ///     std::vector<std::vector<std::vector<int>>> data = {{{0, 0, 0},{0}}, {{0}{0, 0}}};
-///     random_fill(data, 0, gen);
+///     random_fill(data, 0, gen, dist);
 ///     // data == e.g., {{{4, 4, 4},{4}}, {{4}{4, 4}}};
-///     random_fill(data, 1, gen);
+///     random_fill(data, 1, gen, dist);
 ///     // data == e.g., {{{8, 8, 8},{8}}, {{2}{2, 2}}};
-///     random_fill(data, 2, gen);
+///     random_fill(data, 2, gen, dist);
 ///     // data == e.g., {{{8, 8, 8},{6}}, {{7}{3, 3}}};
-///     random_fill(data, 3, gen);
+///     random_fill(data, 3, gen, dist);
 ///     // data == e.g., {{{8, 2, 3},{1}}, {{2}{4, 7}}};
 /// \endcode
 ///
@@ -487,12 +490,15 @@ namespace detail {
 /// \param ndims The random generator will be used only for this number of dimension. The
 ///              rest of the dimensions will be filled by the last generated value.
 /// \param gen The random generator to be used.
-template<typename T, typename Prng = std::mt19937>
+/// \param dist The distribution to be used.
+template<typename T, typename Prng = std::mt19937&,
+         typename Dist = std::uniform_real_distribution<double>>
 constexpr void random_fill(std::vector<T>& vec,
                            long ndims = std::numeric_limits<long>::max(),
-                           Prng&& gen = Prng{std::random_device{}()})
+                           Prng&& gen = cxtream::utility::random_generator,
+                           Dist&& dist = Dist{0, 1})
 {
-    detail::random_fill_impl<std::vector<T>, 0>::impl(vec, ndims, gen);
+    detail::random_fill_impl<std::vector<T>, 0>::impl(vec, ndims, gen, dist);
 }
 
 namespace detail {

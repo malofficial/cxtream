@@ -277,15 +277,16 @@ BOOST_AUTO_TEST_CASE(test_reshape_move_only)
 BOOST_AUTO_TEST_CASE(test_random_fill_1d)
 {
     std::mt19937 gen{1000003};
-    std::vector<std::uint64_t> vec(10);
+    std::uniform_int_distribution<long> dist{0, 1000000000};
+    std::vector<long> vec(10);
 
-    random_fill(vec, 0, gen);
+    random_fill(vec, 0, gen, dist);
     BOOST_TEST(vec.size() == 10);
     vec |= ranges::action::sort;
     auto n_unique = ranges::distance(vec | ranges::view::unique);
     BOOST_TEST(n_unique == 1);
 
-    random_fill(vec, 5, gen);  // any number larger than 0 should suffice
+    random_fill(vec, 5, gen, dist);  // any number larger than 0 should suffice
     BOOST_TEST(vec.size() == 10);
     vec |= ranges::action::sort;
     n_unique = ranges::distance(vec | ranges::view::unique);
@@ -295,8 +296,8 @@ BOOST_AUTO_TEST_CASE(test_random_fill_1d)
 BOOST_AUTO_TEST_CASE(test_random_fill_2d)
 {
     std::mt19937 gen{1000003};
-    std::vector<std::vector<std::uint64_t>> vec = {std::vector<std::uint64_t>(10),
-                                                   std::vector<std::uint64_t>(5)};
+    std::vector<std::vector<double>> vec = {std::vector<double>(10),
+                                            std::vector<double>(5)};
 
     auto check = [](auto vec, std::vector<long> unique, long unique_total) {
         for (std::size_t i = 0; i < vec.size(); ++i) {
@@ -305,7 +306,7 @@ BOOST_AUTO_TEST_CASE(test_random_fill_2d)
             BOOST_TEST(n_unique == unique[i]);
         }
 
-        std::vector<std::uint64_t> all_vals = flat_view(vec);
+        std::vector<double> all_vals = flat_view(vec);
         all_vals |= ranges::action::sort;
         auto n_unique = ranges::distance(all_vals | ranges::view::unique);
         BOOST_TEST(n_unique == unique_total);
@@ -322,7 +323,7 @@ BOOST_AUTO_TEST_CASE(test_random_fill_2d)
 BOOST_AUTO_TEST_CASE(test_random_fill_3d)
 {
     std::mt19937 gen{1000003};
-    std::vector<std::vector<std::vector<std::uint64_t>>> vec =
+    std::vector<std::vector<std::vector<double>>> vec =
       {{{0, 0, 0}, {0, 0}, {0}}, {{0}, {0, 0}}};
 
     auto check = [](auto vec, std::vector<std::vector<long>> unique, long unique_total) {
@@ -334,7 +335,7 @@ BOOST_AUTO_TEST_CASE(test_random_fill_3d)
             }
         }
 
-        std::vector<std::uint64_t> all_vals = flat_view(vec);
+        std::vector<double> all_vals = flat_view(vec);
         all_vals |= ranges::action::sort;
         auto n_unique = ranges::distance(all_vals | ranges::view::unique);
         BOOST_TEST(n_unique == unique_total);

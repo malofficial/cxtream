@@ -27,7 +27,7 @@ using namespace cxtream::stream;
 using namespace cxtream::utility;
 
 CXTREAM_DEFINE_COLUMN(IntVec2d, std::vector<std::vector<int>>)
-CXTREAM_DEFINE_COLUMN(Random, std::vector<std::uint64_t>)
+CXTREAM_DEFINE_COLUMN(Random, std::vector<double>)
 
 template<typename Vector2d>
 void check(Vector2d vec, std::vector<long> unique, long unique_total)
@@ -38,7 +38,7 @@ void check(Vector2d vec, std::vector<long> unique, long unique_total)
         BOOST_TEST(n_unique == unique.at(i));
     }
 
-    std::vector<std::uint64_t> all_vals = flat_view(vec);
+    std::vector<double> all_vals = flat_view(vec);
     all_vals |= ranges::action::sort;
     auto n_unique = ranges::distance(all_vals | ranges::view::unique);
     BOOST_TEST(n_unique == unique_total);
@@ -57,7 +57,7 @@ BOOST_AUTO_TEST_CASE(test_simple)
       | random_fill(from<IntVec2d>, to<Random>, 1, gen);
 
     int batch_i = 0;
-    std::vector<std::vector<std::uint64_t>> all_random;
+    std::vector<std::vector<double>> all_random;
     for (auto batch : stream) {
         auto random = std::get<Random>(batch).value();
         switch (batch_i) {
