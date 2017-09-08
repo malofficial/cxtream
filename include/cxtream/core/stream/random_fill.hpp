@@ -11,6 +11,7 @@
 #define CXTREAM_CORE_STREAM_RANDOM_FILL_HPP
 
 #include <cxtream/core/stream/transform.hpp>
+#include <cxtream/core/utility/random.hpp>
 #include <cxtream/core/utility/vector.hpp>
 
 #include <range/v3/view/take.hpp>
@@ -48,7 +49,7 @@ template<typename FromColumn, typename ToColumn, typename Prng = std::mt19937>
 constexpr auto random_fill(from_t<FromColumn> size_from,
                            to_t<ToColumn> fill_to,
                            long ndims = std::numeric_limits<long>::max(),
-                           Prng&& gen = Prng{std::random_device{}()})
+                           Prng& gen = cxtream::utility::random_generator)
 {
     auto fun = [ndims, &gen](const auto& source) -> ToColumn {
         using SourceVector = std::decay_t<decltype(source)>;
