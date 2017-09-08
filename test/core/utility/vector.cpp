@@ -54,77 +54,60 @@ BOOST_AUTO_TEST_CASE(test_ndim_type_cutoff)
       ndim_type<std::list<std::vector<std::vector<double>>>, 2>::type>{});
 }
 
-BOOST_AUTO_TEST_CASE(test_ndim_size)
-{
-    const std::vector<int> vec =
-      {};
-    const std::vector<int> vec5 =
-      {0, 0, 0, 0, 0};
-    std::vector<std::vector<int>> vec3231 =
-      {{0, 0}, {0, 0, 0}, {0}};
-    const std::list<std::vector<std::vector<int>>> vec3302 =
-      {
-        {{0, 0, 0, 0}, {0, 0, 0}, {0, 0}},
-        {},
-        {{0}, {}}
-      };
-    std::vector<std::list<std::vector<int>>> vec200 =
-      {{}, {}};
-
-    test_ranges_equal(ndim_size(vec),
-      std::vector<std::vector<long>>{{0}});
-    test_ranges_equal(ndim_size(vec5),
-      std::vector<std::vector<long>>{{5}});
-    test_ranges_equal(ndim_size(vec3231),
-      std::vector<std::vector<long>>{{3}, {2, 3, 1}});
-    test_ranges_equal(ndim_size(vec3302),
-      std::vector<std::vector<long>>{{3}, {3, 0, 2}, {4, 3, 2, 1, 0}});
-    test_ranges_equal(ndim_size(vec200),
-      std::vector<std::vector<long>>{{2}, {0, 0}, {}});
-}
-
 BOOST_AUTO_TEST_CASE(test_ndim_size_cutoff)
 {
-    const std::vector<int> vec =
-      {};
-    const std::vector<int> vec5 =
-      {0, 0, 0, 0, 0};
-    std::vector<std::vector<int>> vec3231 =
-      {{0, 0}, {0, 0, 0}, {0}};
-    const std::list<std::vector<std::vector<int>>> vec3302 =
-      {
-        {{0, 0, 0, 0}, {0, 0, 0}, {0, 0}},
-        {},
-        {{0}, {}}
-      };
-    std::vector<std::list<std::vector<int>>> vec200 =
-      {{}, {}};
+    const std::vector<int> vec = {};
+    const std::vector<int> vec5 = {0, 0, 0, 0, 0};
+    std::vector<std::vector<int>> vec3231 = {{0, 0}, {0, 0, 0}, {0}};
+    const std::list<std::vector<std::vector<int>>> vec3302 = {
+      {{0, 0, 0, 0}, {0, 0, 0}, {0, 0}},
+      {},
+      {{0}, {}}
+    };
+    std::vector<std::list<std::vector<int>>> vec200 = {{}, {}};
 
     test_ranges_equal(ndim_size<1>(vec),
       std::vector<std::vector<long>>{{0}});
-    test_ranges_equal(ndim_size<0>(vec5),
-      std::vector<std::vector<long>>{});
+    test_ranges_equal(ndim_size<1>(vec5),
+      std::vector<std::vector<long>>{{5}});
     test_ranges_equal(ndim_size<1>(vec3231),
       std::vector<std::vector<long>>{{3}});
     test_ranges_equal(ndim_size<2>(vec3302),
       std::vector<std::vector<long>>{{3}, {3, 0, 2}});
-    test_ranges_equal(ndim_size<5>(vec200),
+    test_ranges_equal(ndim_size<3>(vec200),
       std::vector<std::vector<long>>{{2}, {0, 0}, {}});
+}
+
+BOOST_AUTO_TEST_CASE(test_ndim_size_default)
+{
+    // if the ndims<> function works correctly, this test is only necessary
+    // to check whether the code compiles fine
+    std::vector<std::vector<int>> vec3231 = {{0, 0}, {0, 0, 0}, {0}};
+    test_ranges_equal(ndim_size(vec3231), std::vector<std::vector<long>>{{3}, {2, 3, 1}});
+}
+
+BOOST_AUTO_TEST_CASE(test_shape_cutoff)
+{
+    const std::vector<int> vec5 = {0, 0, 0, 0, 0};
+    std::vector<std::list<int>> vec23 = {{0, 0, 0}, {0, 0, 0}};
+    const std::list<std::vector<std::vector<int>>> vec234 = {
+      {{0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}},
+      {{0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}}
+    };
+    std::vector<std::vector<std::vector<int>>> vec200 = {{}, {}};
+
+    test_ranges_equal(shape<1>(vec5),  std::vector<long>{5});
+    test_ranges_equal(shape<1>(vec23), std::vector<long>{2});
+    test_ranges_equal(shape<2>(vec234), std::vector<long>{2, 3});
+    test_ranges_equal(shape<3>(vec200), std::vector<long>{2, 0, 0});
 }
 
 BOOST_AUTO_TEST_CASE(test_shape)
 {
-    const std::vector<int> vec5 = {0, 0, 0, 0, 0};
-    std::vector<std::vector<int>> vec23 = {{0, 0, 0}, {0, 0, 0}};
-    const std::vector<std::vector<std::vector<int>>> vec234 = {
-        {{0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}},
-        {{0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}}
-    };
-    std::vector<std::vector<std::vector<int>>> vec200 = {{}, {}};
-    test_ranges_equal(shape(vec5),  std::vector<long>{5});
+    // if the ndims<> function works correctly, this test is only necessary
+    // to check whether the code compiles fine
+    std::vector<std::list<int>> vec23 = {{0, 0, 0}, {0, 0, 0}};
     test_ranges_equal(shape(vec23), std::vector<long>{2, 3});
-    test_ranges_equal(shape(vec234), std::vector<long>{2, 3, 4});
-    test_ranges_equal(shape(vec200), std::vector<long>{2, 0, 0});
 }
 
 BOOST_AUTO_TEST_CASE(test_ndim_resize)
@@ -137,9 +120,9 @@ BOOST_AUTO_TEST_CASE(test_ndim_resize)
     std::vector<int> vec5_desired = {7, 8, 9, 1, 1};
     std::vector<std::vector<int>> vec3231_desired = {{1, 1}, {3, 4, 2}, {2}};
     std::vector<std::vector<std::vector<int>>> vec3302_desired = {
-        {{0, 0, 0, 0}, {0, 0, 0}, {0, 0}},
-        {},
-        {{0}, {}}
+      {{0, 0, 0, 0}, {0, 0, 0}, {0, 0}},
+      {},
+      {{0}, {}}
     };
     std::vector<std::vector<std::vector<int>>> vec200_desired = {{}, {}};
 
@@ -157,8 +140,8 @@ BOOST_AUTO_TEST_CASE(test_ndim_resize)
 BOOST_AUTO_TEST_CASE(test_flatten)
 {
     const std::vector<std::vector<std::vector<int>>> vec = {
-        {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}},
-        {{10, 11, 12}, {13, 14, 15}}
+      {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}},
+      {{10, 11, 12}, {13, 14, 15}}
     };
     test_ranges_equal(flat_view(vec), ranges::view::iota(1, 16));
 }
@@ -172,8 +155,8 @@ BOOST_AUTO_TEST_CASE(test_flatten_identity)
 BOOST_AUTO_TEST_CASE(test_flatten_cutoff_dim1)
 {
     const std::vector<std::vector<std::vector<int>>> vec = {
-        {{1, 2}, {3, 4}, {5}},
-        {{6}, {7, 8}}
+      {{1, 2}, {3, 4}, {5}},
+      {{6}, {7, 8}}
     };
     std::vector<std::vector<std::vector<int>>> retrieved = flat_view<1>(vec);
     BOOST_CHECK(retrieved == vec);
@@ -182,11 +165,11 @@ BOOST_AUTO_TEST_CASE(test_flatten_cutoff_dim1)
 BOOST_AUTO_TEST_CASE(test_flatten_cutoff_dim2)
 {
     const std::vector<std::vector<std::vector<int>>> vec = {
-        {{1, 2}, {3, 4}, {5}},
-        {{6}, {7, 8}}
+      {{1, 2}, {3, 4}, {5}},
+      {{6}, {7, 8}}
     };
     const std::vector<std::vector<int>> desired = {
-        {{1, 2}, {3, 4}, {5}, {6}, {7, 8}}
+      {{1, 2}, {3, 4}, {5}, {6}, {7, 8}}
     };
     std::vector<std::vector<int>> retrieved = flat_view<2>(vec);
     BOOST_CHECK(retrieved == desired);
@@ -195,8 +178,8 @@ BOOST_AUTO_TEST_CASE(test_flatten_cutoff_dim2)
 BOOST_AUTO_TEST_CASE(test_flatten_empty)
 {
     std::vector<std::vector<std::vector<int>>> vec = {
-        {{}, {}, {}},
-        {}
+      {{}, {}, {}},
+      {}
     };
     test_ranges_equal(flat_view(vec), std::vector<int>{});
     std::vector<int> vec2 = {};
@@ -221,8 +204,8 @@ BOOST_AUTO_TEST_CASE(test_flatten_move_only)
 BOOST_AUTO_TEST_CASE(test_reshape_1d)
 {
     std::vector<std::vector<std::vector<int>>> vec = {
-        {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}},
-        {{10, 11, 12}, {13, 14, 15}}
+      {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}},
+      {{10, 11, 12}, {13, 14, 15}}
     };
     std::vector<int> rvec = reshaped_view<1>(vec, {15});
     BOOST_TEST(rvec.size() == 15);
@@ -232,8 +215,8 @@ BOOST_AUTO_TEST_CASE(test_reshape_1d)
 BOOST_AUTO_TEST_CASE(test_reshape_2d)
 {
     const std::vector<std::vector<std::vector<int>>> vec = {
-        {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}},
-        {{10, 11, 12}, {13, 14, 15}}
+      {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}},
+      {{10, 11, 12}, {13, 14, 15}}
     };
     std::vector<std::vector<int>> rvec = reshaped_view<2>(vec, {3, 5});
     BOOST_TEST(rvec.size() == 3);
@@ -246,8 +229,8 @@ BOOST_AUTO_TEST_CASE(test_reshape_2d)
 BOOST_AUTO_TEST_CASE(test_reshape_3d)
 {
     std::vector<std::vector<std::vector<int>>> vec = {
-        {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}},
-        {{10, 11, 12}, {13, 14, 15}}
+      {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}},
+      {{10, 11, 12}, {13, 14, 15}}
     };
     std::vector<std::vector<std::vector<int>>> rvec = reshaped_view<3>(vec, {3, 1, 5});
     BOOST_TEST(rvec.size() == 3);
@@ -260,8 +243,8 @@ BOOST_AUTO_TEST_CASE(test_reshape_3d)
 BOOST_AUTO_TEST_CASE(test_reshape_auto_dimension)
 {
     const std::vector<std::vector<std::vector<int>>> vec = {
-        {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}},
-        {{10, 11, 12}, {13, 14, 15}}
+      {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}},
+      {{10, 11, 12}, {13, 14, 15}}
     };
     std::vector<std::vector<int>> rvec1 = reshaped_view<2>(vec, {3, -1});
     std::vector<std::vector<int>> rvec2 = reshaped_view<2>(vec, {-1, 5});

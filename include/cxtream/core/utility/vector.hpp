@@ -11,6 +11,7 @@
 #define CXTREAM_CORE_VECTOR_UTILS_HPP
 
 #include <range/v3/action/reverse.hpp>
+#include <range/v3/algorithm/adjacent_find.hpp>
 #include <range/v3/algorithm/all_of.hpp>
 #include <range/v3/algorithm/fill.hpp>
 #include <range/v3/algorithm/find.hpp>
@@ -21,6 +22,7 @@
 
 #include <cassert>
 #include <cmath>
+#include <functional>
 #include <memory>
 #include <random>
 #include <type_traits>
@@ -78,27 +80,23 @@ struct ndim_type<Rng, -1>
 
 namespace detail {
 
-    template<typename Rng, long Dim, long Dims, bool IsRange = ranges::Range<Rng>()>
+    template<typename Rng, long Dim, long NDims>
     struct ndim_size_impl {
-    };
-
-    template<typename Rng, long Dim, long Dims>
-    struct ndim_size_impl<Rng, Dim, Dims, true> {
         static void impl(const Rng& rng, std::vector<std::vector<long>>& size_out)
         {
-            if (Dim == Dims) return;
-            size_out[Dim].push_back(ranges::size(rng));
+            size_out[Dim-1].push_back(ranges::size(rng));
             for (auto& subrng : rng) {
-                ndim_size_impl<ranges::range_value_type_t<Rng>, Dim+1, Dims>
+                ndim_size_impl<ranges::range_value_type_t<Rng>, Dim+1, NDims>
                   ::impl(subrng, size_out);
             }
         }
     };
 
-    template<typename Rng, long Dim, long Dims>
-    struct ndim_size_impl<Rng, Dim, Dims, false> {
-        static void impl(const Rng&, std::vector<std::vector<long>>&)
+    template<typename Rng, long Dim>
+    struct ndim_size_impl<Rng, Dim, Dim> {
+        static void impl(const Rng& rng, std::vector<std::vector<long>>& size_out)
         {
+            size_out[Dim-1].push_back(ranges::size(rng));
         }
     };
 
@@ -120,15 +118,14 @@ namespace detail {
 /// \endcode
 ///
 /// \param rng The multidimensional range whose size shall be calculated.
-/// \tparam Dims The maximum number of dimensions that should be considered.
+/// \tparam NDims The number of dimensions that should be considered.
 /// \returns The sizes of the given range.
-template<long Dims, typename Rng>
+template<long NDims, typename Rng>
 std::vector<std::vector<long>> ndim_size(const Rng& rng)
 {
-    // If the range has actually less dimensions, consider only those.
-    constexpr long valid_dims = std::min(ndims<Rng>::value, Dims);
-    std::vector<std::vector<long>> size_out(valid_dims);
-    detail::ndim_size_impl<Rng, 0, valid_dims>::impl(rng, size_out);
+    static_assert(NDims > 0);
+    std::vector<std::vector<long>> size_out(NDims);
+    detail::ndim_size_impl<Rng, 1, NDims>::impl(rng, size_out);
     return size_out;
 }
 
@@ -138,7 +135,7 @@ std::vector<std::vector<long>> ndim_size(const Rng& rng)
 template<typename Rng>
 std::vector<std::vector<long>> ndim_size(const Rng& rng)
 {
-    return ndim_size<ndims<Rng>{}>(rng);
+    return ::cxtream::utility::ndim_size<ndims<Rng>{}>(rng);
 }
 
 // multidimensional std::vector resize //
@@ -181,6 +178,7 @@ namespace detail {
 /// Resizes a multidimensional std::vector to the given size.
 ///
 /// i-th element of the given size vector are the sizes of the vectors in the i-th dimension.
+/// See ndim_size.
 ///
 /// Example:
 /// \code
@@ -192,7 +190,7 @@ namespace detail {
 /// \param vec The vector to be resized.
 /// \param vec_size The requested size created by ndim_size.
 /// \param val The value to pad with.
-/// \returns The requested size of the given vector.
+/// \returns The reference to the given vector after resizing.
 template<typename T, typename ValT = typename ndim_type<std::vector<T>>::type>
 std::vector<T>& ndim_resize(std::vector<T>& vec,
                             const std::vector<std::vector<long>>& vec_size,
@@ -210,74 +208,81 @@ std::vector<T>& ndim_resize(std::vector<T>& vec,
     return vec;
 }
 
-// multidimensional std::vector shape //
+// multidimensional range shape //
 
 namespace detail {
 
-    template<typename T, long Dim>
+    template<typename Rng, long Dim, long NDims>
     struct shape_impl {
-    };
-
-    template<typename T, long Dim>
-    struct shape_impl<std::vector<T>, Dim> {
-        static void impl(const std::vector<T>& vec, std::vector<long>& shape)
+        static void impl(const Rng& rng, std::vector<long>& shape)
         {
-            shape[Dim] = vec.size();
+            shape[Dim-1] = ranges::size(rng);
+            if (ranges::size(rng)) {
+                shape_impl<typename ranges::range_value_type_t<Rng>, Dim+1, NDims>
+                  ::impl(*ranges::begin(rng), shape);
+            }
         }
     };
 
-    template<typename T, long Dim>
-    struct shape_impl<std::vector<std::vector<T>>, Dim> {
-        static void impl(const std::vector<std::vector<T>>& vec, std::vector<long>& shape)
+    template<typename Rng, long Dim>
+    struct shape_impl<Rng, Dim, Dim> {
+        static void impl(const Rng& rng, std::vector<long>& shape)
         {
-            shape[Dim] = vec.size();
-            if (!vec.empty()) shape_impl<std::vector<T>, Dim+1>::impl(vec[0], shape);
+            shape[Dim-1] = ranges::size(rng);
         }
     };
 
-    template<typename T, long Dim>
-    struct check_shape_impl {
-    };
-
-    template<typename T, long Dim>
-    struct check_shape_impl<std::vector<T>, Dim> {
-        static bool impl(const std::vector<T>& vec, const std::vector<long>& shape)
+    // this is just for assertion purposes - check that the entire vector has a rectangular shape
+    template<typename Rng, long NDims>
+    struct check_rectangular_shape {
+        static bool all_same(std::vector<long>& vec)
         {
-            return static_cast<long>(vec.size()) == shape[Dim];
+            return ranges::adjacent_find(vec, std::not_equal_to<long>{}) == ranges::end(vec);
         }
-    };
-    template<typename T, long Dim>
-    struct check_shape_impl<std::vector<std::vector<T>>, Dim> {
-        static bool impl(const std::vector<std::vector<T>>& vec, const std::vector<long>& shape)
+
+        static bool impl(const Rng& rng)
         {
-            if (static_cast<long>(vec.size()) != shape[Dim]) return false;
-            return ranges::all_of(vec, [&shape](auto& subvec) {
-                return check_shape_impl<std::vector<T>, Dim+1>::impl(subvec, shape);
-            });
+            std::vector<std::vector<long>> size = ::cxtream::utility::ndim_size<NDims>(rng);
+            return ranges::all_of(size, all_same);
         }
     };
 
 }  // namespace detail
 
-/// Calculates the shape of a multidimensional std::vector.
+/// Calculates the shape of a multidimensional range.
 ///
 /// \code
-///     std::vector<std::vector<int>> vec{{1, 2}, {3, 4}, {5, 6}, {5, 6}};
-///     std::vector<long> vec_shape = shape(vec);
-///     // vec_shape == {4, 2};
+///     std::list<std::vector<int>> rng{{1, 2}, {3, 4}, {5, 6}, {5, 6}};
+///     std::vector<long> rng_shape = shape<2>(rng);
+///     // rng_shape == {4, 2};
+///     rng_shape = shape<1>(rng);
+///     // rng_shape == {4};
+///     rng_shape = shape(rng);  // the number of dimensions defaults to ndims<Rng>
+///     // rng_shape == {4, 2};
 /// \endcode
 ///
-/// \param vec The vector whose shape shall be calculated. All the vectors
+/// \param rng The range whose shape shall be calculated. All the subranges
 ///            on the same dimension have to be of equal size.
-/// \returns The shape of the given vector.
-template<typename T>
-std::vector<long> shape(const std::vector<T>& vec)
+/// \tparam NDims The number of dimensions that should be considered.
+/// \returns The shape of the given range.
+template<long NDims, typename Rng>
+std::vector<long> shape(const Rng& rng)
 {
-    std::vector<long> shape(ndims<std::vector<T>>{});
+    static_assert(NDims > 0);
+    std::vector<long> shape(NDims);
     // the ndim_size is not used for efficiency in ndebug mode (only the 0-th element is inspected)
-    detail::shape_impl<std::vector<T>, 0>::impl(vec, shape);
-    assert((detail::check_shape_impl<std::vector<T>, 0>::impl(vec, shape)));
+    detail::shape_impl<Rng, 1, NDims>::impl(rng, shape);
+    assert((detail::check_rectangular_shape<Rng, NDims>::impl(rng)));
     return shape;
+}
+
+/// Calculates the shape of a multidimensional range.
+///
+/// This overload automatically deduces the number of dimension using ndims<Rng>.
+template<typename Rng>
+std::vector<long> shape(const Rng& rng)
+{
+    return ::cxtream::utility::shape<ndims<Rng>{}>(rng);
 }
 
 // recursive std::vector flatten //
