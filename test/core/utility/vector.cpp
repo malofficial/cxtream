@@ -139,7 +139,7 @@ BOOST_AUTO_TEST_CASE(test_ndim_resize)
 
 BOOST_AUTO_TEST_CASE(test_flatten)
 {
-    const std::vector<std::vector<std::vector<int>>> vec = {
+    const std::vector<std::list<std::vector<int>>> vec = {
       {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}},
       {{10, 11, 12}, {13, 14, 15}}
     };
@@ -154,30 +154,30 @@ BOOST_AUTO_TEST_CASE(test_flatten_identity)
 
 BOOST_AUTO_TEST_CASE(test_flatten_cutoff_dim1)
 {
-    const std::vector<std::vector<std::vector<int>>> vec = {
+    const std::list<std::vector<std::vector<int>>> vec = {
       {{1, 2}, {3, 4}, {5}},
       {{6}, {7, 8}}
     };
     std::vector<std::vector<std::vector<int>>> retrieved = flat_view<1>(vec);
-    BOOST_CHECK(retrieved == vec);
+    test_ranges_equal(retrieved, vec);
 }
 
 BOOST_AUTO_TEST_CASE(test_flatten_cutoff_dim2)
 {
-    const std::vector<std::vector<std::vector<int>>> vec = {
+    const std::vector<std::vector<std::list<int>>> vec = {
       {{1, 2}, {3, 4}, {5}},
       {{6}, {7, 8}}
     };
-    const std::vector<std::vector<int>> desired = {
+    const std::vector<std::list<int>> desired = {
       {{1, 2}, {3, 4}, {5}, {6}, {7, 8}}
     };
-    std::vector<std::vector<int>> retrieved = flat_view<2>(vec);
+    std::vector<std::list<int>> retrieved = flat_view<2>(vec);
     BOOST_CHECK(retrieved == desired);
 }
 
 BOOST_AUTO_TEST_CASE(test_flatten_empty)
 {
-    std::vector<std::vector<std::vector<int>>> vec = {
+    std::list<std::vector<std::vector<int>>> vec = {
       {{}, {}, {}},
       {}
     };
@@ -188,12 +188,12 @@ BOOST_AUTO_TEST_CASE(test_flatten_empty)
 
 BOOST_AUTO_TEST_CASE(test_flatten_move_only)
 {
-    std::vector<std::vector<std::unique_ptr<int>>> vec;
-    std::vector<std::unique_ptr<int>> inner;
+    std::vector<std::list<std::unique_ptr<int>>> vec;
+    std::list<std::unique_ptr<int>> inner;
     inner.push_back(std::make_unique<int>(1));
     inner.push_back(std::make_unique<int>(2));
     vec.push_back(std::move(inner));
-    inner = std::vector<std::unique_ptr<int>>{};
+    inner = std::list<std::unique_ptr<int>>{};
     inner.push_back(std::make_unique<int>(3));
     inner.push_back(std::make_unique<int>(4));
     vec.push_back(std::move(inner));

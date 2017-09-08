@@ -285,49 +285,36 @@ std::vector<long> shape(const Rng& rng)
     return ::cxtream::utility::shape<ndims<Rng>{}>(rng);
 }
 
-// recursive std::vector flatten //
+// recursive range flatten //
 
 namespace detail {
 
     // recursively join the vector
-    template<typename VecT, long Dim>
+    template<long Dim>
     struct flat_view_impl {
         static auto impl()
         {
-            return ranges::view::for_each([](auto& subvec) {
-                return subvec | flat_view_impl<VecT, Dim-1>::impl();
+            return ranges::view::for_each([](auto& subrng) {
+                return subrng | flat_view_impl<Dim-1>::impl();
             });
         }
     };
 
-    // for 0 and 1, return the original vector
-    template<typename VecT>
-    struct flat_view_impl<VecT, 1> {
+    // for 0, return the original vector
+    template<>
+    struct flat_view_impl<1> {
         static auto impl()
         {
             return ranges::view::all;
         }
     };
 
-    template<typename VecT>
-    struct flat_view_impl<VecT, 0> : flat_view_impl<VecT, 1> {
-    };
-
-    // for -1, the number of dimensions is deduced automatically
-    template<typename VecT>
-    struct flat_view_impl<VecT, -1> {
-        static auto impl()
-        {
-            return flat_view_impl<VecT, ndims<VecT>{}>::impl();
-        }
-    };
-
 }  // namespace detail
 
-/// Makes a flat view out of a multidimensional std::vector.
+/// Makes a flat view out of a multidimensional range.
 ///
 /// \code
-///     std::vector<std::vector<int>> vec{{1, 2}, {3}, {}, {4, 5, 6}};
+///     std::vector<std::list<int>> vec{{1, 2}, {3}, {}, {4, 5, 6}};
 ///     std::vector<int> rvec = flat_view(vec);
 ///     // rvec == {1, 2, 3, 4, 5, 6};
 ///
@@ -336,19 +323,29 @@ namespace detail {
 ///     // rvec == {1, 2, 3, 4, 5, 6};
 /// \endcode
 ///
-/// \param vec The vector to be flattened.
-/// \returns Flat view (InputRange) of the given vector.
-template<long NDims = -1, typename T>
-auto flat_view(std::vector<T>& vec)
+/// \param rng The range to be flattened.
+/// \tparam NDims The number of dimensions that should be flattened into one.
+/// \returns Flat view (InputRange) of the given range.
+template<long NDims, typename Rng>
+auto flat_view(Rng& rng)
 {
-    return vec | detail::flat_view_impl<std::vector<T>, NDims>::impl();
+    static_assert(NDims > 0);
+    return rng | detail::flat_view_impl<NDims>::impl();
 }
 
 /// Const version of flat_view.
-template<long NDims = -1, typename T>
-auto flat_view(const std::vector<T>& vec)
+template<long NDims, typename Rng>
+auto flat_view(const Rng& rng)
 {
-    return vec | detail::flat_view_impl<std::vector<T>, NDims>::impl();
+    static_assert(NDims > 0);
+    return rng | detail::flat_view_impl<NDims>::impl();
+}
+
+/// flat_view specialization with automatically deduced number of dimensions.
+template<typename Rng>
+auto flat_view(Rng&& rng)
+{
+    return ::cxtream::utility::flat_view<ndims<Rng>{}>(std::forward<Rng>(rng));
 }
 
 // std::vector reshape //
