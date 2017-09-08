@@ -348,7 +348,7 @@ auto flat_view(Rng&& rng)
     return ::cxtream::utility::flat_view<ndims<Rng>{}>(std::forward<Rng>(rng));
 }
 
-// std::vector reshape //
+// reshaped view of a multidimensional range //
 
 namespace detail {
 
@@ -371,8 +371,8 @@ namespace detail {
         }
     };
 
-    template<long N, typename Vector>
-    auto reshaped_view_impl(Vector& vec, std::vector<long> shape)
+    template<long N, typename Rng>
+    auto reshaped_view_impl(Rng& vec, std::vector<long> shape)
     {
         assert(shape.size() == N);
         auto flat = flat_view(vec);
@@ -400,32 +400,32 @@ namespace detail {
 
 }  // namespace detail
 
-/// Makes a view of a multidimensional std::vector with a specific shape.
+/// Makes a view of a multidimensional range with a specific shape.
 ///
 /// Usage:
 /// \code
-///     std::vector<int> vec{1, 2, 3, 4, 5, 6};
-///     std::vector<std::vector<int>> rvec = reshaped_view<2>(vec, {2, 3});
-///     // rvec == {{1, 2, 3}, {4, 5, 6}};
+///     std::list<int> lst{1, 2, 3, 4, 5, 6};
+///     std::vector<std::vector<int>> rlst = reshaped_view<2>(lst, {2, 3});
+///     // rlst == {{1, 2, 3}, {4, 5, 6}};
 /// \endcode
 ///
-/// \param vec The base vector for the view.
+/// \param rng The base range for the view.
 /// \param shape The list of shapes. Those can contain a single -1, which denotes
 ///              that the dimension size shall be automatically deduced. All the other values
 ///              have to be positive.
 /// \tparam N The number of dimensions. Has to be equal to shape.size().
-/// \returns View (InputRange) of the original vector with the given shape.
-template<long N, typename T>
-auto reshaped_view(std::vector<T>& vec, std::vector<long> shape)
+/// \returns View (InputRange) of the original range with the given shape.
+template<long N, typename Rng>
+auto reshaped_view(Rng& rng, std::vector<long> shape)
 {
-    return detail::reshaped_view_impl<N, std::vector<T>>(vec, std::move(shape));
+    return detail::reshaped_view_impl<N, Rng>(rng, std::move(shape));
 }
 
 /// Const version of reshaped_view.
-template<long N, typename T>
-auto reshaped_view(const std::vector<T>& vec, std::vector<long> shape)
+template<long N, typename Rng>
+auto reshaped_view(const Rng& rng, std::vector<long> shape)
 {
-    return detail::reshaped_view_impl<N, const std::vector<T>>(vec, std::move(shape));
+    return detail::reshaped_view_impl<N, const Rng>(rng, std::move(shape));
 }
 
 // random fill //

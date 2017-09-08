@@ -203,7 +203,7 @@ BOOST_AUTO_TEST_CASE(test_flatten_move_only)
 
 BOOST_AUTO_TEST_CASE(test_reshape_1d)
 {
-    std::vector<std::vector<std::vector<int>>> vec = {
+    std::vector<std::list<std::vector<int>>> vec = {
       {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}},
       {{10, 11, 12}, {13, 14, 15}}
     };
@@ -214,7 +214,7 @@ BOOST_AUTO_TEST_CASE(test_reshape_1d)
 
 BOOST_AUTO_TEST_CASE(test_reshape_2d)
 {
-    const std::vector<std::vector<std::vector<int>>> vec = {
+    const std::list<std::vector<std::vector<int>>> vec = {
       {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}},
       {{10, 11, 12}, {13, 14, 15}}
     };
@@ -228,7 +228,7 @@ BOOST_AUTO_TEST_CASE(test_reshape_2d)
 
 BOOST_AUTO_TEST_CASE(test_reshape_3d)
 {
-    std::vector<std::vector<std::vector<int>>> vec = {
+    std::vector<std::vector<std::list<int>>> vec = {
       {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}},
       {{10, 11, 12}, {13, 14, 15}}
     };
@@ -242,7 +242,7 @@ BOOST_AUTO_TEST_CASE(test_reshape_3d)
 
 BOOST_AUTO_TEST_CASE(test_reshape_auto_dimension)
 {
-    const std::vector<std::vector<std::vector<int>>> vec = {
+    const std::list<std::vector<std::vector<int>>> vec = {
       {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}},
       {{10, 11, 12}, {13, 14, 15}}
     };
@@ -260,7 +260,7 @@ BOOST_AUTO_TEST_CASE(test_reshape_auto_dimension)
 
 BOOST_AUTO_TEST_CASE(test_reshape_move_only)
 {
-    std::vector<std::vector<std::unique_ptr<int>>> vec;
+    std::list<std::vector<std::unique_ptr<int>>> vec;
     std::vector<std::unique_ptr<int>> inner;
     inner.push_back(std::make_unique<int>(1));
     inner.push_back(std::make_unique<int>(2));
