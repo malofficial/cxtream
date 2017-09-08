@@ -489,6 +489,7 @@ namespace detail {
 /// \param vec The vector to be filled.
 /// \param ndims The random generator will be used only for this number of dimension. The
 ///              rest of the dimensions will be filled by the last generated value.
+///              Use std::numeric_limits<long>::max() to randomly fill all dimensions.
 /// \param gen The random generator to be used.
 /// \param dist The distribution to be used.
 template<typename T, typename Prng = std::mt19937&,
