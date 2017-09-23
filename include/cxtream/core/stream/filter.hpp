@@ -112,8 +112,8 @@ namespace detail {
                 Dim,
                 utility::variadic_find<ByColumns, FromColumns...>::value...>
                   ::impl(std::move(fun));
-            return partial_transform(f, to<FromColumns...>, std::move(fun_wrapper),
-                                     [](auto& column) { return std::ref(column.value()); });
+            return stream::partial_transform(f, to<FromColumns...>, std::move(fun_wrapper),
+                                             [](auto& column) { return std::ref(column.value()); });
         }
     };
 

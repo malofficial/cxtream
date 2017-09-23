@@ -112,8 +112,8 @@ constexpr auto transform(from_t<FromColumns...> f,
     // wrap the function to be applied in the appropriate dimension
     auto fun_wrapper = detail::wrap_fun_for_dim<Dim, sizeof...(ToColumns)>::impl(std::move(fun));
 
-    return partial_transform(f, t, std::move(fun_wrapper),
-                             [](auto& column) { return std::ref(column.value()); });
+    return stream::partial_transform(f, t, std::move(fun_wrapper),
+                                     [](auto& column) { return std::ref(column.value()); });
 }
 
 // probabilistic transform //
@@ -243,7 +243,7 @@ constexpr auto transform(
 
     // transform from both, FromColumns and ToColumns into ToColumns
     // the wrapper function takes care of extracting the parameters for the original function
-    return transform(from_t<FromColumns..., ToColumns...>{}, t, std::move(prob_fun), d);
+    return stream::transform(from_t<FromColumns..., ToColumns...>{}, t, std::move(prob_fun), d);
 }
 
 } // namespace cxtream::stream

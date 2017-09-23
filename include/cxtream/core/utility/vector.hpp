@@ -137,7 +137,7 @@ std::vector<std::vector<long>> ndim_size(const Rng& rng)
 template<typename Rng>
 std::vector<std::vector<long>> ndim_size(const Rng& rng)
 {
-    return ::cxtream::utility::ndim_size<ndims<Rng>{}>(rng);
+    return utility::ndim_size<ndims<Rng>{}>(rng);
 }
 
 // multidimensional std::vector resize //
@@ -244,7 +244,7 @@ namespace detail {
 
         static bool impl(const Rng& rng)
         {
-            std::vector<std::vector<long>> size = ::cxtream::utility::ndim_size<NDims>(rng);
+            std::vector<std::vector<long>> size = utility::ndim_size<NDims>(rng);
             return ranges::all_of(size, all_same);
         }
     };
@@ -284,7 +284,7 @@ std::vector<long> shape(const Rng& rng)
 template<typename Rng>
 std::vector<long> shape(const Rng& rng)
 {
-    return ::cxtream::utility::shape<ndims<Rng>{}>(rng);
+    return utility::shape<ndims<Rng>{}>(rng);
 }
 
 // recursive range flatten //
@@ -347,7 +347,7 @@ auto flat_view(const Rng& rng)
 template<typename Rng>
 auto flat_view(Rng&& rng)
 {
-    return ::cxtream::utility::flat_view<ndims<Rng>{}>(std::forward<Rng>(rng));
+    return utility::flat_view<ndims<Rng>{}>(std::forward<Rng>(rng));
 }
 
 // reshaped view of a multidimensional range //
@@ -496,7 +496,7 @@ template<typename T, typename Prng = std::mt19937&,
          typename Dist = std::uniform_real_distribution<double>>
 constexpr void random_fill(std::vector<T>& vec,
                            long ndims = std::numeric_limits<long>::max(),
-                           Prng&& gen = cxtream::utility::random_generator,
+                           Prng&& gen = utility::random_generator,
                            Dist&& dist = Dist{0, 1})
 {
     detail::random_fill_impl<std::vector<T>, 0>::impl(vec, ndims, gen, dist);

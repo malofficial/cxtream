@@ -117,61 +117,6 @@ BOOST_AUTO_TEST_CASE(test_tuple_index_view_writethrough)
     BOOST_TEST(std::get<double>(t1) == 3);
 }
 
-BOOST_AUTO_TEST_CASE(test_tuple_reverse_empty)
-{
-    // reverse empty
-    auto t1 = std::tuple<>{};
-    auto t2 = tuple_reverse(t1);
-    BOOST_TEST(t2 == std::tuple<>{});
-    t2 = std::move(t1);
-    BOOST_TEST(t2 == std::tuple<>{});
-}
-
-BOOST_AUTO_TEST_CASE(test_tuple_reverse_non_empty)
-{
-    // reverse non empty
-    auto t1 = std::make_tuple(0, 5., 'c', 3, 'a');
-    auto t2 = tuple_reverse(t1);
-    static_assert(std::is_same<std::tuple<char, int, char, double, int>, decltype(t2)>{});
-    BOOST_TEST(t2 == std::make_tuple('a', 3, 'c', 5., 0));
-    t2 = tuple_reverse(std::move(t1));
-    BOOST_TEST(t2 == std::make_tuple('a', 3, 'c', 5., 0));
-}
-
-BOOST_AUTO_TEST_CASE(test_tuple_reverse_references)
-{
-    // reverse for references
-    double d = 5.;
-    char c = 'c';
-    int i = 2;
-    auto t1 = std::make_tuple(std::ref(i), std::ref(d), std::ref(c));
-    auto t2 = tuple_reverse(t1);
-    static_assert(std::is_same<std::tuple<char&, double&, int&>, decltype(t2)>{});
-    BOOST_TEST(t2 == std::make_tuple('c', 5., 2));
-    std::get<1>(t2) = 7.;
-    BOOST_TEST(d == 7.);
-}
-
-BOOST_AUTO_TEST_CASE(test_tuple_reverse_move_only)
-{
-    // reverse move-only
-    auto t1 = std::make_tuple(std::unique_ptr<int>{},
-                              std::unique_ptr<double>{},
-                              std::unique_ptr<bool>{});
-    auto t2 = tuple_reverse(std::move(t1));
-    static_assert(std::is_same<std::tuple<std::unique_ptr<bool>,
-                                          std::unique_ptr<double>,
-                                          std::unique_ptr<int>>,
-                               decltype(t2)>{});
-}
-
-BOOST_AUTO_TEST_CASE(test_make_unique_tuple)
-{
-    auto tpl = make_unique_tuple(0, 1, '1', 'a', 2, 'b');
-    static_assert(std::is_same<std::tuple<int, char>, decltype(tpl)>{});
-    BOOST_TEST(tpl == std::make_tuple(0, '1'));
-}
-
 BOOST_AUTO_TEST_CASE(test_tuple_cat_unique_single)
 {
     // cat_unique add existing type
@@ -205,10 +150,9 @@ BOOST_AUTO_TEST_CASE(test_tuple_cat_unique_mix_lvalues)
     auto c = 5.;
     auto t1 = std::make_tuple(0, '2');
     auto t2 = tuple_cat_unique(std::move(t1), std::make_tuple(b, std::ref(c), 4, a));
-    static_assert(std::is_same<std::tuple<int, char, double&>, decltype(t2)>{});
+    // references are decayed to values
+    static_assert(std::is_same<std::tuple<int, char, double>, decltype(t2)>{});
     BOOST_TEST(t2 == std::make_tuple(0, '2', 5.));
-    std::get<2>(t2) = 7.;
-    BOOST_TEST(c == 7.);
 }
 
 BOOST_AUTO_TEST_CASE(test_tuple_cat_unique_move_only)
@@ -233,7 +177,8 @@ BOOST_AUTO_TEST_CASE(test_tuple_cat_unique_const)
     const auto t1 = std::make_tuple(4, std::cref(d), 7);
     const auto t2 = std::make_tuple(1., true, 8.);
     auto t3 = tuple_cat_unique(t1, t2);
-    static_assert(std::is_same<std::tuple<int, const double&, bool>, decltype(t3)>{});
+    // references are decayed to values
+    static_assert(std::is_same<std::tuple<int, double, bool>, decltype(t3)>{});
     BOOST_TEST(t3 == std::make_tuple(4, 6., true));
 }
 
@@ -391,10 +336,9 @@ BOOST_AUTO_TEST_CASE(test_tuple_remove_references)
     bool b = true;
     auto t1 = std::make_tuple(std::ref(l1), std::ref(l2), std::ref(b));
     auto t2 = tuple_remove<long>(std::move(t1));
-    static_assert(std::is_same<std::tuple<bool&>, decltype(t2)>{});
+    // references are converted to values
+    static_assert(std::is_same<std::tuple<bool>, decltype(t2)>{});
     BOOST_TEST(t2 == std::make_tuple(true));
-    std::get<0>(t2) = false;
-    BOOST_TEST(b == false);
 }
 
 BOOST_AUTO_TEST_CASE(test_tuple_remove_move_only)
@@ -406,19 +350,6 @@ BOOST_AUTO_TEST_CASE(test_tuple_remove_move_only)
     auto t2 = tuple_remove<std::unique_ptr<bool>>(std::move(t1));
     static_assert(std::is_same<std::tuple<std::unique_ptr<int>,
                                           std::unique_ptr<double>>,
-                               decltype(t2)>{});
-}
-
-BOOST_AUTO_TEST_CASE(test_tuple_remove_const_move_only)
-{
-    // tuple_remove const move-only
-    const auto i = std::make_unique<int>(3);
-    const auto b = std::make_unique<bool>(true);
-    const auto d = std::make_unique<double>(5.);
-    const auto t1 = std::make_tuple(std::cref(i), std::cref(b), std::cref(d));
-    auto t2 = tuple_remove<std::unique_ptr<bool>>(t1);
-    static_assert(std::is_same<std::tuple<const std::unique_ptr<int>&,
-                                          const std::unique_ptr<double>&>,
                                decltype(t2)>{});
 }
 

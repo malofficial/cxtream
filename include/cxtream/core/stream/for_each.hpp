@@ -101,8 +101,8 @@ constexpr auto for_each(from_t<FromColumns...> f, Fun fun, dim_t<Dim> d = dim_t<
     // wrap the function to be applied in the appropriate dimension
     auto fun_wrapper = detail::wrap_void_fun_for_dim<Dim>::impl(std::move(fun));
 
-    return partial_for_each(f, std::move(fun_wrapper),
-                            [](auto& column) { return std::ref(column.value()); });
+    return stream::partial_for_each(f, std::move(fun_wrapper),
+                                    [](auto& column) { return std::ref(column.value()); });
 }
 
 }  // namespace cxtream::stream
