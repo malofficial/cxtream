@@ -50,9 +50,7 @@ BOOST_AUTO_TEST_CASE(test_move_only_column)
     test_ranges_equal(generated, std::vector<int>{5, 6});
 }
 
-/*
-BOOST_AUTO_
-TEST_CASE(test_multiple_columns)
+BOOST_AUTO_TEST_CASE(test_multiple_columns)
 {
     // drop multiple columns
     std::vector<std::tuple<Int, Unique, Unique2>> data;
@@ -67,4 +65,3 @@ TEST_CASE(test_multiple_columns)
   
     test_ranges_equal(generated, std::vector<int>{5, 6});
 }
-*/

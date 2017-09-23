@@ -319,13 +319,22 @@ BOOST_AUTO_TEST_CASE(test_tuple_remove_not_contained)
     BOOST_TEST(t2 == std::make_tuple(2L, 5L, true));
 }
 
-BOOST_AUTO_TEST_CASE(test_tuple_remove_multiple)
+BOOST_AUTO_TEST_CASE(test_tuple_remove_choose_one_remove_multi)
 {
-    // tuple_remove multiple
+    // tuple_remove multiple fields of the same type
     auto t1 = std::make_tuple(2L, 5L, true);
     auto t2 = tuple_remove<long>(std::move(t1));
     static_assert(std::is_same<std::tuple<bool>, decltype(t2)>{});
     BOOST_TEST(t2 == std::make_tuple(true));
+}
+
+BOOST_AUTO_TEST_CASE(test_tuple_remove_choose_multi_remove_multi)
+{
+    // tuple_remove multiple fields of multiple types
+    auto t1 = std::make_tuple(2L, 5L, true, 'a', 3);
+    auto t2 = tuple_remove<long, char, bool>(t1);
+    static_assert(std::is_same<std::tuple<int>, decltype(t2)>{});
+    BOOST_TEST(t2 == std::make_tuple(3));
 }
 
 BOOST_AUTO_TEST_CASE(test_tuple_remove_references)

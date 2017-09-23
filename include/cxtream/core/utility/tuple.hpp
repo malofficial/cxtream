@@ -216,7 +216,7 @@ std::ostream& operator<<(std::ostream& out, const std::tuple<Ts...>& tuple)
 
 // tuple_remove //
 
-/// Remove a type from a tuple.
+/// Remove types from a tuple.
 ///
 /// Note: All the reference types are decayed during this operation.
 ///
@@ -226,12 +226,16 @@ std::ostream& operator<<(std::ostream& out, const std::tuple<Ts...>& tuple)
 ///     auto t2 = tuple_remove<int>(t1);
 ///     static_assert(std::is_same<std::tuple<char>, decltype(t2)>{});
 ///     assert(t2 == std::make_tuple('1'));
+///     auto t3 = tuple_remove<int, char>(std::make_tuple(0, 'a', 3L, 'b'));
+///     static_assert(std::is_same<std::tuple<long>, decltype(t3)>{});
+///     assert(t3 == std::make_tuple(3L));
 /// \endcode
-template<typename Rem, typename Tuple>
+template<typename... Rem, typename Tuple>
 constexpr auto tuple_remove(Tuple tuple)
 {
-    return boost::hana::remove_if(std::move(tuple), [](const auto& a) {
-        return std::is_same<std::decay_t<decltype(a)>, std::decay_t<Rem>>{};
+    constexpr auto to_remove = boost::hana::make_set(boost::hana::type_c<std::decay_t<Rem>>...);
+    return boost::hana::remove_if(std::move(tuple), [&to_remove](const auto& a) {
+        return boost::hana::contains(to_remove, boost::hana::type_c<std::decay_t<decltype(a)>>);
     });
 }
 
