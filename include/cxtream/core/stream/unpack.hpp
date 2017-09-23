@@ -29,7 +29,7 @@ namespace detail {
         return ranges::view::transform([](auto source) {
             auto proj = [](auto& column) { return std::move(column.value()); };
             auto subtuple = utility::tuple_type_view<FromColumns...>(source);
-            return utility::tuple_transform(std::move(proj), std::move(subtuple));
+            return utility::tuple_transform(std::move(subtuple), std::move(proj));
         });
     }
 
@@ -43,11 +43,11 @@ namespace detail {
             auto raw_range_of_tuples = range_of_tuples | unpack_columns<FromColumns...>();
             auto tuple_of_batches = utility::unzip(std::move(raw_range_of_tuples));
             // flatten the values in each column upto the given dimension
-            return utility::tuple_transform([](auto&& batch_range) {
+            return utility::tuple_transform(std::move(tuple_of_batches), [](auto&& batch_range) {
                 // make sure to convert the flat view to std::vector to avoid dangling ref
                 return utility::flat_view<Dim+1>(batch_range)
                   | ranges::view::move | ranges::to_vector;
-            }, std::move(tuple_of_batches));
+            });
         }
     };
 

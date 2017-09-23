@@ -38,7 +38,7 @@ namespace detail {
             return [fun = std::move(fun)](auto&& tuple) {
                 auto proj = [](auto& column) { return std::ref(column.value()); };
                 auto slice_view =
-                  utility::tuple_transform(proj, utility::tuple_type_view<Types...>(tuple));
+                  utility::tuple_transform(utility::tuple_type_view<Types...>(tuple), proj);
                 return std::experimental::apply(fun, std::move(slice_view));
             };
         }

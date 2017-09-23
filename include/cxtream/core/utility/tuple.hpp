@@ -85,12 +85,12 @@ namespace detail {
 /// Example:
 /// \code
 ///     auto tpl = std::make_tuple(5, 2.);
-///     tuple_for_each([](auto& val) { std::cout << val << '\n'; }, tpl);
+///     tuple_for_each(tpl, [](auto& val) { std::cout << val << '\n'; });
 /// \endcode
 ///
 /// \returns The function after application.
 template<typename Tuple, typename Fun>
-constexpr auto tuple_for_each(Fun&& fun, Tuple&& tuple)
+constexpr auto tuple_for_each(Tuple&& tuple, Fun&& fun)
 {
     constexpr std::size_t tuple_size = std::tuple_size<std::decay_t<Tuple>>{};
     return detail::tuple_for_each_impl(std::forward<Tuple>(tuple),
@@ -102,7 +102,7 @@ constexpr auto tuple_for_each(Fun&& fun, Tuple&& tuple)
 
 namespace detail {
 
-    template<typename Fun, typename Tuple, std::size_t... Is>
+    template<typename Tuple, typename Fun, std::size_t... Is>
     constexpr auto tuple_transform_impl(Tuple&& tuple, Fun&& fun, std::index_sequence<Is...>)
     {
         return std::make_tuple(std::invoke(fun, std::get<Is>(std::forward<Tuple>(tuple)))...);
@@ -117,14 +117,14 @@ namespace detail {
 /// Example:
 /// \code
 ///    auto t1 = std::make_tuple(0, 10L, 5.);
-///    auto t2 = tuple_transform([](const auto &v) { return v + 1; }, t1);
+///    auto t2 = tuple_transform(t1, [](const auto &v) { return v + 1; });
 ///    static_assert(std::is_same<std::tuple<int, long, double>, decltype(t2)>{});
 ///    assert(t2 == std::make_tuple(0 + 1, 10L + 1, 5. + 1));
 /// \endcode
 ///
 /// \returns The transformed tuple.
 template<typename Tuple, typename Fun>
-constexpr auto tuple_transform(Fun&& fun, Tuple&& tuple)
+constexpr auto tuple_transform(Tuple&& tuple, Fun&& fun)
 {
     constexpr std::size_t tuple_size = std::tuple_size<std::decay_t<Tuple>>{};
     return detail::tuple_transform_impl(std::forward<Tuple>(tuple),
@@ -278,8 +278,8 @@ namespace detail {
         std::size_t reserve_size = detail::safe_reserve_size(range_of_tuples);
 
         auto tuple_of_ranges = detail::vectorize_tuple<tuple_type>(indices);
-        utility::tuple_for_each([reserve_size](auto& rng) { rng.reserve(reserve_size); },
-                                tuple_of_ranges);
+        utility::tuple_for_each(
+          tuple_of_ranges, [reserve_size](auto& rng) { rng.reserve(reserve_size); });
 
         for (auto& v : range_of_tuples) {
             detail::push_unzipped(tuple_of_ranges, std::move(v), indices);
@@ -435,14 +435,14 @@ constexpr Fun times_with_index(Fun&& fun)
 /// \code
 ///     auto tpl = std::make_tuple(1, 2.);
 ///   
-///     tuple_for_each_with_index([](auto& val, auto index) {
+///     tuple_for_each_with_index(tpl, [](auto& val, auto index) {
 ///         val += index;
-///     }, tpl);
+///     });
 ///   
 ///     assert(tpl == std::make_tuple(1, 3.));
 /// \endcode
-template <typename Fun, typename Tuple>
-constexpr auto tuple_for_each_with_index(Fun&& fun, Tuple&& tuple)
+template <typename Tuple, typename Fun>
+constexpr auto tuple_for_each_with_index(Tuple&& tuple, Fun&& fun)
 {
     return utility::times_with_index<std::tuple_size<std::decay_t<Tuple>>{}>(
       [&fun, &tuple](auto index) {
@@ -455,7 +455,7 @@ constexpr auto tuple_for_each_with_index(Fun&& fun, Tuple&& tuple)
 namespace detail {
 
     template <typename Fun, typename Tuple, std::size_t... Is>
-    constexpr auto tuple_transform_with_index_impl(Fun&& fun, Tuple&& tuple,
+    constexpr auto tuple_transform_with_index_impl(Tuple&& tuple, Fun&& fun,
                                                    std::index_sequence<Is...>)
     {
         return std::make_tuple(std::invoke(fun, std::get<Is>(std::forward<Tuple>(tuple)),
@@ -470,17 +470,17 @@ namespace detail {
 /// \code
 ///     auto tpl = std::make_tuple(1, 0.25, 'a');
 ///   
-///     auto tpl2 = tuple_transform_with_index([](auto&& elem, auto index) {
+///     auto tpl2 = tuple_transform_with_index(tpl, [](auto&& elem, auto index) {
 ///         return elem + index;
-///     }, tpl);
+///     });
 ///   
 ///     assert(tpl2 == std::make_tuple(1, 1.25, 'c'));
 /// \endcode
-template <typename Fun, typename Tuple>
-constexpr auto tuple_transform_with_index(Fun&& fun, Tuple&& tuple)
+template <typename Tuple, typename Fun>
+constexpr auto tuple_transform_with_index(Tuple&& tuple, Fun&& fun)
 {
     return detail::tuple_transform_with_index_impl(
-      std::forward<Fun>(fun), std::forward<Tuple>(tuple),
+      std::forward<Tuple>(tuple), std::forward<Fun>(fun),
       std::make_index_sequence<std::tuple_size<std::decay_t<Tuple>>{}>{});
 }
 

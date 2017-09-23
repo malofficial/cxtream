@@ -186,7 +186,7 @@ BOOST_AUTO_TEST_CASE(test_tuple_transform)
 {
     // tuple_transform
     auto t1 = std::make_tuple(0, 10L, 5.);
-    auto t2 = tuple_transform([](const auto& v) { return v + 1; }, t1);
+    auto t2 = tuple_transform(t1, [](const auto& v) { return v + 1; });
     static_assert(std::is_same<std::tuple<int, long, double>, decltype(t2)>{});
     BOOST_TEST(t2 == std::make_tuple(0 + 1, 10L + 1, 5. + 1));
 }
@@ -195,7 +195,7 @@ BOOST_AUTO_TEST_CASE(test_tuple_transform_type_change)
 {
     // tuple_transform with type change
     auto t1 = std::make_tuple(0, 'a', 5.);
-    auto t2 = tuple_transform([](auto v) { return 10; }, t1);
+    auto t2 = tuple_transform(t1, [](auto v) { return 10; });
     static_assert(std::is_same<std::tuple<int, int, int>, decltype(t2)>{});
     BOOST_TEST(t2 == std::make_tuple(10, 10, 10));
 }
@@ -204,7 +204,7 @@ BOOST_AUTO_TEST_CASE(test_tuple_transform_empty)
 {
     // tuple_transform empty
     auto t1 = std::tuple<>{};
-    auto t2 = tuple_transform([](auto v) { return v + 1; }, t1);
+    auto t2 = tuple_transform(t1, [](auto v) { return v + 1; });
     static_assert(std::is_same<std::tuple<>, decltype(t2)>{});
     BOOST_TEST(t2 == std::tuple<>{});
 }
@@ -213,7 +213,7 @@ BOOST_AUTO_TEST_CASE(test_tuple_transform_move_only)
 {
     // tuple_transform move-only
     auto t1 = std::make_tuple(std::unique_ptr<int>{}, std::unique_ptr<double>{});
-    auto t2 = tuple_transform([](auto v) { return v; }, std::move(t1));
+    auto t2 = tuple_transform(std::move(t1), [](auto v) { return v; });
     static_assert(
       std::is_same<std::tuple<std::unique_ptr<int>, std::unique_ptr<double>>, decltype(t2)>{});
 }
@@ -240,12 +240,12 @@ BOOST_AUTO_TEST_CASE(test_tuple_transform_mutable)
         }
     } fun{called};
 
-    auto t2 = tuple_transform(fun, t1);
+    auto t2 = tuple_transform(t1, fun);
     static_assert(
       std::is_same<std::tuple<std::unique_ptr<int>, std::unique_ptr<double>>, decltype(t2)>{});
     BOOST_TEST(called == 2);
 
-    auto t3 = tuple_transform([](const auto& ptr) { return *ptr; }, t2);
+    auto t3 = tuple_transform(t2, [](const auto& ptr) { return *ptr; });
     static_assert(std::is_same<std::tuple<int, double>, decltype(t3)>{});
     BOOST_TEST(t3 == std::make_tuple(0, 1.));
 }
@@ -255,11 +255,11 @@ BOOST_AUTO_TEST_CASE(test_tuple_for_each)
     // tuple_for_each
     auto t1 = std::make_tuple(std::make_unique<int>(5), std::make_unique<double>(2.));
 
-    tuple_for_each([](auto& ptr) {
-          ptr = std::make_unique<std::remove_reference_t<decltype(*ptr)>>(*ptr + 1);
-      }, t1);
+    tuple_for_each(t1, [](auto& ptr) {
+        ptr = std::make_unique<std::remove_reference_t<decltype(*ptr)>>(*ptr + 1);
+    });
 
-    auto t2 = tuple_transform([](const auto &ptr) { return *ptr; }, t1);
+    auto t2 = tuple_transform(t1, [](const auto &ptr) { return *ptr; });
     static_assert(std::is_same<std::tuple<int, double>, decltype(t2)>{});
     BOOST_TEST(t2 == std::make_tuple(6, 3.));
 }
@@ -270,7 +270,7 @@ BOOST_AUTO_TEST_CASE(test_tuple_for_each_order)
     auto tuple = std::make_tuple(1, 2, 3);
     std::vector<int> tuple_clone;
 
-    tuple_for_each([&tuple_clone](int i) { tuple_clone.push_back(i); }, tuple);
+    tuple_for_each(tuple, [&tuple_clone](int i) { tuple_clone.push_back(i); });
     std::vector<int> desired = std::vector<int>{1, 2, 3};
     BOOST_TEST(tuple_clone == desired);
 }
@@ -293,10 +293,10 @@ BOOST_AUTO_TEST_CASE(test_tuple_for_each_mutable)
         }
     } fun;
 
-    fun = tuple_for_each(fun, t1);
+    fun = tuple_for_each(t1, fun);
     BOOST_TEST(fun.called == 2);
 
-    auto t2 = tuple_transform([](const auto& ptr) { return *ptr; }, t1);
+    auto t2 = tuple_transform(t1, [](const auto& ptr) { return *ptr; });
     static_assert(std::is_same<std::tuple<int, double>, decltype(t2)>{});
     BOOST_TEST(t2 == std::make_tuple(0, 1.));
 }
@@ -496,7 +496,7 @@ BOOST_AUTO_TEST_CASE(test_range_to_tuple)
     data.emplace_back(std::make_unique<int>(7));
 
     auto tpl = range_to_tuple<3>(std::move(data));
-    auto tpl_values = tuple_transform([](auto& ptr) { return *ptr; }, tpl);
+    auto tpl_values = tuple_transform(tpl, [](auto& ptr) { return *ptr; });
 
     std::tuple<int, int, int> tpl_desired{5, 6, 7};
     BOOST_TEST(tpl_values == tpl_desired);
@@ -523,7 +523,7 @@ BOOST_AUTO_TEST_CASE(test_tuple_for_each_with_index)
 {
     // tuple_for_each
     auto tpl = std::make_tuple(1, 2.);
-    tuple_for_each_with_index([](auto& val, auto index) { val += index; }, tpl);
+    tuple_for_each_with_index(tpl, [](auto& val, auto index) { val += index; });
     BOOST_TEST(tpl == std::make_tuple(1, 3.));
 }
 
@@ -531,7 +531,7 @@ BOOST_AUTO_TEST_CASE(test_transform_with_index)
 {
     auto tpl = std::make_tuple(1, 0.25, 'a');
     auto tpl2 =
-      tuple_transform_with_index([](auto&& elem, auto index) { return elem + index; }, tpl);
+      tuple_transform_with_index(tpl, [](auto&& elem, auto index) { return elem + index; });
     auto tpl2_desired = std::make_tuple(1, 1.25, 'c');
     BOOST_TEST(tpl2 == tpl2_desired);
 }
@@ -539,8 +539,8 @@ BOOST_AUTO_TEST_CASE(test_transform_with_index)
 BOOST_AUTO_TEST_CASE(test_transform_with_index_move_only)
 {
     auto tpl = std::make_tuple(std::make_unique<int>(1), std::make_unique<int>(2));
-    auto tpl2 = tuple_transform_with_index(
-      [](auto ptr, auto index) { return std::make_unique<int>(*ptr + index); }, std::move(tpl));
+    auto tpl2 = tuple_transform_with_index(std::move(tpl),
+      [](auto ptr, auto index) { return std::make_unique<int>(*ptr + index); });
     auto tpl2_values = std::make_tuple(*std::get<0>(tpl2), *std::get<1>(tpl2));
     auto tpl2_desired = std::make_tuple(1, 3);
     BOOST_TEST(tpl2_values == tpl2_desired);

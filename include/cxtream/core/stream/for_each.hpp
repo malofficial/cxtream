@@ -35,7 +35,7 @@ constexpr auto partial_for_each(from_t<FromTypes...>, Fun fun, Projection proj =
       (auto&& source) CXTREAM_MUTABLE_LAMBDA_V {
           // build the view for the transformer, i.e., slice and project
           auto slice_view =
-            utility::tuple_transform(proj, utility::tuple_type_view<FromTypes...>(source));
+            utility::tuple_transform(utility::tuple_type_view<FromTypes...>(source), proj);
           // apply the function
           std::invoke(fun, std::move(slice_view));
           // return the original
