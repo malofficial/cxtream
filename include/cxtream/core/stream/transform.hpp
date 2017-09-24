@@ -162,7 +162,7 @@ namespace detail {
           std::index_sequence<FromIndices...> from_indices,
           std::index_sequence<ToIndices...> to_indices)
         {
-            return [fun = std::move(fun), &prng, prob, from_indices, to_indices]
+            return [fun = std::move(fun), &prng, prob, to_indices]
               (auto&... cols) CXTREAM_MUTABLE_LAMBDA_V {
                 std::uniform_real_distribution<> dis(0, 1);
                 // make a tuple of all arguments

@@ -10,7 +10,10 @@
 #ifndef CXTREAM_CORE_VECTOR_UTILS_HPP
 #define CXTREAM_CORE_VECTOR_UTILS_HPP
 
+#include <cxtream/core/utility/random.hpp>
+
 #include <range/v3/action/reverse.hpp>
+#include <range/v3/algorithm/adjacent_find.hpp>
 #include <range/v3/algorithm/all_of.hpp>
 #include <range/v3/algorithm/fill.hpp>
 #include <range/v3/algorithm/find.hpp>
@@ -20,6 +23,8 @@
 #include <range/v3/view/for_each.hpp>
 
 #include <cassert>
+#include <cmath>
+#include <functional>
 #include <memory>
 #include <random>
 #include <type_traits>
@@ -27,40 +32,40 @@
 
 namespace cxtream::utility {
 
-/// Gets the number of dimensions of a multidimensional std::vector type.
+/// Gets the number of dimensions of a multidimensional range.
 ///
 /// Example:
 /// \code
-///     std::size_t vec_ndims = ndims<std::vector<std::vector<int>>>{};
-///     // vec_ndims == 2;
+///     std::size_t rng_ndims = ndims<std::vector<std::list<int>>>{};
+///     // rng_ndims == 2;
 /// \endcode
-template<typename T>
+template<typename T, bool IsRange = ranges::Range<T>()>
 struct ndims {
 };
 
 template<typename T>
-struct ndims<std::vector<T>> : std::integral_constant<long, 1L> {
+struct ndims<T, false> : std::integral_constant<long, 0L> {
 };
 
 template<typename T>
-struct ndims<std::vector<std::vector<T>>>
-  : std::integral_constant<long, ndims<std::vector<T>>{} + 1L> {
+struct ndims<T, true>
+  : std::integral_constant<long, ndims<ranges::range_value_type_t<T>>{} + 1L> {
 };
 
-/// Gets the innermost value_type of a multidimensional std::vector type.
+/// Gets the innermost value_type of a multidimensional range.
 ///
 /// The number of dimensions can be also provided manually.
 ///
 /// Example:
 /// \code
-///     using vec_type = ndim_type<std::vector<std::vector<int>>>::type;
-///     // vec_type is int
-///     using vec1_type = ndim_type<std::vector<std::vector<int>>, 1>::type;
-///     // vec1_type is std::vector<int>
+///     using rng_type = ndim_type<std::vector<std::list<int>>>::type;
+///     // rng_type is int
+///     using rng1_type = ndim_type<std::list<std::vector<int>>, 1>::type;
+///     // rng1_type is std::vector<int>
 /// \endcode
-template<typename VecT, long Dim = -1>
+template<typename Rng, long Dim = -1>
 struct ndim_type
-  : ndim_type<typename VecT::value_type, Dim-1> {
+  : ndim_type<typename ranges::range_value_type_t<Rng>, Dim-1> {
 };
 
 template<typename T>
@@ -68,60 +73,71 @@ struct ndim_type<T, 0> {
     using type = T;
 };
 
-template<typename VecT>
-struct ndim_type<VecT, -1>
-  : ndim_type<VecT, ndims<VecT>{}> {
+template<typename Rng>
+struct ndim_type<Rng, -1>
+  : ndim_type<Rng, ndims<Rng>{}> {
 };
 
-// multidimensional std::vector size //
+// multidimensional range size //
 
 namespace detail {
 
-    template<typename T, long Dim>
+    template<typename Rng, long Dim, long NDims>
     struct ndim_size_impl {
-    };
-
-    template<typename T, long Dim>
-    struct ndim_size_impl<std::vector<T>, Dim> {
-        static void impl(const std::vector<T>& vec, std::vector<std::vector<long>>& size_out)
+        static void impl(const Rng& rng, std::vector<std::vector<long>>& size_out)
         {
-            size_out[Dim].push_back(vec.size());
+            size_out[Dim-1].push_back(ranges::size(rng));
+            for (auto& subrng : rng) {
+                ndim_size_impl<ranges::range_value_type_t<Rng>, Dim+1, NDims>
+                  ::impl(subrng, size_out);
+            }
         }
     };
 
-    template<typename T, long Dim>
-    struct ndim_size_impl<std::vector<std::vector<T>>, Dim> {
-        static void impl(const std::vector<std::vector<T>>& vec,
-                         std::vector<std::vector<long>>& size_out)
+    template<typename Rng, long Dim>
+    struct ndim_size_impl<Rng, Dim, Dim> {
+        static void impl(const Rng& rng, std::vector<std::vector<long>>& size_out)
         {
-            size_out[Dim].push_back(vec.size());
-            for (auto& subvec : vec) {
-                ndim_size_impl<std::vector<T>, Dim+1>::impl(subvec, size_out);
-            }
+            size_out[Dim-1].push_back(ranges::size(rng));
         }
     };
 
 }  // namespace detail
 
-/// Calculates the size of a multidimensional std::vector.
+/// Calculates the size of a multidimensional range.
 ///
-/// i-th element of the resulting vector are the sizes of the vectors in the i-th dimension.
+/// i-th element of the resulting vector are the sizes of the ranges in the i-th dimension.
 ///
 /// Example:
 /// \code
-///     std::vector<std::vector<int>> vec{{1, 2, 3}, {1}, {5, 6}, {7}};
-///     std::vector<std::vector<long>> vec_size = ndim_size(vec);
-///     // vec_size == {{4}, {3, 1, 2, 1}};
+///     std::vector<std::list<int>> rng{{1, 2, 3}, {1}, {5, 6}, {7}};
+///     std::vector<std::vector<long>> rng_size = ndim_size<2>(rng);
+///     // rng_size == {{4}, {3, 1, 2, 1}};
+///     rng_size = ndim_size(rng); // default number of dimensions is the depth of nested ranges
+///     // rng_size == {{4}, {3, 1, 2, 1}};
+///     rng_size = ndim_size<1>(rng);
+///     // rng_size == {{4}};
 /// \endcode
 ///
-/// \param vec The vector whose size shall be calculated.
-/// \returns The sizes of the given vector.
-template<typename T>
-std::vector<std::vector<long>> ndim_size(const std::vector<T>& vec)
+/// \param rng The multidimensional range whose size shall be calculated.
+/// \tparam NDims The number of dimensions that should be considered.
+/// \returns The sizes of the given range.
+template<long NDims, typename Rng>
+std::vector<std::vector<long>> ndim_size(const Rng& rng)
 {
-    std::vector<std::vector<long>> size_out(ndims<std::vector<T>>{});
-    detail::ndim_size_impl<std::vector<T>, 0>::impl(vec, size_out);
+    static_assert(NDims > 0);
+    std::vector<std::vector<long>> size_out(NDims);
+    detail::ndim_size_impl<Rng, 1, NDims>::impl(rng, size_out);
     return size_out;
+}
+
+/// Calculates the size of a multidimensional range.
+///
+/// This overload automatically deduces the number of dimension using ndims<Rng>.
+template<typename Rng>
+std::vector<std::vector<long>> ndim_size(const Rng& rng)
+{
+    return ::cxtream::utility::ndim_size<ndims<Rng>{}>(rng);
 }
 
 // multidimensional std::vector resize //
@@ -164,6 +180,7 @@ namespace detail {
 /// Resizes a multidimensional std::vector to the given size.
 ///
 /// i-th element of the given size vector are the sizes of the vectors in the i-th dimension.
+/// See ndim_size.
 ///
 /// Example:
 /// \code
@@ -173,9 +190,9 @@ namespace detail {
 /// \endcode
 ///
 /// \param vec The vector to be resized.
-/// \param vec_size The vector to be resized.
+/// \param vec_size The requested size created by ndim_size.
 /// \param val The value to pad with.
-/// \returns The requested size of the given vector.
+/// \returns The reference to the given vector after resizing.
 template<typename T, typename ValT = typename ndim_type<std::vector<T>>::type>
 std::vector<T>& ndim_resize(std::vector<T>& vec,
                             const std::vector<std::vector<long>>& vec_size,
@@ -193,119 +210,113 @@ std::vector<T>& ndim_resize(std::vector<T>& vec,
     return vec;
 }
 
-// multidimensional std::vector shape //
+// multidimensional range shape //
 
 namespace detail {
 
-    template<typename T, long Dim>
+    template<typename Rng, long Dim, long NDims>
     struct shape_impl {
-    };
-
-    template<typename T, long Dim>
-    struct shape_impl<std::vector<T>, Dim> {
-        static void impl(const std::vector<T>& vec, std::vector<long>& shape)
+        static void impl(const Rng& rng, std::vector<long>& shape)
         {
-            shape[Dim] = vec.size();
+            shape[Dim-1] = ranges::size(rng);
+            if (ranges::size(rng)) {
+                shape_impl<typename ranges::range_value_type_t<Rng>, Dim+1, NDims>
+                  ::impl(*ranges::begin(rng), shape);
+            }
         }
     };
 
-    template<typename T, long Dim>
-    struct shape_impl<std::vector<std::vector<T>>, Dim> {
-        static void impl(const std::vector<std::vector<T>>& vec, std::vector<long>& shape)
+    template<typename Rng, long Dim>
+    struct shape_impl<Rng, Dim, Dim> {
+        static void impl(const Rng& rng, std::vector<long>& shape)
         {
-            shape[Dim] = vec.size();
-            if (!vec.empty()) shape_impl<std::vector<T>, Dim+1>::impl(vec[0], shape);
+            shape[Dim-1] = ranges::size(rng);
         }
     };
 
-    template<typename T, long Dim>
-    struct check_shape_impl {
-    };
-
-    template<typename T, long Dim>
-    struct check_shape_impl<std::vector<T>, Dim> {
-        static bool impl(const std::vector<T>& vec, const std::vector<long>& shape)
+    // this is just for assertion purposes - check that the entire vector has a rectangular shape
+    template<typename Rng, long NDims>
+    struct check_rectangular_shape {
+        static bool all_same(std::vector<long>& vec)
         {
-            return static_cast<long>(vec.size()) == shape[Dim];
+            return ranges::adjacent_find(vec, std::not_equal_to<long>{}) == ranges::end(vec);
         }
-    };
-    template<typename T, long Dim>
-    struct check_shape_impl<std::vector<std::vector<T>>, Dim> {
-        static bool impl(const std::vector<std::vector<T>>& vec, const std::vector<long>& shape)
+
+        static bool impl(const Rng& rng)
         {
-            if (static_cast<long>(vec.size()) != shape[Dim]) return false;
-            return ranges::all_of(vec, [&shape](auto& subvec) {
-                return check_shape_impl<std::vector<T>, Dim+1>::impl(subvec, shape);
-            });
+            std::vector<std::vector<long>> size = ::cxtream::utility::ndim_size<NDims>(rng);
+            return ranges::all_of(size, all_same);
         }
     };
 
 }  // namespace detail
 
-/// Calculates the shape of a multidimensional std::vector.
+/// Calculates the shape of a multidimensional range.
 ///
 /// \code
-///     std::vector<std::vector<int>> vec{{1, 2}, {3, 4}, {5, 6}, {5, 6}};
-///     std::vector<long> vec_shape = shape(vec);
-///     // vec_shape == {4, 2};
+///     std::list<std::vector<int>> rng{{1, 2}, {3, 4}, {5, 6}, {5, 6}};
+///     std::vector<long> rng_shape = shape<2>(rng);
+///     // rng_shape == {4, 2};
+///     rng_shape = shape<1>(rng);
+///     // rng_shape == {4};
+///     rng_shape = shape(rng);  // the number of dimensions defaults to ndims<Rng>
+///     // rng_shape == {4, 2};
 /// \endcode
 ///
-/// \param vec The vector whose shape shall be calculated. All the vectors
+/// \param rng The range whose shape shall be calculated. All the subranges
 ///            on the same dimension have to be of equal size.
-/// \returns The shape of the given vector.
-template<typename T>
-std::vector<long> shape(const std::vector<T>& vec)
+/// \tparam NDims The number of dimensions that should be considered.
+/// \returns The shape of the given range.
+template<long NDims, typename Rng>
+std::vector<long> shape(const Rng& rng)
 {
-    std::vector<long> shape(ndims<std::vector<T>>{});
+    static_assert(NDims > 0);
+    std::vector<long> shape(NDims);
     // the ndim_size is not used for efficiency in ndebug mode (only the 0-th element is inspected)
-    detail::shape_impl<std::vector<T>, 0>::impl(vec, shape);
-    assert((detail::check_shape_impl<std::vector<T>, 0>::impl(vec, shape)));
+    detail::shape_impl<Rng, 1, NDims>::impl(rng, shape);
+    assert((detail::check_rectangular_shape<Rng, NDims>::impl(rng)));
     return shape;
 }
 
-// recursive std::vector flatten //
+/// Calculates the shape of a multidimensional range.
+///
+/// This overload automatically deduces the number of dimension using ndims<Rng>.
+template<typename Rng>
+std::vector<long> shape(const Rng& rng)
+{
+    return ::cxtream::utility::shape<ndims<Rng>{}>(rng);
+}
+
+// recursive range flatten //
 
 namespace detail {
 
     // recursively join the vector
-    template<typename VecT, long Dim>
+    template<long Dim>
     struct flat_view_impl {
         static auto impl()
         {
-            return ranges::view::for_each([](auto& subvec) {
-                return subvec | flat_view_impl<VecT, Dim-1>::impl();
+            return ranges::view::for_each([](auto& subrng) {
+                return subrng | flat_view_impl<Dim-1>::impl();
             });
         }
     };
 
-    // for 0 and 1, return the original vector
-    template<typename VecT>
-    struct flat_view_impl<VecT, 1> {
+    // for 0, return the original vector
+    template<>
+    struct flat_view_impl<1> {
         static auto impl()
         {
             return ranges::view::all;
         }
     };
 
-    template<typename VecT>
-    struct flat_view_impl<VecT, 0> : flat_view_impl<VecT, 1> {
-    };
-
-    // for -1, the number of dimensions is deduced automatically
-    template<typename VecT>
-    struct flat_view_impl<VecT, -1> {
-        static auto impl()
-        {
-            return flat_view_impl<VecT, ndims<VecT>{}>::impl();
-        }
-    };
-
 }  // namespace detail
 
-/// Makes a flat view out of a multidimensional std::vector.
+/// Makes a flat view out of a multidimensional range.
 ///
 /// \code
-///     std::vector<std::vector<int>> vec{{1, 2}, {3}, {}, {4, 5, 6}};
+///     std::vector<std::list<int>> vec{{1, 2}, {3}, {}, {4, 5, 6}};
 ///     std::vector<int> rvec = flat_view(vec);
 ///     // rvec == {1, 2, 3, 4, 5, 6};
 ///
@@ -314,22 +325,32 @@ namespace detail {
 ///     // rvec == {1, 2, 3, 4, 5, 6};
 /// \endcode
 ///
-/// \param vec The vector to be flattened.
-/// \returns Flat view (InputRange) of the given vector.
-template<long NDims = -1, typename T>
-auto flat_view(std::vector<T>& vec)
+/// \param rng The range to be flattened.
+/// \tparam NDims The number of dimensions that should be flattened into one.
+/// \returns Flat view (InputRange) of the given range.
+template<long NDims, typename Rng>
+auto flat_view(Rng& rng)
 {
-    return vec | detail::flat_view_impl<std::vector<T>, NDims>::impl();
+    static_assert(NDims > 0);
+    return rng | detail::flat_view_impl<NDims>::impl();
 }
 
 /// Const version of flat_view.
-template<long NDims = -1, typename T>
-auto flat_view(const std::vector<T>& vec)
+template<long NDims, typename Rng>
+auto flat_view(const Rng& rng)
 {
-    return vec | detail::flat_view_impl<std::vector<T>, NDims>::impl();
+    static_assert(NDims > 0);
+    return rng | detail::flat_view_impl<NDims>::impl();
 }
 
-// std::vector reshape //
+/// flat_view specialization with automatically deduced number of dimensions.
+template<typename Rng>
+auto flat_view(Rng&& rng)
+{
+    return ::cxtream::utility::flat_view<ndims<Rng>{}>(std::forward<Rng>(rng));
+}
+
+// reshaped view of a multidimensional range //
 
 namespace detail {
 
@@ -352,8 +373,8 @@ namespace detail {
         }
     };
 
-    template<long N, typename Vector>
-    auto reshaped_view_impl(Vector& vec, std::vector<long> shape)
+    template<long N, typename Rng>
+    auto reshaped_view_impl(Rng& vec, std::vector<long> shape)
     {
         assert(shape.size() == N);
         auto flat = flat_view(vec);
@@ -381,32 +402,32 @@ namespace detail {
 
 }  // namespace detail
 
-/// Makes a view of a multidimensional std::vector with a specific shape.
+/// Makes a view of a multidimensional range with a specific shape.
 ///
 /// Usage:
 /// \code
-///     std::vector<int> vec{1, 2, 3, 4, 5, 6};
-///     std::vector<std::vector<int>> rvec = reshaped_view<2>(vec, {2, 3});
-///     // rvec == {{1, 2, 3}, {4, 5, 6}};
+///     std::list<int> lst{1, 2, 3, 4, 5, 6};
+///     std::vector<std::vector<int>> rlst = reshaped_view<2>(lst, {2, 3});
+///     // rlst == {{1, 2, 3}, {4, 5, 6}};
 /// \endcode
 ///
-/// \param vec The base vector for the view.
+/// \param rng The base range for the view.
 /// \param shape The list of shapes. Those can contain a single -1, which denotes
 ///              that the dimension size shall be automatically deduced. All the other values
 ///              have to be positive.
 /// \tparam N The number of dimensions. Has to be equal to shape.size().
-/// \returns View (InputRange) of the original vector with the given shape.
-template<long N, typename T>
-auto reshaped_view(std::vector<T>& vec, std::vector<long> shape)
+/// \returns View (InputRange) of the original range with the given shape.
+template<long N, typename Rng>
+auto reshaped_view(Rng& rng, std::vector<long> shape)
 {
-    return detail::reshaped_view_impl<N, std::vector<T>>(vec, std::move(shape));
+    return detail::reshaped_view_impl<N, Rng>(rng, std::move(shape));
 }
 
 /// Const version of reshaped_view.
-template<long N, typename T>
-auto reshaped_view(const std::vector<T>& vec, std::vector<long> shape)
+template<long N, typename Rng>
+auto reshaped_view(const Rng& rng, std::vector<long> shape)
 {
-    return detail::reshaped_view_impl<N, const std::vector<T>>(vec, std::move(shape));
+    return detail::reshaped_view_impl<N, const Rng>(rng, std::move(shape));
 }
 
 // random fill //
@@ -419,25 +440,25 @@ namespace detail {
 
     template<typename T, long Dim>
     struct random_fill_impl<std::vector<T>, Dim> {
-        template<typename Prng>
-        static void impl(std::vector<T>& vec, long ndims, Prng& gen)
+        template<typename Prng, typename Dist>
+        static void impl(std::vector<T>& vec, long ndims, Prng& gen, Dist& dist)
         {
-            if (Dim >= ndims) ranges::fill(vec, gen());
-            else for (auto& val : vec) val = gen();
+            if (Dim >= ndims) ranges::fill(vec, dist(gen));
+            else for (auto& val : vec) val = dist(gen);
         }
     };
 
     template<typename T, long Dim>
     struct random_fill_impl<std::vector<std::vector<T>>, Dim> {
-        template<typename Prng>
-        static void impl(std::vector<std::vector<T>>& vec, long ndims, Prng& gen)
+        template<typename Prng, typename Dist>
+        static void impl(std::vector<std::vector<T>>& vec, long ndims, Prng& gen, Dist& dist)
         {
             if (Dim >= ndims) {
-                auto val = gen();
+                auto val = dist(gen);
                 for (auto& elem : flat_view(vec)) elem = val;
             } else {
                 for (auto& subvec : vec) {
-                    random_fill_impl<std::vector<T>, Dim+1>::impl(subvec, ndims, gen);
+                    random_fill_impl<std::vector<T>, Dim+1>::impl(subvec, ndims, gen, dist);
                 }
             }
         }
@@ -452,28 +473,33 @@ namespace detail {
 ///
 /// Example:
 /// \code
-///     std::uniform_int_distribution gen = ...;
+///     std::mt19937 gen = ...;
+///     std::uniform_int_distribution dist = ...;
 ///     std::vector<std::vector<std::vector<int>>> data = {{{0, 0, 0},{0}}, {{0}{0, 0}}};
-///     random_fill(data, 0, gen);
+///     random_fill(data, 0, gen, dist);
 ///     // data == e.g., {{{4, 4, 4},{4}}, {{4}{4, 4}}};
-///     random_fill(data, 1, gen);
+///     random_fill(data, 1, gen, dist);
 ///     // data == e.g., {{{8, 8, 8},{8}}, {{2}{2, 2}}};
-///     random_fill(data, 2, gen);
+///     random_fill(data, 2, gen, dist);
 ///     // data == e.g., {{{8, 8, 8},{6}}, {{7}{3, 3}}};
-///     random_fill(data, 3, gen);
+///     random_fill(data, 3, gen, dist);
 ///     // data == e.g., {{{8, 2, 3},{1}}, {{2}{4, 7}}};
 /// \endcode
 ///
 /// \param vec The vector to be filled.
 /// \param ndims The random generator will be used only for this number of dimension. The
 ///              rest of the dimensions will be filled by the last generated value.
+///              Use std::numeric_limits<long>::max() to randomly fill all dimensions.
 /// \param gen The random generator to be used.
-template<typename T, typename Prng = std::mt19937>
+/// \param dist The distribution to be used.
+template<typename T, typename Prng = std::mt19937&,
+         typename Dist = std::uniform_real_distribution<double>>
 constexpr void random_fill(std::vector<T>& vec,
                            long ndims = std::numeric_limits<long>::max(),
-                           Prng&& gen = Prng{std::random_device{}()})
+                           Prng&& gen = cxtream::utility::random_generator,
+                           Dist&& dist = Dist{0, 1})
 {
-    detail::random_fill_impl<std::vector<T>, 0>::impl(vec, ndims, gen);
+    detail::random_fill_impl<std::vector<T>, 0>::impl(vec, ndims, gen, dist);
 }
 
 namespace detail {

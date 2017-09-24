@@ -50,7 +50,7 @@ namespace detail {
                                                                        \
         static NP_TYPE convert(C_TYPE val)                             \
         {                                                              \
-            return {val};                                              \
+            return val;                                                \
         }                                                              \
                                                                        \
         static int typenum()                                           \
