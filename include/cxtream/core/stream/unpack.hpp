@@ -65,11 +65,12 @@ namespace detail {
 
 }  // namespace detail
 
-/// Unpack a stream into a tuple of ranges.
+/// \ingroup Stream
+/// \brief Unpack a stream into a tuple of ranges.
 ///
 /// This operation transforms the stream (i.e., a range of tuples of columns) into a
 /// tuple of the types represented by the columns. The data can be unpacked in a specific
-/// dimension and the preceding dimensions are joined together.
+/// dimension and then the higher dimensions are joined together.
 ///
 /// If there is only a single column to be unpacked, the result is an std::vector of the
 /// corresponding type. If there are multiple columns to be unpacked, the result is a tuple of
@@ -81,16 +82,19 @@ namespace detail {
 ///     CXTREAM_DEFINE_COLUMN(values, std::vector<double>)
 ///
 ///     std::vector<std::tuple<int, std::vector<double>>> data = {{3, {5., 7.}}, {1, {2., 4.}}};
-///     auto rng = data | cxtream::create<id, values>(4);
+///     auto rng = data | create<id, values>(4);
 ///
 ///     // unpack in the first dimesion
 ///     std::vector<int> unp_ids;
 ///     std::vector<std::vector<double>> unp_values;
-///     std::tie(unp_ids, unp_values) = cxtream::unpack(rng, from<id, values>);
+///     std::tie(unp_ids, unp_values) = unpack(rng, from<id, values>);
+///     // unp_ids == {3, 1}
+///     // unp_values == {{5., 7.}, {2., 4.}}
 ///
 ///     // unpack a single column in the second dimesion
 ///     std::vector<double> unp_values_dim2;
-///     unp_values_dim2 = cxtream::unpack(rng, from<values>, dim<2>);
+///     unp_values_dim2 = unpack(rng, from<values>, dim<2>);
+///     // unp_values_dim2 == {5., 7., 2., 4.}
 /// \endcode
 template<typename Rng, typename... FromColumns, int Dim = 1>
 constexpr auto unpack(Rng&& rng, from_t<FromColumns...> f, dim_t<Dim> d = dim_t<1>{})

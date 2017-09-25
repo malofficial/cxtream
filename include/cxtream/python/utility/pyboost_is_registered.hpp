@@ -14,7 +14,8 @@
 
 namespace cxtream::python::utility {
 
-/// Check whether a converter for the given C++ class is registered in python.
+/// \ingroup Python
+/// \brief Check whether a converter for the given C++ class is registered in boost::python.
 ///
 /// Beware that this function will report false for primitive types such as `int` or `double`.
 template<typename T>

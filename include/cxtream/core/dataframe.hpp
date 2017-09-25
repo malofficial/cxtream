@@ -6,6 +6,7 @@
  *  This file is distributed under the MIT License.
  *  See the accompanying file LICENSE.txt for the complete license agreement.
  ****************************************************************************/
+/// \defgroup Dataframe Dataframe class.
 
 #ifndef CXTREAM_CORE_DATAFRAME_HPP
 #define CXTREAM_CORE_DATAFRAME_HPP
@@ -27,7 +28,8 @@
 
 namespace cxtream {
 
-/// Tabular object with convenient data access methods.
+/// \ingroup Dataframe
+/// \brief Tabular object with convenient data access methods.
 ///
 /// By default, all fields are stored as std::string and they are
 /// cast to the requested type on demand.
@@ -37,6 +39,16 @@ public:
     dataframe() = default;
 
     /// Constructs the dataset from a vector of columns of the same type.
+    ///
+    /// Example:
+    /// \code
+    ///     dataframe<> df{
+    ///       // columns
+    ///       std::vector<std::vector<int>>{{1, 2, 3}, {4, 5, 6}, {7, 8, 9}},
+    ///       // header
+    ///       std::vector<std::string>{"A", "B", "C"}
+    ///     };
+    /// \endcode
     template<typename T>
     dataframe(std::vector<std::vector<T>> columns, std::vector<std::string> header = {})
     {
@@ -48,6 +60,20 @@ public:
     }
 
     /// Constructs the dataset from a tuple of columns of possibly different types.
+    ///
+    /// Example:
+    /// \code
+    ///     dataframe<> df{
+    ///       // columns
+    ///       std::make_tuple(
+    ///         std::vector<int>{1, 2, 3},
+    ///         std::vector<std::string>{"a1", "a2", "a3"},
+    ///         std::vector<std::string>{"1.1", "1.2", "1.3"}
+    ///       ),
+    ///       // header
+    ///       std::vector<std::string>{"Id", "A", "B"}
+    ///     };
+    /// \endcode
     template<typename... Ts>
     dataframe(std::tuple<Ts...> columns, std::vector<std::string> header = {})
     {
@@ -62,6 +88,11 @@ public:
     // insertion //
 
     /// Inserts a new column to the dataframe.
+    ///
+    /// Example:
+    /// \code
+    ///     df.col_insert(std::vector<int>{5, 6, 7}, "C");
+    /// \endcode
     template<typename Rng, typename ToStrFun = std::string (*)(ranges::range_value_type_t<Rng>)>
     std::size_t col_insert(Rng rng, std::string col_name = {},
                            std::function<std::string(ranges::range_value_type_t<Rng>)> cvt =
@@ -76,6 +107,11 @@ public:
     }
 
     /// Inserts a new row to the dataframe.
+    ///
+    /// Example:
+    /// \code
+    ///     df.row_insert(std::make_tuple(4, "a3", true));
+    /// \endcode
     template<typename... Ts>
     std::size_t row_insert(std::tuple<Ts...> row_tuple,
                            std::tuple<std::function<std::string(Ts)>...> cvts = std::make_tuple(
@@ -91,7 +127,7 @@ public:
 
     // drop //
 
-    /// Drop a column.
+    /// Drop a column with the given index.
     void icol_drop(std::size_t col_index)
     {
         assert(col_index < n_cols());
@@ -105,7 +141,7 @@ public:
         data_.erase(data_.begin() + col_index);
     }
 
-    /// Drop a column.
+    /// Drop a column with the given name.
     void col_drop(const std::string& col_name)
     {
         assert(header_.size() && "Dataframe has no header, cannot drop by column name.");
@@ -125,6 +161,13 @@ public:
 
     /// Return a raw view of a column.
     ///
+    /// The data can be directly changed by writing to the view.
+    ///
+    /// Example:
+    /// \code
+    ///     df.raw_icol(3)[2] = "new_value";
+    /// \endcode
+    ///
     /// \returns A of range of std::string&.
     auto raw_icol(std::size_t col_index)
     {
@@ -141,6 +184,13 @@ public:
 
     /// Return a raw view of a column.
     ///
+    /// The data can be directly changed by writing to the view.
+    ///
+    /// Example:
+    /// \code
+    ///     df.raw_col("long column")[2] = "new_value";
+    /// \endcode
+    ///
     /// \returns A of range of std::string&.
     auto raw_col(const std::string& col_name)
     {
@@ -149,6 +199,8 @@ public:
     }
 
     /// Return a raw view of a column.
+    ///
+    /// This is just a const overload of the non-const raw_col().
     ///
     /// \returns A of range of const std::string&.
     auto raw_col(const std::string& col_name) const
@@ -164,6 +216,11 @@ public:
     /// By default, this function does not provide a direct access to the stored data.
     /// Instead, each field is converted to the type T and a copy is returned.
     ///
+    /// Example:
+    /// \code
+    ///     std::vector<long> data = df.icol<long>(3);
+    /// \endcode
+    ///
     /// \returns A range of T.
     template<typename T>
     auto icol(std::size_t col_index,
@@ -177,6 +234,11 @@ public:
     /// By default, this function does not provide a direct access to the stored data.
     /// Instead, each field is converted to the type T and a copy is returned.
     ///
+    /// Example:
+    /// \code
+    ///     std::vector<long> data = df.col<long>("long column");
+    /// \endcode
+    ///
     /// \returns A range of T.
     template<typename T>
     auto col(const std::string& col_name,
@@ -188,7 +250,15 @@ public:
 
     // raw multi column access //
 
-    /// Return a raw view of multiple columns.
+    /// Return a raw view of all columns.
+    ///
+    /// The data can be directly changed by writing to the view.
+    ///
+    /// Example:
+    /// \code
+    ///     // get the third row from the sixth column
+    ///     std::string field = df.raw_cols()[5][2];
+    /// \endcode
     ///
     /// \returns A range of ranges of std::string&.
     auto raw_cols()
@@ -196,7 +266,9 @@ public:
         return data_ | ranges::view::transform(ranges::view::all);
     }
 
-    /// Return a raw view of multiple columns.
+    /// Return a raw view of all columns.
+    ///
+    /// This is just a const overload of the non-const argument-less raw_cols().
     ///
     /// \returns A range of ranges of const std::string&.
     auto raw_cols() const
@@ -206,6 +278,14 @@ public:
 
     /// Return a raw view of multiple columns.
     ///
+    /// The data can be directly changed by writing to the view.
+    ///
+    /// Example:
+    /// \code
+    ///     // get the third row from the sixth column (with index 5)
+    ///     std::string field = df.raw_icols({1, 5})[1][2];
+    /// \endcode
+    ///
     /// \returns A range of ranges of std::string&.
     auto raw_icols(std::vector<std::size_t> col_indexes)
     {
@@ -213,6 +293,8 @@ public:
     }
 
     /// Return a raw view of multiple columns.
+    ///
+    /// This is just a const overload of the non-const raw_icols().
     ///
     /// \returns A range of ranges of const std::string&.
     auto raw_icols(std::vector<std::size_t> col_indexes) const
@@ -222,6 +304,14 @@ public:
 
     /// Return a raw view of multiple columns.
     ///
+    /// The data can be directly changed by writing to the view.
+    ///
+    /// Example:
+    /// \code
+    ///     // get the sixth row from the column named "column 2"
+    ///     std::string field = df.raw_cols({"column 1", "column 2"})[1][5];
+    /// \endcode
+    ///
     /// \returns A range of ranges of std::string&.
     auto raw_cols(const std::vector<std::string>& col_names)
     {
@@ -230,6 +320,8 @@ public:
     }
 
     /// Return a raw view of multiple columns.
+    ///
+    /// This is just a const overload of the non-const raw_cols().
     ///
     /// \returns A range of ranges of const std::string&.
     auto raw_cols(const std::vector<std::string>& col_names) const
@@ -241,6 +333,11 @@ public:
     // typed multi column access //
 
     /// Return a typed view of multiple columns.
+    ///
+    /// Example:
+    /// \code
+    ///     std::tuple<std::vector<int>, std::vector<double>> data = df.icols<int, double>({1, 2});
+    /// \endcode
     ///
     /// \returns A tuple of ranges of Ts.
     template<typename... Ts>
@@ -257,6 +354,12 @@ public:
 
     /// Return a typed view of multiple columns.
     ///
+    /// Example:
+    /// \code
+    ///     std::tuple<std::vector<int>, std::vector<double>> data =
+    ///       df.cols<int, double>({"column 1", "column 2"});
+    /// \endcode
+    ///
     /// \returns A tuple of ranges of Ts.
     template<typename... Ts>
     auto cols(const std::vector<std::string>& col_names,
@@ -267,7 +370,13 @@ public:
         return icols<Ts...>(header_.index_for(col_names), std::move(cvts));
     }
 
-    /// Return a raw view of multiple rows.
+    /// Return a raw view of all rows.
+    ///
+    /// Example:
+    /// \code
+    ///     // get the third row from the sixth column
+    ///     std::string field = df.raw_rows()[2][5];
+    /// \endcode
     ///
     /// \returns A range of ranges of std::string&.
     auto raw_rows()
@@ -275,7 +384,9 @@ public:
         return raw_rows_impl(this);
     }
 
-    /// Return a raw view of multiple rows.
+    /// Return a raw view of all rows.
+    ///
+    /// This is just a const overload of the non-const argument-less raw_rows().
     ///
     /// \returns A range of ranges of const std::string&.
     auto raw_rows() const
@@ -285,6 +396,12 @@ public:
 
     /// Return a raw view of multiple rows.
     ///
+    /// Example:
+    /// \code
+    ///     // get the third row from the sixth column (with index 5)
+    ///     std::string field = df.raw_irows({3, 5})[2][1];
+    /// \endcode
+    ///
     /// \returns A range of ranges of std::string&.
     auto raw_irows(std::vector<std::size_t> col_indexes)
     {
@@ -292,6 +409,8 @@ public:
     }
 
     /// Return a raw view of multiple rows.
+    ///
+    /// This is just a const overload of the non-const raw_irows().
     ///
     /// \returns A range of ranges of const std::string&.
     auto raw_irows(std::vector<std::size_t> col_indexes) const
@@ -301,6 +420,12 @@ public:
 
     /// Return a raw view of multiple rows.
     ///
+    /// Example:
+    /// \code
+    ///     // get the third row from column named "col2"
+    ///     std::string field = df.raw_rows({"col1", "col2"})[2][1];
+    /// \endcode
+    ///
     /// \returns A range of ranges of std::string&.
     auto raw_rows(const std::vector<std::string>& col_names)
     {
@@ -309,6 +434,8 @@ public:
     }
 
     /// Return a raw view of multiple rows.
+    ///
+    /// This is just a const overload of the non-const raw_rows().
     ///
     /// \returns A range of ranges of const std::string&.
     auto raw_rows(const std::vector<std::string>& col_names) const
@@ -321,7 +448,15 @@ public:
 
     /// Return a typed view of multiple rows.
     ///
-    /// \returns A range of tuple of Ts.
+    /// This function provides the same data as icols() but transposed.
+    ///
+    /// Example:
+    /// \code
+    ///     std::vector<std::tuple<int, double>> data =
+    ///       df.irows<int, double>({0, 2});
+    /// \endcode
+    ///
+    /// \returns A range of tuples of Ts.
     template<typename... Ts>
     auto irows(std::vector<std::size_t> col_indexes,
                std::tuple<std::function<Ts(std::string)>...> cvts =
@@ -334,7 +469,15 @@ public:
 
     /// Return a typed view of multiple rows.
     ///
-    /// \returns A range of tuple of Ts.
+    /// This function provides the same data as cols() but transposed.
+    ///
+    /// Example:
+    /// \code
+    ///     std::vector<std::tuple<int, double>> data =
+    ///       df.rows<int, double>({"int_col", "double_col"});
+    /// \endcode
+    ///
+    /// \returns A range of tuples of Ts.
     template<typename... Ts>
     auto rows(const std::vector<std::string>& col_names,
               std::tuple<std::function<Ts(std::string)>...> cvts =
@@ -348,7 +491,7 @@ public:
 
     /// Return an indexed typed view of a single column.
     ///
-    /// This function returns a range of tuples, where the first element is 
+    /// This function returns a range of tuples, where the first tuple element is 
     /// from the key column and the second element is from the value column.
     /// This range can be used to construct a map or a hashmap.
     ///
@@ -359,7 +502,9 @@ public:
     ///
     /// \param key_col_index Index of the column to be used as key.
     /// \param val_col_index Index of the column to be used as value.
-    /// \returns A hashmap.
+    /// \param key_col_cvt Function that is used to convert the keys from std::string to IndexT.
+    /// \param val_col_cvt Function that is used to convert the values from std::string to ValueT.
+    /// \returns A range of tuples <key, value>.
     template <typename IndexT, typename ColT>
     auto index_icol(std::size_t key_col_index,
                     std::size_t val_col_index,
@@ -373,7 +518,11 @@ public:
 
     /// Return an indexed typed view of a single column.
     ///
-    /// This function is the same as index_icol, but columns are selected by name.
+    /// \code
+    ///     std::unordered_map<int, double> mapper = df.index_col<int, double>("first", "second");
+    /// \endcode
+    ///
+    /// This function is the same as index_icol(), but columns are selected by name.
     template<typename IndexT, typename ColT>
     auto index_col(const std::string& key_col_name,
                    const std::string& val_col_name,
@@ -391,7 +540,14 @@ public:
 
     /// Return an indexed typed view of multiple columns.
     ///
-    /// This function is similar to index_icol, but value type is a tuple of Ts.
+    /// See index_icol().
+    ///
+    /// \code
+    ///     std::unordered_map<int, std::tuple<long, double>> mapper =
+    ///       df.index_icols<int, long, double>(0, {1, 2});
+    /// \endcode
+    ///
+    /// This function is similar to index_icol(), but value type is a tuple of Ts.
     template<typename IndexT, typename... Ts>
     auto index_icols(std::size_t key_col_index,
                      std::vector<std::size_t> val_col_indexes,
@@ -405,10 +561,16 @@ public:
         return ranges::view::zip(key_col, val_cols);
     }
 
-
     /// Return an indexed typed view of multiple columns.
     ///
-    /// This function is similar to index_icols, columns are selected by name.
+    /// See index_icol().
+    ///
+    /// \code
+    ///     std::unordered_map<int, std::tuple<long, double>> mapper =
+    ///       df.index_cols<int, long, double>("id", {"col1", "col2"});
+    /// \endcode
+    ///
+    /// This function is similar to index_icols(), but columns are selected by name.
     template<typename IndexT, typename... Ts>
     auto index_cols(const std::string& key_col_name,
                     const std::vector<std::string>& val_col_names,
@@ -426,26 +588,26 @@ public:
 
     // shape functions //
 
-    /// Returns the number of columns.
+    /// Return the number of columns.
     std::size_t n_cols() const
     {
         return data_.size();
     }
 
-    /// Returns the number of rows (excluding header).
+    /// Return the number of rows (excluding header).
     std::size_t n_rows() const
     {
         if (n_cols() == 0) return 0;
         return data_.front().size();
     }
 
-    /// Returns the names of columns.
+    /// Return the names of columns.
     std::vector<std::string> header() const
     {
         return header_.values();
     }
 
-    /// Returns the reference to the raw data table.
+    /// Return the reference to the raw data table.
     DataTable& data()
     {
         return data_;
@@ -500,7 +662,8 @@ private:
 
 };  // class dataframe
 
-/// Pretty printing of dataframe to std::ostream.
+/// \ingroup Dataframe
+/// \brief Pretty printing of dataframe to std::ostream.
 template<typename DataTable>
 std::ostream& operator<<(std::ostream& out, const dataframe<DataTable>& df)
 {

@@ -16,7 +16,8 @@
 
 namespace cxtream::stream {
 
-/// Base class for cxtream columns.
+/// \ingroup Stream
+/// \brief Base class for cxtream columns.
 ///
 /// Stores a vector of given types and provides convenient constructors.
 template <typename T, bool = std::is_copy_constructible<T>{}>
@@ -79,9 +80,10 @@ struct column_base<T, false> : column_base<T, true> {
 
 }  // namespace cxtream::stream
 
-/// Macro for fast column definition.
+/// \ingroup Stream
+/// \brief Macro for fast column definition.
 ///
-/// Basically it creates a new type derived from column_base.
+/// Under the hood, it creates a new type derived from column_base.
 #define CXTREAM_DEFINE_COLUMN(col_name, col_type)               \
 struct col_name : cxtream::stream::column_base<col_type> {      \
     using cxtream::stream::column_base<col_type>::column_base;  \

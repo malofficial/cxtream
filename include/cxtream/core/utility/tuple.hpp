@@ -6,6 +6,7 @@
  *  This file is distributed under the MIT License.
  *  See the accompanying file LICENSE.txt for the complete license agreement.
  ****************************************************************************/
+/// \defgroup Tuple Tuple and variadic template utilites.
 
 #ifndef CXTREAM_CORE_TUPLE_UTILS_HPP
 #define CXTREAM_CORE_TUPLE_UTILS_HPP
@@ -23,7 +24,8 @@
 
 namespace cxtream::utility {
 
-/// Get the first index of a type in a variadic template list
+/// \ingroup Tuple
+/// \brief Get the first index of a type in a variadic template list
 ///
 /// The first template argument is the argument to be searched.
 /// The rest of the arguments is the variadic template.
@@ -42,7 +44,8 @@ template<typename T, typename... Ts>
 struct variadic_find<T, T, Ts...> : std::integral_constant<std::size_t, 0> {
 };
 
-/// Add a number to all values in std::index_sequence.
+/// \ingroup Tuple
+/// \brief Add a number to all values in std::index_sequence.
 ///
 /// Example:
 /// \code
@@ -55,7 +58,8 @@ constexpr std::index_sequence<(Value + Is)...> plus(std::index_sequence<Is...>)
     return {};
 }
 
-/// Make std::index_sequence with the given offset.
+/// \ingroup Tuple
+/// \brief Make std::index_sequence with the given offset.
 ///
 /// Example:
 /// \code
@@ -78,7 +82,8 @@ namespace detail {
 
 }  // namespace detail
 
-/// Apply a function on each element of a tuple.
+/// \ingroup Tuple
+/// \brief Apply a function on each element of a tuple.
 ///
 /// The order of application is from the first to the last element.
 ///
@@ -110,7 +115,8 @@ namespace detail {
 
 }  // end namespace detail
 
-/// Transform each element of a tuple.
+/// \ingroup Tuple
+/// \brief Transform each element of a tuple.
 ///
 /// The order of application is unspecified.
 ///
@@ -132,7 +138,8 @@ constexpr auto tuple_transform(Tuple&& tuple, Fun&& fun)
                                         std::make_index_sequence<tuple_size>{});
 }
 
-/// Check whether a tuple contains a given type.
+/// \ingroup Tuple
+/// \brief Check whether a tuple contains a given type.
 template<typename T, typename Tuple = void>
 struct tuple_contains;
 
@@ -141,7 +148,8 @@ struct tuple_contains<T, std::tuple<Types...>>
   : std::disjunction<std::is_same<std::decay_t<T>, std::decay_t<Types>>...> {
 };
 
-/// Makes a sub-tuple made of references to the original tuple (selected by type).
+/// \ingroup Tuple
+/// \brief Makes a sub-tuple made of references to the original tuple (selected by type).
 ///
 /// Example:
 /// \code
@@ -158,7 +166,8 @@ constexpr auto tuple_type_view(Tuple& tuple)
     return std::make_tuple(std::ref(std::get<Types>(tuple))...);
 }
 
-/// Makes a sub-tuple made of references to the original tuple (selected by index).
+/// \ingroup Tuple
+/// \brief Makes a sub-tuple made of references to the original tuple (selected by index).
 ///
 /// Example:
 /// \code
@@ -175,7 +184,8 @@ constexpr auto tuple_index_view(Tuple& tuple)
     return std::make_tuple(std::ref(std::get<Idxs>(tuple))...);
 }
 
-/// Concatenate two tuples and keep only the first element of each type.
+/// \ingroup Tuple
+/// \brief Concatenate two tuples and keep only the first element of each type.
 ///
 /// Note: All the reference types are decayed during this operation.
 ///
@@ -198,7 +208,8 @@ constexpr auto tuple_cat_unique(Tuples&&... tuples)
     return boost::hana::to<boost::hana::ext::std::tuple_tag>(boost::hana::values(std::move(map)));
 }
 
-/// Tuple pretty printing to std::ostream.
+/// \ingroup Tuple
+/// \brief Tuple pretty printing to std::ostream.
 template<typename Tuple, size_t... Is>
 std::ostream& tuple_print(std::ostream& out, const Tuple& tuple, std::index_sequence<Is...>)
 {
@@ -208,6 +219,8 @@ std::ostream& tuple_print(std::ostream& out, const Tuple& tuple, std::index_sequ
     return out;
 }
 
+/// \ingroup Tuple
+/// \brief Tuple pretty printing to std::ostream.
 template<typename... Ts>
 std::ostream& operator<<(std::ostream& out, const std::tuple<Ts...>& tuple)
 {
@@ -216,7 +229,8 @@ std::ostream& operator<<(std::ostream& out, const std::tuple<Ts...>& tuple)
 
 // tuple_remove //
 
-/// Remove types from a tuple.
+/// \ingroup Tuple
+/// \brief Remove types from a tuple.
 ///
 /// Note: All the reference types are decayed during this operation.
 ///
@@ -290,7 +304,8 @@ namespace detail {
 
 }  // namespace detail
 
-/// Unzips a range of tuples to a tuple of ranges.
+/// \ingroup Tuple
+/// \brief Unzips a range of tuples to a tuple of ranges.
 ///
 /// Example:
 /// \code
@@ -343,7 +358,8 @@ namespace detail {
 
 }  // namespace detail
 
-/// Unzips a range of tuples to a tuple of ranges if a constexpr condition holds.
+/// \ingroup Tuple
+/// \brief Unzips a range of tuples to a tuple of ranges if a constexpr condition holds.
 ///
 /// This method is enabled or disabled by its first template parameter.
 /// If disabled, it returns identity. If enabled, it returns the same
@@ -360,7 +376,7 @@ namespace detail {
 ///     std::vector<double> vb;
 ///     std::tie(va, vb) = unzip_if<true>(data);
 ///
-///     auto vc = unzip_if<false>(va);
+///     std::vector<int> vc = unzip_if<false>(va);
 /// \endcode
 template<bool Enable, typename RangeT>
 decltype(auto) unzip_if(RangeT&& range)
@@ -380,7 +396,8 @@ namespace detail {
 
 }  // namespace detail
 
-/// Converts a range to a tuple.
+/// \ingroup Tuple
+/// \brief Converts a range to a tuple.
 ///
 /// Example:
 /// \code
@@ -412,7 +429,8 @@ namespace detail {
 
 }  // namespace detail
 
-/// Repeat a function N times in compile time.
+/// \ingroup Tuple
+/// \brief Repeat a function N times in compile time.
 ///
 /// Example:
 /// \code
@@ -429,7 +447,8 @@ constexpr Fun times_with_index(Fun&& fun)
     return detail::times_with_index_impl(std::forward<Fun>(fun), std::make_index_sequence<N>{});
 }
 
-/// Similar to tuple_for_each(), but with index available.
+/// \ingroup Tuple
+/// \brief Similar to tuple_for_each(), but with index available.
 ///
 /// Example:
 /// \code
@@ -464,7 +483,8 @@ namespace detail {
 
 }  // namespace detail
 
-/// Similar to tuple_transform(), but with index available.
+/// \ingroup Tuple
+/// \brief Similar to tuple_transform(), but with index available.
 ///
 /// Example:
 /// \code

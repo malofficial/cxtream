@@ -6,6 +6,7 @@
  *  This file is distributed under the MIT License.
  *  See the accompanying file LICENSE.txt for the complete license agreement.
  ****************************************************************************/
+/// \defgroup CSV CSV parser.
 
 #ifndef CXTREAM_CORE_CSV_HPP
 #define CXTREAM_CORE_CSV_HPP
@@ -27,20 +28,25 @@
 
 namespace cxtream {
 
-/// Parse and iterate over CSV formatted rows from an istream.
+/// \ingroup CSV
+/// \brief Parse and iterate over CSV formatted rows from an istream.
 ///
 /// Beware, escaping double quotes is allowed using backslash, not another double quote.
 /// Escaping is only allowed if the first non-whitespace character of a field is a double quote.
 ///
 /// Usage:
+/// \code
 ///     std::istringstream simple_csv{"Id, A," R"("Quoted \"column\"") "\n 1, a1, 1.1"};
 ///     csv_istream_range csv_rows{simple_csv};
 ///     // csv_rows == {{"Id", "A", R"("Quoted \"column\"")"}, {"1", "a1", "1.1"}}
+/// \endcode
 ///
 /// \throws std::ios_base::failure if badbit is triggered.
 class csv_istream_range : public ranges::view_facade<csv_istream_range> {
 private:
+    /// \cond
     friend ranges::range_access;
+    /// \endcond
     using single_pass = std::true_type;
     enum class RowPosition{Normal, Last, End};
 
@@ -161,10 +167,12 @@ public:
     }
 };
 
-/// Parse csv file from an std::istream.
+/// \ingroup CSV
+/// \brief Parse csv file from an std::istream.
 ///
 /// Parsing has the same rules as for csv_istream_range.
 ///
+/// \param in The input stream.
 /// \param drop How many lines should be ignored at the very beginning of the stream.
 /// \param has_header Whether a header row should be parsed (after drop).
 /// \param separator Field separator.
@@ -230,7 +238,8 @@ dataframe<> read_csv(std::istream& in,
     return {std::move(data), std::move(header)};
 }
 
-/// Same as read_csv() but read directly from a file.
+/// \ingroup CSV
+/// \brief Same as read_csv() but read directly from a file.
 dataframe<> read_csv(const std::experimental::filesystem::path& file,
                      int drop = 0,
                      bool header = true,
@@ -242,9 +251,10 @@ dataframe<> read_csv(const std::experimental::filesystem::path& file,
     return read_csv(fin, drop, header, separator, quote, escape);
 }
 
-/// Write a single csv row to an std::ostream.
+/// \ingroup CSV
+/// \brief Write a single csv row to an std::ostream.
 /// 
-/// Fields containing quote, newline, or separator are quoted automatically.
+/// Fields containing a quote, a newline, or a separator are quoted automatically.
 ///
 /// \throws std::ios_base::failure if badbit is triggered.
 template <typename Row>
@@ -278,9 +288,10 @@ std::ostream& write_csv_row(std::ostream& out,
     return out;
 }
 
-/// Write a dataframe to an std::ostream.
+/// \ingroup CSV
+/// \brief Write a dataframe to an std::ostream.
 /// 
-/// Fields containing quote, newline, or separator are quoted automatically.
+/// Fields containing a quote, a newline, or a separator are quoted automatically.
 ///
 /// \throws std::ios_base::failure if badbit is triggered.
 template <typename DataTable>
@@ -297,7 +308,8 @@ std::ostream& write_csv(std::ostream& out,
     return out;
 }
 
-/// Same as write_csv(std::ostream...), but write directly to a file.
+/// \ingroup CSV
+/// \brief Same as write_csv(std::ostream...), but write directly to a file.
 template <typename DataTable>
 void write_csv(const std::experimental::filesystem::path& file,
                const dataframe<DataTable>& df,

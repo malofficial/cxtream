@@ -20,11 +20,12 @@
 
 namespace cxtream::stream {
 
-/// Asynchronously buffers input range.
 template<typename Rng>
 struct buffer_view : ranges::view_facade<buffer_view<Rng>> {
 private:
+    /// \cond
     friend ranges::range_access;
+    /// \endcond
 
     Rng rng_;
     std::size_t n_;
@@ -114,7 +115,9 @@ public:
 
 class buffer_fn {
 private:
+    /// \cond
     friend ranges::view::view_access;
+    /// \endcond
 
     static auto bind(buffer_fn buffer, std::size_t n = std::numeric_limits<std::size_t>::max(),
                      std::launch policy = std::launch::async)
@@ -132,7 +135,20 @@ public:
     }
 };
 
-ranges::view::view<buffer_fn> buffer{};
+/// \ingroup Stream
+/// \brief Asynchronously buffers the given range.
+///
+/// Asynchronously evaluates the given number of elements in advance. When queried for the
+/// next element, it is already prepared. This view works for any range, not only
+/// for cxtream streams.
+///
+/// \code
+///     std::vector<int> data = {1, 2, 3, 4, 5};
+///     auto buffered_rng = data
+///       | ranges::view::transform([](int v) { return v + 1; })
+///       | buffer(2);
+/// \endcode
+constexpr ranges::view::view<buffer_fn> buffer{};
 
 }  // end namespace cxtream::stream
 #endif

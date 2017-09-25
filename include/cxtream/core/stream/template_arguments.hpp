@@ -14,47 +14,46 @@
 
 namespace cxtream::stream {
 
-/// Helper type representing columns which should be transformed.
 template <typename... Columns>
 struct from_t {
 };
 
+/// Helper type representing columns which should be transformed.
 template <typename... Columns>
 auto from = from_t<Columns...>{};
 
-/// Helper type representing columns to which should a transformation save the result.
 template <typename... Columns>
 struct to_t {
 };
 
+/// Helper type representing columns to which should a transformation save the result.
 template <typename... Columns>
 auto to = to_t<Columns...>{};
 
-/// Helper type representing columns by which one should filter etc.
 template <typename... Columns>
 struct by_t {
 };
 
+/// Helper type representing columns by which one should filter etc.
 template <typename... Columns>
 auto by = by_t<Columns...>{};
 
-/// Helper type representing boolean column denoting whether transformation should be applied.
 template <typename... Columns>
 struct cond_t {
 };
 
+/// Helper type representing boolean column denoting whether transformation should be applied.
 template <typename... Columns>
 auto cond = cond_t<Columns...>{};
 
-/// Helper type representing dimension.
 template <int Dim>
 struct dim_t {
 };
 
+/// Helper type representing dimension.
 template <int Dim>
 auto dim = dim_t<Dim>{};
 
-/// Function object type forwarding the given object back to the caller.
 struct identity_t {
     template <typename T>
     constexpr T&& operator()(T&& val) const noexcept
@@ -63,9 +62,9 @@ struct identity_t {
     }
 };
 
+/// Function object type forwarding the given object back to the caller.
 auto identity = identity_t{};
 
-/// Function object type wrapping the given object in std::reference_wrapper.
 struct ref_wrap_t {
     template <typename T>
     constexpr decltype(auto) operator()(T& val) const noexcept
@@ -74,6 +73,7 @@ struct ref_wrap_t {
     }
 };
 
+/// Function object type wrapping the given object in std::reference_wrapper.
 auto ref_wrap = ref_wrap_t{};
 
 }  // namespace cxtream::stream

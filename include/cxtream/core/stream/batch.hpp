@@ -43,14 +43,12 @@ constexpr std::size_t batch_size(const Tuple& tuple)
     return std::get<0>(tuple).value().size();
 }
 
-/// Accumulates tuples of columns and yields tuples of different batch size.
-/// 
-/// The batch size of accumulated columns may differ between batches.
-/// To make a one large batch of all the data, use std::numeric_limits<std::size_t>::max().
 template <typename Rng>
 struct batch_view : ranges::view_facade<batch_view<Rng>> {
 private:
+    /// \cond
     friend ranges::range_access;
+    /// \endcond
     Rng rng_;
     std::size_t n_;
 
@@ -170,7 +168,9 @@ public:
 
 class batch_fn {
 private:
+    /// \cond
     friend ranges::view::view_access;
+    /// \endcond
 
     static auto bind(batch_fn batch, std::size_t n)
     {
@@ -185,6 +185,18 @@ public:
     }
 };  // class batch_fn
 
+/// \ingroup Stream
+/// \brief Accumulate the stream and yield batches of a different size.
+///
+/// The batch size of the accumulated columns may differ between batches.
+/// To make a one large batch of all the data, use std::numeric_limits<std::size_t>::max().
+///
+/// \code
+///     CXTREAM_DEFINE_COLUMN(value, int)
+///     auto rng = view::iota(0, 10)
+///       | create<value>(2)  // batches the data by two examples
+///       | batch(3);         // changes the batch size to three examples
+/// \endcode
 constexpr ranges::view::view<batch_fn> batch{};
 
 }  // namespace cxtream::stream

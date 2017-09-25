@@ -10,6 +10,8 @@
 #ifndef CXTREAM_CORE_STREAM_HPP
 #define CXTREAM_CORE_STREAM_HPP
 
+/// \defgroup Stream Stream modifiers and data types.
+
 #include <cxtream/core/stream/batch.hpp>
 #include <cxtream/core/stream/buffer.hpp>
 #include <cxtream/core/stream/column.hpp>

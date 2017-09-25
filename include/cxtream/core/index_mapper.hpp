@@ -6,6 +6,7 @@
  *  This file is distributed under the MIT License.
  *  See the accompanying file LICENSE.txt for the complete license agreement.
  ****************************************************************************/
+/// \defgroup IndexMapper Bidirectional map between indices and values.
 
 #ifndef CXTREAM_CORE_INDEX_MAPPER_HPP
 #define CXTREAM_CORE_INDEX_MAPPER_HPP
@@ -20,7 +21,8 @@
 
 namespace cxtream {
 
-/// Provides a bidirectional access from values to their indices in an std::vector.
+/// \ingroup IndexMapper
+/// \brief Provides a bidirectional access from values to their indices in an std::vector.
 template<typename T>
 class index_mapper {
 public:
@@ -135,7 +137,7 @@ public:
     /// Tries to insert a value into the mapper with index size()-1. If the value is
     /// already present in the mapper, the operation does nothing.
     ///
-    /// \param The value to be inserted.
+    /// \param val The value to be inserted.
     /// \returns True if the value insertion was successful.
     bool try_insert(T val)
     {
@@ -187,7 +189,8 @@ private:
     std::vector<T> idx2val_;
 };
 
-/// Make index mapper from unique elements of a range.
+/// \ingroup IndexMapper
+/// \brief Make index mapper from unique elements of a range.
 ///
 /// Example:
 /// \code

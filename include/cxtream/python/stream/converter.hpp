@@ -17,12 +17,13 @@
 
 namespace cxtream::python::stream {
 
-/// Make Python range for a stream (i.e, a range of tuples of columns).
+/// \ingroup Python
+/// \brief Make a Python \ref range from a stream (i.e, a range of tuples of cxtream columns).
 ///
 /// Only a view of the given range is created, therefore, the given range
 /// cannot be an rvalue of a container.
-/// Columns represented by n-dimensional std::vectors are automatically
-/// converted to n-dimensional python lists.
+///
+/// Tuples of columns are converted using columns_to_python().
 template<typename Rng>
 auto to_python(Rng&& rng)
 {
