@@ -71,6 +71,7 @@ if(BUILD_PYTHON)
 endif()
 
 if(BUILD_DOC)
+  find_package(Git REQUIRED)
   find_package(Doxygen REQUIRED)
 endif()
 
