@@ -92,7 +92,7 @@ namespace detail {
 template<typename Tuple, typename Fun>
 constexpr auto tuple_for_each(Tuple&& tuple, Fun&& fun)
 {
-    constexpr std::size_t tuple_size = std::tuple_size<std::decay_t<Tuple>>{};
+    constexpr std::size_t tuple_size = std::tuple_size<std::decay_t<Tuple>>::value;
     return detail::tuple_for_each_impl(std::forward<Tuple>(tuple),
                                        std::forward<Fun>(fun),
                                        std::make_index_sequence<tuple_size>{});
@@ -126,7 +126,7 @@ namespace detail {
 template<typename Tuple, typename Fun>
 constexpr auto tuple_transform(Tuple&& tuple, Fun&& fun)
 {
-    constexpr std::size_t tuple_size = std::tuple_size<std::decay_t<Tuple>>{};
+    constexpr std::size_t tuple_size = std::tuple_size<std::decay_t<Tuple>>::value;
     return detail::tuple_transform_impl(std::forward<Tuple>(tuple),
                                         std::forward<Fun>(fun),
                                         std::make_index_sequence<tuple_size>{});
