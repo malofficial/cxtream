@@ -52,12 +52,11 @@ public:
     dataframe(std::tuple<Ts...> columns, std::vector<std::string> header = {})
     {
         assert(header.empty() || header.size() == sizeof...(Ts));
-        utility::tuple_for_each_with_index(
+        utility::tuple_for_each_with_index(std::move(columns),
           [this, &header](auto&& column, auto index) {
               std::string col_name = header.empty() ? "" : std::move(header[index]);
               this->col_insert(std::move(column), std::move(col_name));
-          },
-          std::move(columns));
+        });
     }
 
     // insertion //
@@ -83,11 +82,10 @@ public:
                              static_cast<std::string (*)(Ts)>(utility::to_string)...))
     {
         assert(n_cols() == 0 || sizeof...(Ts) == n_cols());
-        utility::tuple_for_each_with_index(
+        utility::tuple_for_each_with_index(std::move(row_tuple),
           [this, &cvts](auto&& field, auto index) {
               this->data_[index].emplace_back(std::get<index>(cvts)(field));
-          },
-          std::move(row_tuple));
+        });
         return n_rows() - 1;
     }
 
@@ -251,11 +249,10 @@ public:
                  std::make_tuple(utility::string_to<Ts>...)) const
     {
         assert(sizeof...(Ts) == ranges::size(col_indexes));
-        return utility::tuple_transform_with_index(
+        return utility::tuple_transform_with_index(std::move(cvts),
           [raw_cols = raw_icols(std::move(col_indexes))](auto&& cvt, auto i) {
               return raw_cols[i] | ranges::view::transform(std::move(cvt));
-          },
-          std::move(cvts));
+        });
     }
 
     /// Return a typed view of multiple columns.

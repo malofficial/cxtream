@@ -27,9 +27,9 @@ constexpr bool is_same_batch_size(const Tuple& tuple)
     bool same = true;
     if (std::tuple_size<Tuple>{} > 0) {
         auto bs = std::get<0>(tuple).value().size();
-        utility::tuple_for_each(
-          [bs, &same](const auto& column) { same &= (column.value().size() == bs); },
-          tuple);
+        utility::tuple_for_each(tuple, [bs, &same](const auto& column) {
+            same &= (column.value().size() == bs);
+        });
     }
     return same;
 }

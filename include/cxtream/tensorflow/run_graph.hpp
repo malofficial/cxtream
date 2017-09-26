@@ -50,7 +50,7 @@ run_graph(::tensorflow::Session& session,
 
   // convert the input data to tensors
   std::vector<std::pair<std::string, ::tensorflow::Tensor>> feed;
-  utility::tuple_for_each_with_index([&](auto& data, auto i) {
+  utility::tuple_for_each_with_index(input_data, [&](auto& data, auto i) {
       // build shape
       ::tensorflow::TensorShape shape;
       for (long val : input_shapes[i]) shape.AddDim(val);
@@ -63,7 +63,7 @@ run_graph(::tensorflow::Session& session,
                 tensor.flat<std::tuple_element_t<i, decltype(in_types)>>().data());
       // link the tensor with the corresponding name
       feed.emplace_back(input_names[i], std::move(tensor));
-  }, input_data);
+  });
 
   // run the graph
   std::vector<::tensorflow::Tensor> outputs;
@@ -76,7 +76,7 @@ run_graph(::tensorflow::Session& session,
   // convert the result to std::vectors
   std::tuple<std::vector<OutTs>...> raw_outputs;
   std::vector<std::vector<long>> output_shapes;
-  utility::tuple_for_each_with_index([&](auto& raw_output, auto i) {
+  utility::tuple_for_each_with_index(raw_outputs, [&](auto& raw_output, auto i) {
       ::tensorflow::Tensor& output = outputs[i];
       // allocate space in std::vector
       raw_output.resize(output.NumElements());
@@ -90,7 +90,7 @@ run_graph(::tensorflow::Session& session,
       output_shapes.emplace_back(std::move(output_shape));
       // for (long s : output.shape()) output_shapes.back().push_back(s);
       // (std::vector<long>(output.shape().begin(), output.shape().end()));
-  }, raw_outputs);
+  });
 
   return {std::move(raw_outputs), std::move(output_shapes)};
 }

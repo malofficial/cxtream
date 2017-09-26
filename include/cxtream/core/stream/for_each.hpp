@@ -35,7 +35,7 @@ constexpr auto partial_for_each(from_t<FromTypes...>, Fun fun, Projection proj =
       (auto&& source) CXTREAM_MUTABLE_LAMBDA_V {
           // build the view for the transformer, i.e., slice and project
           auto slice_view =
-            utility::tuple_transform(proj, utility::tuple_type_view<FromTypes...>(source));
+            utility::tuple_transform(utility::tuple_type_view<FromTypes...>(source), proj);
           // apply the function
           std::invoke(fun, std::move(slice_view));
           // return the original
@@ -101,8 +101,8 @@ constexpr auto for_each(from_t<FromColumns...> f, Fun fun, dim_t<Dim> d = dim_t<
     // wrap the function to be applied in the appropriate dimension
     auto fun_wrapper = detail::wrap_void_fun_for_dim<Dim>::impl(std::move(fun));
 
-    return partial_for_each(f, std::move(fun_wrapper),
-                            [](auto& column) { return std::ref(column.value()); });
+    return stream::partial_for_each(f, std::move(fun_wrapper),
+                                    [](auto& column) { return std::ref(column.value()); });
 }
 
 }  // namespace cxtream::stream

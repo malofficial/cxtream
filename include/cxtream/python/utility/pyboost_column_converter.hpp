@@ -81,9 +81,9 @@ template<typename Tuple>
 boost::python::dict columns_to_python(Tuple tuple)
 {
     boost::python::dict res;
-    cxtream::utility::tuple_for_each([&res](auto& column) {
+    cxtream::utility::tuple_for_each(tuple, [&res](auto& column) {
         res[column.name()] = to_python(std::move(column.value()));
-    }, tuple);
+    });
     return res;
 }
 
