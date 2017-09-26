@@ -1,0 +1,26 @@
+version: 2
+
+references:
+
+  test_doc: &test_doc
+    run:
+      name: Test whether documentation exists.
+      command: |
+        test -f index.html
+
+jobs:
+
+  test_ubuntu_latest:
+    docker:
+      - image: ubuntu:latest
+    working_directory: ~/cxtream
+    steps:
+      - checkout
+      - *test_doc
+
+workflows:
+
+  version: 2
+  test-matrix:
+    jobs:
+      - test_ubuntu_latest
