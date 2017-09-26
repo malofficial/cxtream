@@ -318,7 +318,6 @@ configure_package_config_file(
   "${CMAKE_CURRENT_BINARY_DIR}/CxtreamConfig.cmake"
   INSTALL_DESTINATION "${CMAKECFG_INSTALL_DIR}"
   NO_SET_AND_CHECK_MACRO # Cxtream only uses interface libraries
-  NO_CHECK_REQUIRED_COMPONENTS_MACRO # Cxtream does not have components
 )
 
 # install the core targets file
