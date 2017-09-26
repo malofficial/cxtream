@@ -11,6 +11,11 @@ __cxtream__ is a C++ library for efficient data processing. Its main purpose is 
 and acclelerate data preparation for deep learning models, but it is generic enough to be used
 in many other areas.
 
+__cxtream__ lets the programmer build intuitive data streams that transform,
+combine and filter the data that pass through. Those streams are compiled,
+batched, and asynchronous, therefore maximizing the utilization of the provided
+hardware.
+
 **This project is under heavy development. The API is continuously changing without regard
 to backward compatibility.**
 
@@ -121,17 +126,53 @@ Multidimensional data
 
 In __cxtream__, when we talk about multidimensional data, we are talking about nested
 ranges. For instance, `std::vector<int>` is a one dimensional vector and
-`std::vector<std::vector<int>>` is two dimensional. TODO
+`std::vector<std::vector<int>>` is a two dimensional vector.
 
+Most of the stream modifiers have a special parameter called `dim<N>`,
+that denotes in which dimension should the modifier operate. For instance,
+consider the transform() from our previous example:
 
-TODO example.
+```{.cpp}
+CXTREAM_DEFINE_COLUMN(login, std::string)
 
+...
+
+  // This transformation is applied in dimension 1 (default), so in the case of the
+  // login column, the transformation function expects std::string.
+  | cxs::transform(from<login>, to<login>, [](std::string l) { return l + "_abc"; })
+
+  // This transformation is applied in dimension 2, which for std::string means
+  // that it is applied on each letter.
+  | cxs::transform(from<login>, to<login>, dim<2>, [](char c) { return c + 1; })
+
+  // And this transformation is applied in dimension 0, which denotes that the function
+  // expects the whole batch.
+  | cxs::transform(from<login>, to<login>, dim<0>, [](std::vector<std::string> login_batch) {
+        login_batch.push_back("new_login");  // this inserts a new login to the current batch
+        return login_batch;
+    })
+```
+
+In __cxtream__, there are no constraints on the shape of the columns. Batch
+sizes can differ batch to batch, as well as the sizes of the data across a
+single dimension. For instance, it is possible to have a batch of variably long
+sequences (e.g., a batch of video frames from videos of different length) and
+stream modifiers, such as transform() and filter(), will handle it in any dimension
+you choose. To define a column containing multidimensional data, the most simple
+solution is to wrap the data in `std::vector` (but any reasonable container will
+suffice):
+
+```
+CXTREAM_DEFINE_COLUMN(stock_price_evolution, std::vector<double>)
+```
 
 Python
 ------
 ---
 
-For more information, please refer to the \ref Python "Python binding API" documentation. TODO example.
+__cxtream__ provides a convenient functions to convert and stream data to Python.
+This part of the documentation is yet to be prepared.
+For more information, please refer to the \ref Python "Python binding API" documentation.
 
 Example
 -------
