@@ -31,7 +31,7 @@
 #include <vector>
 
 // test with a seeded random generator
-std::mt19937 prng{1000003};
+std::mt19937 prng{1000033};
 
 auto unique_vec_to_int_vec()
 {

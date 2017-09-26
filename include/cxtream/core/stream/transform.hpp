@@ -116,7 +116,7 @@ constexpr auto transform(from_t<FromColumns...> f,
                                      [](auto& column) { return std::ref(column.value()); });
 }
 
-// probabilistic transform //
+// conditional transform //
 
 namespace detail {
 
@@ -145,6 +145,124 @@ namespace detail {
             return std::move(std::get<I>(tuple));
         }
     };
+
+    // wrap the function to be applied only on if the first argument evaluates to true
+    template<std::size_t NOuts>
+    struct wrap_fun_with_cond
+    {
+        template<
+          typename Fun,
+          std::size_t... FromIndices,
+          std::size_t... ToIndices>
+        static constexpr auto impl(
+          Fun fun,
+          std::index_sequence<FromIndices...> from_indices,
+          std::index_sequence<ToIndices...> to_indices)
+        {
+            return [fun = std::move(fun), to_indices]
+              (auto cond, auto&... cols) CXTREAM_MUTABLE_LAMBDA_V {
+                // make a tuple of all arguments, except for the condition
+                auto args_view = std::forward_as_tuple<decltype(cols)...>(cols...);
+                // apply the function if the condition is true
+                if (cond) {
+                    // the function is applied only on a subset of the arguments
+                    // representing FromColumns
+                    return std::experimental::apply(fun,
+                      utility::tuple_index_view<FromIndices...>(args_view));
+                // return the original arguments if the condition is false
+                } else {
+                    // only a subset of the arguments representing ToColumns is returned
+                    // note: We can force std::move in here, because
+                    // we are only copying data to themselves.
+                    return move_to_maybe_make_tuple<NOuts>::impl(args_view, to_indices);
+                }
+            };
+        }
+    };
+
+}  // namespace detail
+
+/// Conditional transform of a subset of cxtream columns.
+///
+/// This function behaves the same as the original stream::transform, but it accepts one extra
+/// argument denoting a column of true/false values of the same shape as the columns to be
+/// transformed. The transformation will only be applied on true values and it will be an identity
+/// on false values.
+///
+/// Note that this can be very useful in combination with stream::random_fill and
+/// std::bernoulli_distribution.
+///
+/// Example:
+/// \code
+///     CXTREAM_DEFINE_COLUMN(dogs, int)
+///     CXTREAM_DEFINE_COLUMN(do_trans, char)  // do not use bool here, vector<bool> is
+///                                            // not a good OutputRange
+///     std::vector<int> data_int = {3, 1, 5, 7};
+//
+///     // hardcoded usage
+///     std::vector<int> data_cond = {true, true, false, false};
+///     auto rng = ranges::view::zip(data_int, data_cond)
+///       | create<dogs, do_trans>()
+///       // this transforms only the first two examples and does nothing for the last two
+///       | transform(from<dogs>, to<dogs>, cond<do_trans>, [](int dog) { return dog + 1; })
+///       // this transformation reverts the previous one
+///       | transform(from<dogs>, to<dogs>, cond<do_trans>, [](int dog) { return dog - 1; });
+///     
+///     // random_fill usage
+///     std::bernoulli_distribution dist{0.5};
+///     auto rng2 = data_int
+///       | create<dogs>()
+///       | random_fill(from<dogs>, to<do_trans>, 1, prng, dist)
+///       // the transformation of each example is performed with 50% probability
+///       | transform(from<dogs>, to<dogs>, cond<do_trans>, [](int dog) { return dog + 1; })
+///       // this transformation reverts the previous one
+///       | transform(from<dogs>, to<dogs>, cond<do_trans>, [](int dog) { return dog - 1; });
+/// \endcode
+///
+/// \param f The columns to be extracted out of the tuple of columns and passed to fun.
+/// \param t The columns where the result will be saved. Those have to already exist
+///          in the stream.
+/// \param c The column of true/false values denoting whether the transformation should be performed
+///          or not. For false values, the transformation is an identity
+///          on the target columns.
+/// \param fun The function to be applied. The function should return the type represented
+///            by the selected column in the given dimension. If there are multiple target
+///            columns, the function should return a tuple of the corresponding types.
+/// \param d The dimension in which the function is applied. Choose 0 for the function to
+///          be applied to the whole batch.
+template<
+  typename... FromColumns,
+  typename... ToColumns,
+  typename CondColumn,
+  typename Fun,
+  int Dim = 1>
+constexpr auto transform(
+  from_t<FromColumns...> f,
+  to_t<ToColumns...> t,
+  cond_t<CondColumn> c,
+  Fun fun,
+  dim_t<Dim> d = dim_t<1>{})
+{
+    // make index sequences for source and target columns when they
+    // are concatenated in a single tuple
+    constexpr std::size_t n_from = sizeof...(FromColumns);
+    constexpr std::size_t n_to = sizeof...(ToColumns);
+    std::make_index_sequence<n_from> from_indices;
+    utility::make_offset_index_sequence<n_from, n_to> to_indices;
+
+    // wrap the function to be applied in the appropriate dimension using the condition column
+    auto prob_fun =
+      detail::wrap_fun_with_cond<n_to>::impl(std::move(fun), from_indices, to_indices);
+
+    // transform from both, FromColumns and ToColumns into ToColumns
+    // the wrapper function takes care of extracting the parameters for the original function
+    return stream::transform(from_t<CondColumn, FromColumns..., ToColumns...>{},
+                             t, std::move(prob_fun), d);
+}
+
+// probabilistic transform //
+
+namespace detail {
 
     // wrap the function to be an identity if the dice roll fails
     template<std::size_t NOuts>

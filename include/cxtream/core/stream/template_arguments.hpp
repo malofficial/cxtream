@@ -38,6 +38,14 @@ struct by_t {
 template <typename... Columns>
 auto by = by_t<Columns...>{};
 
+/// Helper type representing boolean column denoting whether transformation should be applied.
+template <typename... Columns>
+struct cond_t {
+};
+
+template <typename... Columns>
+auto cond = cond_t<Columns...>{};
+
 /// Helper type representing dimension.
 template <int Dim>
 struct dim_t {
