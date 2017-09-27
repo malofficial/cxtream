@@ -215,7 +215,7 @@ namespace detail {
 ///     std::bernoulli_distribution dist{0.5};
 ///     auto rng2 = data_int
 ///       | create<dogs>()
-///       | random_fill(from<dogs>, to<do_trans>, 1, prng, dist)
+///       | random_fill(from<dogs>, to<do_trans>, 1, dist, prng)
 ///       // the transformation of each example is performed with 50% probability
 ///       | transform(from<dogs>, to<dogs>, cond<do_trans>, [](int dog) { return dog + 1; })
 ///       // this transformation reverts the previous one

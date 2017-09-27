@@ -39,7 +39,7 @@ BOOST_AUTO_TEST_CASE(test_conditional_with_random_fill)
     std::bernoulli_distribution dist{0.5};
     auto rng = data_int
       | create<dogs>()
-      | random_fill(from<dogs>, to<do_trans>, 1, prng, dist)
+      | random_fill(from<dogs>, to<do_trans>, 1, dist, prng)
       | transform(from<dogs>, to<dogs>, cond<do_trans>, [](int dog) { return dog - 1; });
 
     std::vector<int> generated = unpack(rng, from<dogs>, dim<1>);

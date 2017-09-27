@@ -44,15 +44,15 @@ namespace cxtream::stream {
 /// \param size_from The column whose size will be used to initialize the random column.
 /// \param fill_to The column to be filled with random data.
 /// \param rnddims The number of random dimensions. See \ref utility::random_fill().
-/// \param gen The random generator to be used.
 /// \param dist The random distribution to be used.
+/// \param gen The random generator to be used.
 template<typename FromColumn, typename ToColumn, typename Prng = std::mt19937,
          typename Dist = std::uniform_real_distribution<double>>
 constexpr auto random_fill(from_t<FromColumn> size_from,
                            to_t<ToColumn> fill_to,
                            long rnddims = std::numeric_limits<long>::max(),
-                           Prng& gen = cxtream::utility::random_generator,
-                           Dist dist = Dist{0, 1})
+                           Dist dist = Dist{0, 1},
+                           Prng& gen = cxtream::utility::random_generator)
 {
     auto fun = [rnddims, &gen, dist](const auto& source) -> ToColumn {
         using SourceVector = std::decay_t<decltype(source)>;
@@ -64,7 +64,7 @@ constexpr auto random_fill(from_t<FromColumn> size_from,
         // create, resize, and fill the target with random values
         TargetVector target;
         utility::ndim_resize(target, target_size);
-        utility::random_fill(target, rnddims, gen, Dist{dist});
+        utility::random_fill(target, rnddims, Dist{dist}, gen);
         return target;
     };
     return ::cxtream::stream::transform(from<FromColumn>, to<ToColumn>, std::move(fun), dim<0>);

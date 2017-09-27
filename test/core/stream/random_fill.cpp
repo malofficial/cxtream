@@ -47,6 +47,7 @@ void check(Vector2d vec, std::vector<long> unique, long unique_total)
 BOOST_AUTO_TEST_CASE(test_simple)
 {
     std::mt19937 gen{1000003};
+    std::uniform_real_distribution<> dist{0, 1};
     std::vector<std::vector<std::vector<int>>> batch2 =
       {{{}, {}}, {{}, {}, {}}};
     std::vector<std::vector<std::vector<int>>> batch4 =
@@ -54,7 +55,7 @@ BOOST_AUTO_TEST_CASE(test_simple)
     std::vector<std::tuple<IntVec2d>> data = {batch2, batch4};
 
     auto stream = data
-      | random_fill(from<IntVec2d>, to<Random>, 1, gen);
+      | random_fill(from<IntVec2d>, to<Random>, 1, dist, gen);
 
     int batch_i = 0;
     std::vector<std::vector<double>> all_random;
