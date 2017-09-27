@@ -23,7 +23,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">cxtream
-   &#160;<span id="projectnumber">0.4.0</span>
+   &#160;<span id="projectnumber">0.5.0</span>
    </div>
    <div id="projectbrief">C++17 data pipeline with Python bindings.</div>
   </td>
@@ -105,10 +105,10 @@ Functions</h2></td></tr>
 <tr class="memitem:ga638fc5ea67fba496d178b2a866e65ca3"><td class="memTemplItemLeft" align="right" valign="top">auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group___vector.html#ga638fc5ea67fba496d178b2a866e65ca3">reshaped_view</a> (Rng &amp;rng, std::vector&lt; long &gt; <a class="el" href="group___vector.html#ga93bdcca450514d24c5e30d7c9484b8a9">shape</a>)</td></tr>
 <tr class="memdesc:ga638fc5ea67fba496d178b2a866e65ca3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Makes a view of a multidimensional range with a specific shape.  <a href="#ga638fc5ea67fba496d178b2a866e65ca3">More...</a><br /></td></tr>
 <tr class="separator:ga638fc5ea67fba496d178b2a866e65ca3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gafafe09dbf42bbee96f23c7706348041e"><td class="memTemplParams" colspan="2">template&lt;typename T , typename Prng  = std::mt19937&amp;, typename Dist  = std::uniform_real_distribution&lt;double&gt;&gt; </td></tr>
-<tr class="memitem:gafafe09dbf42bbee96f23c7706348041e"><td class="memTemplItemLeft" align="right" valign="top">constexpr void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group___vector.html#gafafe09dbf42bbee96f23c7706348041e">random_fill</a> (std::vector&lt; T &gt; &amp;vec, long ndims=std::numeric_limits&lt; long &gt;::max(), Prng &amp;&amp;gen=utility::random_generator, Dist &amp;&amp;dist=Dist{0, 1})</td></tr>
-<tr class="memdesc:gafafe09dbf42bbee96f23c7706348041e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fill a multidimensional std::vector with random values.  <a href="#gafafe09dbf42bbee96f23c7706348041e">More...</a><br /></td></tr>
-<tr class="separator:gafafe09dbf42bbee96f23c7706348041e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga93b5b8f45e7b4d696f7c085ea1f7699d"><td class="memTemplParams" colspan="2">template&lt;typename T , typename Prng  = std::mt19937&amp;, typename Dist  = std::uniform_real_distribution&lt;double&gt;&gt; </td></tr>
+<tr class="memitem:ga93b5b8f45e7b4d696f7c085ea1f7699d"><td class="memTemplItemLeft" align="right" valign="top">constexpr void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group___vector.html#ga93b5b8f45e7b4d696f7c085ea1f7699d">random_fill</a> (std::vector&lt; T &gt; &amp;vec, long ndims=std::numeric_limits&lt; long &gt;::max(), Dist &amp;&amp;dist=Dist{0, 1}, Prng &amp;&amp;gen=utility::random_generator)</td></tr>
+<tr class="memdesc:ga93b5b8f45e7b4d696f7c085ea1f7699d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fill a multidimensional std::vector with random values.  <a href="#ga93b5b8f45e7b4d696f7c085ea1f7699d">More...</a><br /></td></tr>
+<tr class="separator:ga93b5b8f45e7b4d696f7c085ea1f7699d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gab2502f587535916a11dcfd65f9cdc13c"><td class="memTemplParams" colspan="2">template&lt;typename Tuple &gt; </td></tr>
 <tr class="memitem:gab2502f587535916a11dcfd65f9cdc13c"><td class="memTemplItemLeft" align="right" valign="top">constexpr bool&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group___vector.html#gab2502f587535916a11dcfd65f9cdc13c">same_size</a> (Tuple &amp;&amp;rngs)</td></tr>
 <tr class="memdesc:gab2502f587535916a11dcfd65f9cdc13c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Utility function which checks that all the ranges in a tuple have the same size.  <a href="#gab2502f587535916a11dcfd65f9cdc13c">More...</a><br /></td></tr>
@@ -266,8 +266,8 @@ template&lt;typename Rng &gt; </div>
 
 </div>
 </div>
-<a id="gafafe09dbf42bbee96f23c7706348041e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#gafafe09dbf42bbee96f23c7706348041e">&#9670;&nbsp;</a></span>random_fill()</h2>
+<a id="ga93b5b8f45e7b4d696f7c085ea1f7699d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga93b5b8f45e7b4d696f7c085ea1f7699d">&#9670;&nbsp;</a></span>random_fill()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -289,14 +289,14 @@ template&lt;typename T , typename Prng  = std::mt19937&amp;, typename Dist  = st
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">Prng &amp;&amp;&#160;</td>
-          <td class="paramname"><em>gen</em> = <code>utility::random_generator</code>, </td>
+          <td class="paramtype">Dist &amp;&amp;&#160;</td>
+          <td class="paramname"><em>dist</em> = <code>Dist{0,&#160;1}</code>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">Dist &amp;&amp;&#160;</td>
-          <td class="paramname"><em>dist</em> = <code>Dist{0,&#160;1}</code>&#160;</td>
+          <td class="paramtype">Prng &amp;&amp;&#160;</td>
+          <td class="paramname"><em>gen</em> = <code>utility::random_generator</code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -308,12 +308,12 @@ template&lt;typename T , typename Prng  = std::mt19937&amp;, typename Dist  = st
 
 <p>Fill a multidimensional std::vector with random values. </p>
 <p>If the vector is multidimensional, the random generator may be used only up to the given dimension and the rest of the dimensions will be constant.</p>
-<p>Example: </p><div class="fragment"><div class="line">std::mt19937 gen = ...;</div><div class="line">std::uniform_int_distribution dist = ...;</div><div class="line">std::vector&lt;std::vector&lt;std::vector&lt;int&gt;&gt;&gt; data = {{{0, 0, 0},{0}}, {{0}{0, 0}}};</div><div class="line"><a class="code" href="group___vector.html#gafafe09dbf42bbee96f23c7706348041e">random_fill</a>(data, 0, gen, dist);</div><div class="line"><span class="comment">// data == e.g., {{{4, 4, 4},{4}}, {{4}{4, 4}}};</span></div><div class="line"><a class="code" href="group___vector.html#gafafe09dbf42bbee96f23c7706348041e">random_fill</a>(data, 1, gen, dist);</div><div class="line"><span class="comment">// data == e.g., {{{8, 8, 8},{8}}, {{2}{2, 2}}};</span></div><div class="line"><a class="code" href="group___vector.html#gafafe09dbf42bbee96f23c7706348041e">random_fill</a>(data, 2, gen, dist);</div><div class="line"><span class="comment">// data == e.g., {{{8, 8, 8},{6}}, {{7}{3, 3}}};</span></div><div class="line"><a class="code" href="group___vector.html#gafafe09dbf42bbee96f23c7706348041e">random_fill</a>(data, 3, gen, dist);</div><div class="line"><span class="comment">// data == e.g., {{{8, 2, 3},{1}}, {{2}{4, 7}}};</span></div></div><!-- fragment --><dl class="params"><dt>Parameters</dt><dd>
+<p>Example: </p><div class="fragment"><div class="line">std::mt19937 gen = ...;</div><div class="line">std::uniform_int_distribution dist = ...;</div><div class="line">std::vector&lt;std::vector&lt;std::vector&lt;int&gt;&gt;&gt; data = {{{0, 0, 0},{0}}, {{0}{0, 0}}};</div><div class="line"><a class="code" href="group___vector.html#ga93b5b8f45e7b4d696f7c085ea1f7699d">random_fill</a>(data, 0, dist, gen);</div><div class="line"><span class="comment">// data == e.g., {{{4, 4, 4},{4}}, {{4}{4, 4}}};</span></div><div class="line"><a class="code" href="group___vector.html#ga93b5b8f45e7b4d696f7c085ea1f7699d">random_fill</a>(data, 1, dist, gen);</div><div class="line"><span class="comment">// data == e.g., {{{8, 8, 8},{8}}, {{2}{2, 2}}};</span></div><div class="line"><a class="code" href="group___vector.html#ga93b5b8f45e7b4d696f7c085ea1f7699d">random_fill</a>(data, 2, dist, gen);</div><div class="line"><span class="comment">// data == e.g., {{{8, 8, 8},{6}}, {{7}{3, 3}}};</span></div><div class="line"><a class="code" href="group___vector.html#ga93b5b8f45e7b4d696f7c085ea1f7699d">random_fill</a>(data, 3, dist, gen);</div><div class="line"><span class="comment">// data == e.g., {{{8, 2, 3},{1}}, {{2}{4, 7}}};</span></div></div><!-- fragment --><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">vec</td><td>The vector to be filled. </td></tr>
     <tr><td class="paramname">ndims</td><td>The random generator will be used only for this number of dimension. The rest of the dimensions will be filled by the last generated value. Use std::numeric_limits&lt;long&gt;::max() to randomly fill all dimensions. </td></tr>
-    <tr><td class="paramname">gen</td><td>The random generator to be used. </td></tr>
     <tr><td class="paramname">dist</td><td>The distribution to be used. </td></tr>
+    <tr><td class="paramname">gen</td><td>The random generator to be used. </td></tr>
   </table>
   </dd>
 </dl>
