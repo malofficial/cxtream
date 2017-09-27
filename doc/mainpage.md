@@ -16,6 +16,9 @@ combine and filter the data that pass through. Those streams are compiled,
 batched, and asynchronous, therefore maximizing the utilization of the provided
 hardware.
 
+The complete source code can be downloaded from our official GitHub
+[repository](https://github.com/Cognexa/cxtream).
+
 **This project is under heavy development. The API is continuously changing without regard
 to backward compatibility.**
 

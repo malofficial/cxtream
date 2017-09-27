@@ -35,6 +35,18 @@ If you plan to use [TensorFlow C++ API](https://www.tensorflow.org/api_guides/cc
 please install the TensorFlow C++ library into your system using
 [tensorflow_cc](https://github.com/FloopCZ/tensorflow_cc) project.
 
+Download
+--------
+---
+
+The complete source code can be downloaded from our official GitHub
+[repository](https://github.com/Cognexa/cxtream) using the following commands:
+
+```
+git clone --recursive https://github.com/Cognexa/cxtream.git
+cd cxtream
+```
+
 Build & Install
 ---------------
 ---
