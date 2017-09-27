@@ -76,7 +76,8 @@ namespace detail {
 
 }  // namespace detail
 
-/// Apply a function to a range of tuples of cxtream columns.
+/// \ingroup Stream
+/// \brief Apply a function to a subset of stream columns.
 ///
 /// The given function is applied to a subset of columns given by FromColumns.
 /// The transformed range is the same as the input range, no elements are actually changed.

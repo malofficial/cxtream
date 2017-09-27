@@ -6,6 +6,7 @@
  *  This file is distributed under the MIT License.
  *  See the accompanying file LICENSE.txt for the complete license agreement.
  ****************************************************************************/
+/// \defgroup Tensorflow TensorFlow graph evaluation.
 
 #ifndef CXTREAM_TENSORFLOW_HPP
 #define CXTREAM_TENSORFLOW_HPP

@@ -22,11 +22,11 @@
 
 namespace cxtream::python::utility {
 
-// recursive transformation from a multidimensional vector to a python iterator //
+// recursive transformation from a multidimensional vector to python //
 
 namespace detail {
 
-    // conversion of std::vector to a python list-like type //
+    // conversion of std::vector to a Python list-like type //
     // Vectors of builtin primitive types (e.g., int, bool, ...) are converted
     // to numpy ndarrays. Vector of other types are converted to lists and
     // their elements are converted using boost::python::object
@@ -60,10 +60,11 @@ namespace detail {
 
 }  // namespace detail
 
-/// Create a python list-like object out of a multidimensional std::vector.
+/// \ingroup Python
+/// \brief Create a Python list-like object out of a multidimensional std::vector.
 ///
 /// If the vector is multidimensional, i.e., std::vector<std::vector<...>>,
-/// the resulting structure will be multidimensional as well.
+/// the resulting Python structure will be multidimensional as well.
 template<typename T>
 boost::python::object to_python(std::vector<T> v)
 {
@@ -72,11 +73,13 @@ boost::python::object to_python(std::vector<T> v)
     return py::object{py_obj_handle};
 }
 
-/// Convert a tuple of cxtream columns into a python dict.
+/// \ingroup Python
+/// \brief Convert a tuple of cxtream columns into a Python `dict`.
 ///
-/// The dict is indexed by column.name and the value is column.value.
-/// Batches are converted to python iterators. If the batch value is a multidimensional
-/// std::vector<std::vector<...>>, it is converted to multidimensional python iterator.
+/// The dict is indexed by `column.name` and the value is `column.value`.
+/// The values (i.e, the batches) are converted to Python lists using to_python().
+/// If the batch is a multidimensional std::vector<std::vector<...>>, it
+/// is converted to multidimensional Python list.
 template<typename Tuple>
 boost::python::dict columns_to_python(Tuple tuple)
 {

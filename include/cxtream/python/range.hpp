@@ -23,7 +23,8 @@
 
 namespace cxtream::python {
 
-/// Exception which is translated to Python's StopIteration when thrown.
+/// \ingroup Python
+/// \brief Exception which is translated to Python's StopIteration when thrown.
 struct stop_iteration_exception : public std::runtime_error {
     stop_iteration_exception()
       : std::runtime_error{"stop iteration"}
@@ -36,15 +37,24 @@ void stop_iteration_translator(const stop_iteration_exception& x)
     PyErr_SetNone(PyExc_StopIteration);
 }
 
-/// Python adapter for C++ ranges.
+/// \ingroup Python
+/// \brief Python adapter for C++ ranges.
 ///
-/// This class provides __next__, __iter__, __len__, and __getitem__ methods
-/// emulating python containers. __getitem__ and __len__ are provided only for
+/// This class provides `__next__`, `__iter__`, `__len__`, and `__getitem__` methods
+/// emulating python containers. `__getitem__` and `__len__` are provided only for
 /// random access ranges.
 ///
 /// Note that this class is useful for infinite ranges and views.
 /// However, for normal finite ranges, it seems to be many times slower
 /// than using boost::python::list.
+///
+/// Example:
+/// \code
+///     std::vector<int> data = {1, 2, 3};
+///     range<std::vector<int>> py_range{std::move(data)};
+///     // py_range is now a registered boost::python object
+///     // supporting iteration and random access.
+/// \endcode
 template<typename Rng>
 class range {
 private:
@@ -101,7 +111,7 @@ public:
     public:
         iterator() = default;
 
-        /// Construct iterator from a range.
+        // Construct iterator from a range.
         explicit iterator(range& rng)
           : rng_ptr_{rng.rng_ptr_},
             position_{ranges::begin(*rng_ptr_)},
@@ -109,15 +119,15 @@ public:
         {
         }
 
-        /// Return a copy of this iterator.
+        // Return a copy of this iterator.
         iterator iter()
         {
             return *this;
         }
 
-        /// Return the next element in the range.
-        ///
-        /// \throws stop_iteration_exception if there are no more elements.
+        // Return the next element in the range.
+        //
+        // \throws stop_iteration_exception if there are no more elements.
         auto next()
         {
             // do not increment the iterator in the first iteration, just return *begin()
@@ -145,15 +155,15 @@ public:
         register_to_python();
     }
 
-    /// Get python iterator.
+    // Get python iterator.
     iterator iter()
     {
         return iterator{*this};
     }
 
-    /// Get an item or a slice.
-    ///
-    /// Note that when slicing, the data get copied.
+    // Get an item or a slice.
+    //
+    // Note that when slicing, the data get copied.
     CONCEPT_REQUIRES(ranges::RandomAccessRange<const Rng>())
     boost::python::object getitem(PyObject* idx_py) const
     {
@@ -192,7 +202,7 @@ public:
         return boost::python::object{ranges::at(*rng_ptr_, idx)};
     }
 
-    /// Get the size of the range.
+    // Get the size of the range.
     CONCEPT_REQUIRES(ranges::SizedRange<const Rng>())
     long len() const
     {

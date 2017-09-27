@@ -6,6 +6,7 @@
  *  This file is distributed under the MIT License.
  *  See the accompanying file LICENSE.txt for the complete license agreement.
  ****************************************************************************/
+/// \defgroup String String utilities.
 
 #ifndef CXTREAM_CORE_UTILITY_STRING_HPP
 #define CXTREAM_CORE_UTILITY_STRING_HPP
@@ -19,7 +20,8 @@
 
 namespace cxtream::utility {
 
-/// Convert std::string to a given type.
+/// \ingroup String
+/// \brief Convert std::string to the given type.
 ///
 /// This function is similar to boost::lexical_cast,
 /// however, it always uses C locale.
@@ -43,13 +45,11 @@ std::string string_to<std::string>(std::string str)
     return str;
 }
 
-/// Convert std::string to a given type.
+/// \ingroup String
+/// \brief Convert the given type to std::string.
 ///
-/// This function is similar to boost::lexical_cast,
-/// however, it always uses C locale and uses c++11
-/// to_string wherever possible.
-using std::to_string;
-
+/// This function is similar to boost::lexical_cast and
+/// uses std::to_string wherever possible.
 std::string to_string(std::string str)
 {
     return str;
@@ -65,7 +65,10 @@ std::string to_string(bool b)
     return b ? "true" : "false";
 }
 
-/// Removes whitespace characters from the beginning and the end of a string.
+using std::to_string;
+
+/// \ingroup String
+/// \brief Removes whitespace characters from the beginning and the end of a string.
 ///
 /// This function is similar to boost::trimmed,
 /// however, it always uses C locale.

@@ -82,7 +82,8 @@ namespace detail {
 
 }  // namespace detail
 
-/// Transform a subset of cxtream columns to a different subset of cxtream columns.
+/// \ingroup Stream
+/// \brief Transform a subset of cxtream columns to a different subset of cxtream columns.
 ///
 /// Example:
 /// \code
@@ -101,7 +102,7 @@ namespace detail {
 /// \param fun The function to be applied. The function should return the type represented
 ///            by the target column in the given dimension. If there are multiple target
 ///            columns, the function should return a tuple of the corresponding types.
-/// \param d The dimension in which the function is applied. Choose 0 for the function to
+/// \param d The dimension in which is the function applied. Choose 0 for the function to
 ///          be applied to the whole batch.
 template<typename... FromColumns, typename... ToColumns, typename Fun, int Dim = 1>
 constexpr auto transform(from_t<FromColumns...> f,
@@ -182,15 +183,17 @@ namespace detail {
 
 }  // namespace detail
 
-/// Conditional transform of a subset of cxtream columns.
+/// \ingroup Stream
+/// \brief Conditional transform of a subset of cxtream columns.
 ///
-/// This function behaves the same as the original stream::transform, but it accepts one extra
-/// argument denoting a column of true/false values of the same shape as the columns to be
+/// This function behaves the same as the original stream::transform(), but it accepts one extra
+/// argument denoting a column of `true`/`false` values of the same shape as the columns to be
 /// transformed. The transformation will only be applied on true values and it will be an identity
 /// on false values.
 ///
-/// Note that this can be very useful in combination with stream::random_fill and
-/// std::bernoulli_distribution.
+/// Note that this can be very useful in combination with \ref stream::random_fill() and
+/// [std::bernoulli_distribution](
+/// http://en.cppreference.com/w/cpp/numeric/random/bernoulli_distribution).
 ///
 /// Example:
 /// \code
@@ -198,7 +201,7 @@ namespace detail {
 ///     CXTREAM_DEFINE_COLUMN(do_trans, char)  // do not use bool here, vector<bool> is
 ///                                            // not a good OutputRange
 ///     std::vector<int> data_int = {3, 1, 5, 7};
-//
+///
 ///     // hardcoded usage
 ///     std::vector<int> data_cond = {true, true, false, false};
 ///     auto rng = ranges::view::zip(data_int, data_cond)
@@ -222,13 +225,13 @@ namespace detail {
 /// \param f The columns to be extracted out of the tuple of columns and passed to fun.
 /// \param t The columns where the result will be saved. Those have to already exist
 ///          in the stream.
-/// \param c The column of true/false values denoting whether the transformation should be performed
-///          or not. For false values, the transformation is an identity
+/// \param c The column of `true`/`false` values denoting whether the transformation should be
+///          performed or not. For `false` values, the transformation is an identity
 ///          on the target columns.
 /// \param fun The function to be applied. The function should return the type represented
 ///            by the selected column in the given dimension. If there are multiple target
 ///            columns, the function should return a tuple of the corresponding types.
-/// \param d The dimension in which the function is applied. Choose 0 for the function to
+/// \param d The dimension in which is the function applied. Choose 0 for the function to
 ///          be applied to the whole batch.
 template<
   typename... FromColumns,
@@ -304,9 +307,10 @@ namespace detail {
 
 }  // namespace detail
 
-/// Probabilistic transform of a subset of cxtream columns.
+/// \ingroup Stream
+/// \brief Probabilistic transform of a subset of cxtream columns.
 ///
-/// This function behaves the same as the original stream::transform, but it accepts one extra
+/// This function behaves the same as the original stream::transform(), but it accepts one extra
 /// argument denoting the probability of transformation. If this probability is 0.0,
 /// the transformer behaves as an identity. If it is 1.0, the transofrmation function
 /// is always applied.
@@ -332,7 +336,7 @@ namespace detail {
 ///            columns, the function should return a tuple of the corresponding types.
 /// \param prng The random generator to be used. Defaults to a thread_local
 ///             std::mt19937.
-/// \param d The dimension in which the function is applied. Choose 0 for the function to
+/// \param d The dimension in which is the function applied. Choose 0 for the function to
 ///          be applied to the whole batch.
 template<
   typename... FromColumns,

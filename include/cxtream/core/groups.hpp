@@ -6,6 +6,7 @@
  *  This file is distributed under the MIT License.
  *  See the accompanying file LICENSE.txt for the complete license agreement.
  ****************************************************************************/
+/// \defgroup Groups Data splitting.
 
 #ifndef CXTREAM_CORE_GROUPS_HPP
 #define CXTREAM_CORE_GROUPS_HPP
@@ -28,7 +29,8 @@
 
 namespace cxtream {
 
-/// Randomly group data into multiple clusters with a given ratio.
+/// \ingroup Groups
+/// \brief Randomly group data into multiple clusters with a given ratio.
 ///
 /// Example:
 /// \code
@@ -41,6 +43,7 @@ namespace cxtream {
 /// \param size The size of the data, i.e., the number of elements.
 /// \param ratio Cluster size ratio. The ratios have to be non-negative and
 ///              the sum of ratios has to be positive.
+/// \param gen The random generator to be used.
 template<typename Prng = std::mt19937&>
 std::vector<std::size_t> generate_groups(std::size_t size, std::vector<double> ratio,
                                          Prng&& gen = utility::random_generator)
@@ -75,10 +78,16 @@ std::vector<std::size_t> generate_groups(std::size_t size, std::vector<double> r
     return groups;
 }
 
-/// Randomly group data into multiple clusters with a given ratio.
+/// \ingroup Groups
+/// \brief Randomly group data into multiple clusters with a given ratio.
 ///
-/// Multiple groupings are generated and some of the elements may have the same group
-/// assigned in all the generated groupings.
+/// In this overload, multiple clusterings of the given size are generated. Some of the elements
+/// are supposed to be fixed, i.e., to have the same group assigned in all the clusterings.
+/// The rest of the data are volatile and their group may differ between the clusterings.
+///
+/// This function is convenient e.g., if you want to split the data into train/valid/test groups
+/// multiple times (e.g., for ensemble training or x-validation) and you want to have the same test
+/// group in all the splits.
 ///
 /// Example:
 /// \code
@@ -92,8 +101,8 @@ std::vector<std::size_t> generate_groups(std::size_t size, std::vector<double> r
 /// \param n The number of different groupings.
 /// \param size The size of the data, i.e., the number of elements.
 /// \param volatile_ratio The ratio of volatile groups (i.e., groups that change between groupings).
-/// \param fixed_groups The ratio of groups that are assigned equally in all groupings.
-/// \param ratio Cluster size ratio. The sum of ratios has to be positive.
+/// \param fixed_ratio The ratio of groups that are assigned equally in all groupings.
+/// \param gen The random generator to be used.
 template<typename Prng = std::mt19937&>
 std::vector<std::vector<std::size_t>>
 generate_groups(std::size_t n, std::size_t size,

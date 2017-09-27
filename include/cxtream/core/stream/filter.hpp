@@ -130,7 +130,8 @@ namespace detail {
 
 }  // namespace detail
 
-/// Filter stream data.
+/// \ingroup Stream
+/// \brief Filter stream data.
 ///
 /// Example:
 /// \code

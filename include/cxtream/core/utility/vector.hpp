@@ -6,6 +6,7 @@
  *  This file is distributed under the MIT License.
  *  See the accompanying file LICENSE.txt for the complete license agreement.
  ****************************************************************************/
+/// \defgroup Vector Multidimensional container utilities.
 
 #ifndef CXTREAM_CORE_VECTOR_UTILS_HPP
 #define CXTREAM_CORE_VECTOR_UTILS_HPP
@@ -32,7 +33,8 @@
 
 namespace cxtream::utility {
 
-/// Gets the number of dimensions of a multidimensional range.
+/// \ingroup Vector
+/// \brief Gets the number of dimensions of a multidimensional range.
 ///
 /// Example:
 /// \code
@@ -52,7 +54,8 @@ struct ndims<T, true>
   : std::integral_constant<long, ndims<ranges::range_value_type_t<T>>{} + 1L> {
 };
 
-/// Gets the innermost value_type of a multidimensional range.
+/// \ingroup Vector
+/// \brief Gets the innermost value_type of a multidimensional range.
 ///
 /// The number of dimensions can be also provided manually.
 ///
@@ -63,18 +66,21 @@ struct ndims<T, true>
 ///     using rng1_type = ndim_type<std::list<std::vector<int>>, 1>::type;
 ///     // rng1_type is std::vector<int>
 /// \endcode
-template<typename Rng, long Dim = -1>
+template<typename Rng, long Dim = -1L>
 struct ndim_type
-  : ndim_type<typename ranges::range_value_type_t<Rng>, Dim-1> {
+//// \cond
+  : ndim_type<typename ranges::range_value_type_t<Rng>, Dim - 1L> {
+  static_assert(Dim > 0, "Dimension has to be positive, zero or -1.");
+//// \endcond
 };
 
 template<typename T>
-struct ndim_type<T, 0> {
+struct ndim_type<T, 0L> {
     using type = T;
 };
 
 template<typename Rng>
-struct ndim_type<Rng, -1>
+struct ndim_type<Rng, -1L>
   : ndim_type<Rng, ndims<Rng>{}> {
 };
 
@@ -104,7 +110,8 @@ namespace detail {
 
 }  // namespace detail
 
-/// Calculates the size of a multidimensional range.
+/// \ingroup Vector
+/// \brief Calculates the size of a multidimensional range.
 ///
 /// i-th element of the resulting vector are the sizes of the ranges in the i-th dimension.
 ///
@@ -131,7 +138,8 @@ std::vector<std::vector<long>> ndim_size(const Rng& rng)
     return size_out;
 }
 
-/// Calculates the size of a multidimensional range.
+/// \ingroup Vector
+/// \brief Calculates the size of a multidimensional range.
 ///
 /// This overload automatically deduces the number of dimension using ndims<Rng>.
 template<typename Rng>
@@ -177,7 +185,8 @@ namespace detail {
 
 }  // namespace detail
 
-/// Resizes a multidimensional std::vector to the given size.
+/// \ingroup Vector
+/// \brief Resizes a multidimensional std::vector to the given size.
 ///
 /// i-th element of the given size vector are the sizes of the vectors in the i-th dimension.
 /// See ndim_size.
@@ -251,7 +260,8 @@ namespace detail {
 
 }  // namespace detail
 
-/// Calculates the shape of a multidimensional range.
+/// \ingroup Vector
+/// \brief Calculates the shape of a multidimensional range.
 ///
 /// \code
 ///     std::list<std::vector<int>> rng{{1, 2}, {3, 4}, {5, 6}, {5, 6}};
@@ -278,7 +288,8 @@ std::vector<long> shape(const Rng& rng)
     return shape;
 }
 
-/// Calculates the shape of a multidimensional range.
+/// \ingroup Vector
+/// \brief Calculates the shape of a multidimensional range.
 ///
 /// This overload automatically deduces the number of dimension using ndims<Rng>.
 template<typename Rng>
@@ -313,7 +324,8 @@ namespace detail {
 
 }  // namespace detail
 
-/// Makes a flat view out of a multidimensional range.
+/// \ingroup Vector
+/// \brief Makes a flat view out of a multidimensional range.
 ///
 /// \code
 ///     std::vector<std::list<int>> vec{{1, 2}, {3}, {}, {4, 5, 6}};
@@ -402,7 +414,8 @@ namespace detail {
 
 }  // namespace detail
 
-/// Makes a view of a multidimensional range with a specific shape.
+/// \ingroup Vector
+/// \brief Makes a view of a multidimensional range with a specific shape.
 ///
 /// Usage:
 /// \code
@@ -466,7 +479,8 @@ namespace detail {
 
 }  // namespace detail
 
-/// Fill a multidimensional std::vector with random values.
+/// \ingroup Vector
+/// \brief Fill a multidimensional std::vector with random values.
 ///
 /// If the vector is multidimensional, the random generator may be used only up to the
 /// given dimension and the rest of the dimensions will be constant.
@@ -519,7 +533,8 @@ namespace detail {
 
 }  // namespace detail
 
-/// Utility function which checks that all the ranges in a tuple have the same size.
+/// \ingroup Vector
+/// \brief Utility function which checks that all the ranges in a tuple have the same size.
 ///
 /// Example:
 /// \code

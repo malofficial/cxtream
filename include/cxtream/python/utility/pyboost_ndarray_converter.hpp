@@ -75,39 +75,43 @@ namespace detail {
 
 #undef CXTREAM_DEFINE_TO_NDARRAY_TRAIT
 
-}  // end namespace detail
+    /// \ingroup Python
+    /// \brief Convert the given variable to the corresponding ndarray type.
+    ///
+    /// If the variable is not one of the selected builtin types, it is
+    /// converted using boost::python::object.
+    template<typename T>
+    auto to_ndarray_element(T val)
+    {
+        return detail::to_ndarray_trait<T>::convert(std::move(val));
+    }
 
-/// Convert the given variable to the corresponding ndarray type.
-///
-/// If the variable is not one of the selected builtin types, it is
-/// converted using boost::python::object.
-template<typename T>
-auto to_ndarray_element(T val)
-{
-    return detail::to_ndarray_trait<T>::convert(std::move(val));
-}
+    /// \ingroup Python
+    /// \brief Get the ndarray type corresponding to the given C++ type.
+    template<typename T>
+    using ndarray_type_t = typename detail::to_ndarray_trait<T>::type_t;
 
-/// Get the ndarray type corresponding to the given C++ type.
-template<typename T>
-using ndarray_type_t = typename detail::to_ndarray_trait<T>::type_t;
+    /// \ingroup Python
+    /// \brief Get the ndarray type number corresponding to the given C++ type.
+    template<typename T>
+    int to_ndarray_typenum()
+    {
+        return detail::to_ndarray_trait<T>::typenum();
+    }
 
-/// Get the ndarray type number corresponding to the given c++ type.
-template<typename T>
-int to_ndarray_typenum()
-{
-    return detail::to_ndarray_trait<T>::typenum();
-}
+}  // namespace detail
 
-/// Build ndarray from a one dimensional std::vector.
+/// \ingroup Python
+/// \brief Build ndarray from a one dimensional std::vector.
 template<typename T>
 PyObject* to_ndarray(const std::vector<T>& vec)
 {
-    auto data = std::make_unique<ndarray_type_t<T>[]>(vec.size());
-    for (std::size_t i = 0; i < vec.size(); ++i) data[i] = to_ndarray_element(vec[i]);
+    auto data = std::make_unique<detail::ndarray_type_t<T>[]>(vec.size());
+    for (std::size_t i = 0; i < vec.size(); ++i) data[i] = detail::to_ndarray_element(vec[i]);
     npy_intp dims[1]{static_cast<npy_intp>(vec.size())};
 
     PyObject* arr = PyArray_SimpleNewFromData(
-      1, dims, to_ndarray_typenum<T>(), reinterpret_cast<void*>(data.release()));
+      1, dims, detail::to_ndarray_typenum<T>(), reinterpret_cast<void*>(data.release()));
     if (!arr) throw std::runtime_error{"Cannot create Python NumPy ndarray."};
     // we have to tell NumPy to delete the data when the array is removed
     PyArray_ENABLEFLAGS(reinterpret_cast<PyArrayObject*>(arr), NPY_ARRAY_OWNDATA);

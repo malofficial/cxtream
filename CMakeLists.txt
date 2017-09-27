@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
 project(
   "cxtream"
-  VERSION 0.4.0
+  VERSION 0.5.0
 )
 set(PROJECT_DESCRIPTION "C++17 data pipeline with Python bindings.")
 
@@ -10,6 +10,7 @@ set(PROJECT_DESCRIPTION "C++17 data pipeline with Python bindings.")
 # -------
 
 option(BUILD_TEST "Build test binaries" ON)
+option(BUILD_DOC "Build documentation" OFF)
 option(BUILD_PYTHON "Build C++ <-> Python converters" ON)
 option(BUILD_PYTHON_OPENCV "Build C++ <-> Python OpenCV converters (requires BUILD_PYTHON)" ON)
 option(BUILD_TENSORFLOW "Build TensorFlow functionality" OFF)
@@ -67,6 +68,11 @@ if(BUILD_PYTHON)
     find_package(PythonNumPy REQUIRED)
     find_package(OpenCV COMPONENTS core REQUIRED)
   endif()
+endif()
+
+if(BUILD_DOC)
+  find_package(Git REQUIRED)
+  find_package(Doxygen REQUIRED)
 endif()
 
 # ------------------
@@ -217,6 +223,14 @@ if(BUILD_TEST)
       include("BuildPyBoostTestModule")
   endif()
   add_subdirectory("test")
+endif()
+
+# -------------
+# Documentation
+# -------------
+
+if(BUILD_DOC)
+  add_subdirectory(doc)
 endif()
 
 # -------

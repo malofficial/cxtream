@@ -18,7 +18,8 @@
 
 namespace cxtream::tensorflow {
 
-/// Make a session out of tensorflow frozen graph.
+/// \ingroup Tensorflow
+/// \brief Make a session out of tensorflow frozen graph.
 ///
 /// \param graph_file_name File with the frozen graph.
 /// \returns A pointer to a tensorflow session with the graph.

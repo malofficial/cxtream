@@ -17,7 +17,8 @@
 
 namespace cxtream::stream {
 
-/// Converts a range to a stream (i.e., to a range of tuples of columns).
+/// \ingroup Stream
+/// \brief Converts a range to a stream (i.e., to a range of tuples of columns).
 ///
 /// The value type of the input range is supposed
 /// to be either the type represented by the column to be created,
@@ -29,13 +30,13 @@ namespace cxtream::stream {
 ///     CXTREAM_DEFINE_COLUMN(age, int)
 ///
 ///     // rng is a stream where each batch is a single element from 0..9
-///     auto rng = view::iota(0, 10) | cxtream::create<id>();
+///     auto rng = view::iota(0, 10) | create<id>();
 ///
 ///     // batched_rng is a stream with a single batch with numbers 0..9
-///     auto rng = view::iota(0, 10) | cxtream::create<id>(50);
+///     auto rng = view::iota(0, 10) | create<id>(50);
 ///
 ///     // also multiple columns can be created at once
-///     auto rng = view::zip(view::iota(0, 10), view::iota(30, 50)) | cxtream::create<id, age>();
+///     auto rng = view::zip(view::iota(0, 10), view::iota(30, 50)) | create<id, age>();
 /// \endcode
 ///
 /// \param batch_size The requested batch size for the provided data.

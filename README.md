@@ -1,68 +1,65 @@
 # cxtream
-C++17 data pipeline with Python bindings.
-
-## Development Status
-
-- [![CircleCI](https://circleci.com/gh/Cognexa/cxtream/tree/master.svg?style=shield)](https://circleci.com/gh/Cognexa/cxtream/tree/master)
-- [![Development Status](https://img.shields.io/badge/status-CX%20PoC-yellow.svg?style=flat)]()
-- [![Master Developer](https://img.shields.io/badge/master-Filip%20Matzner-lightgrey.svg?style=flat)]()
+[![CircleCI](https://circleci.com/gh/Cognexa/cxtream/tree/master.svg?style=shield)](https://circleci.com/gh/Cognexa/cxtream/tree/master)
+[![MIT license](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](LICENSE)
+[![Development Status](https://img.shields.io/badge/status-CX%20Experimental-yellow.svg?style=flat)]()
+[![Master Developer](https://img.shields.io/badge/master-Filip%20Matzner-lightgrey.svg?style=flat)]()
 
 **This project is under heavy development. The API is continuously changing without regard to backward compatibility.**
 
-## Requirements
-The cxtream core is a header-only C++ library with dependencies
-to header-only parts of [Boost C++ Libraries](http://www.boost.org/).
+__cxtream__ is a C++ library for efficient data processing. Its main purpose is to simplify
+and acclelerate data preparation for deep learning models, but it is generic enough to be used
+in many other areas.
 
-To install Boost, run the following command:
+__cxtream__ lets the programmer build intuitive data streams that transform,
+combine and filter the data that pass through. Those streams are compiled,
+batched, and asynchronous, therefore maximizing the utilization of the provided
+hardware.
 
-__Arch Linux__
-```
-pacman -S boost
-```
-
-__Ubuntu 16.10+__
-```
-apt install libboost-dev
-```
-
-However,
-if you plan to use the Python bindings including the OpenCV support,
-there are a few more dependencies that have to be installed.
-
-The following command may be used to install all the requirements automatically.
-
-__Arch Linux__
-```
-pacman -S base-devel cmake opencv boost python python-numpy
-```
-
-__Ubuntu 16.10+__
-```
-apt install build-essential cmake libopencv-dev libboost-dev libboost-python-dev libboost-test-dev python3-dev python3-numpy
-```
-
-If you plan to use TensorFlow C++ API, please install the TensorFlow C++ library into your system using [tensorflow_cc](https://github.com/FloopCZ/tensorflow_cc) project.
-
-## Installation
-
-__Build__
-
-```
-mkdir build && cd build
-cmake ..
-make -j5
-```
-
-__Test__
-```
-make test
-```
-
-__Install__
-```
-sudo make install
-```
+- [Documentation and API reference](https://cxtream.org/).
+- [Installation guide](https://cxtream.org/installation.html).
 
 ## Example
 
-Please refer to [Cognexa/cxMNIST](https://github.com/Cognexa/cxMNIST) repository for a usage example.
+```c++
+std::vector<std::string> logins = {"marry", "ted", "anna", "josh"};
+std::vector<int>           ages = {     24,    41,     16,     59};
+
+auto stream = ranges::view::zip(logins, ages)
+
+  // create a batched stream out of the raw data
+  | cxs::create<login, age>(2)
+
+  // make everyone older by one year
+  | cxs::transform(from<age>, to<age>, [](int a) { return a + 1; })
+
+  // increase each letter in the logins by one (i.e., a->b, e->f ...)
+  | cxs::transform(from<login>, to<login>, [](char c) { return c + 1; }, dim<2>)
+
+  // increase the ages by the length of the login
+  | cxs::transform(from<login, age>, to<age>, [](std::string l, int a) {
+        return a + l.length();
+    })
+
+  // probabilistically rename 50% of the people to "buzz"
+  | cxs::transform(from<login>, to<login>, 0.5, [](std::string) -> std::string {
+        return "buzz";
+    })
+
+  // drop the login column from the stream
+  | cxs::drop<login>
+
+  // introduce the login column back to the stream
+  | cxs::transform(from<age>, to<login>, [](int a) {
+        return "person_" + std::to_string(a) + "_years_old";
+    })
+
+  // filter only people older than 30 years
+  | cxs::filter(from<login, age>, by<age>, [](int a) { return a > 30; })
+
+  // asynchronously buffer the stream during iteration
+  | cxs::buffer(2);
+
+// extract the ages from the stream to std::vector
+ages = cxs::unpack(stream, from<age>);
+assert((ages == std::vector<int>{45, 64}));
+```

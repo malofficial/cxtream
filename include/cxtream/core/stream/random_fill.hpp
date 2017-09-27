@@ -18,15 +18,16 @@
 
 namespace cxtream::stream {
 
-/// Fill the selected column of a stream with random values.
+/// \ingroup Stream
+/// \brief Fill the selected column of a stream with random values.
 ///
-/// This function uses utility::random_fill(). Furthermore, the column to be filled
+/// This function uses \ref utility::random_fill(). Furthermore, the column to be filled
 /// is first resized so that it has the same size as the selected source column.
 ///
 /// The selected `from` column has to be a multidimensional range with the number of
 /// dimensions at least as large as the `to` column (i.e., the column to be filled).
 ///
-/// If there is no column from which should the size be taken, than just resize
+/// Note: If there is no column the size could be taken from, than just resize
 /// the target column manually and use it as both `from` column and `to` column.
 ///
 /// Example:
@@ -42,7 +43,7 @@ namespace cxtream::stream {
 ///
 /// \param size_from The column whose size will be used to initialize the random column.
 /// \param fill_to The column to be filled with random data.
-/// \param rnddims The number of random dimensions. See utility::random_fill().
+/// \param rnddims The number of random dimensions. See \ref utility::random_fill().
 /// \param gen The random generator to be used.
 /// \param dist The random distribution to be used.
 template<typename FromColumn, typename ToColumn, typename Prng = std::mt19937,

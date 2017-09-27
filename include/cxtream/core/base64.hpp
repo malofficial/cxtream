@@ -6,6 +6,7 @@
  *  This file is distributed under the MIT License.
  *  See the accompanying file LICENSE.txt for the complete license agreement.
  ****************************************************************************/
+/// \defgroup Base64 Base64 encoding.
 
 #ifndef CXTREAM_CORE_BASE64_HPP
 #define CXTREAM_CORE_BASE64_HPP
@@ -20,7 +21,8 @@
 
 namespace cxtream {
 
-/// Decode base64 encoded string to a vector of bytes.
+/// \ingroup Base64
+/// \brief Decode base64 encoded string to a vector of bytes.
 std::vector<std::uint8_t> base64_decode(const std::string& b64data)
 {
     using namespace boost::archive::iterators;
@@ -33,7 +35,8 @@ std::vector<std::uint8_t> base64_decode(const std::string& b64data)
     return std::vector<std::uint8_t>(It(std::begin(b64data)), It(std::begin(b64data) + len));
 }
 
-/// Encode a vector of bytes to a base64 encoded string.
+/// \ingroup Base64
+/// \brief Encode a vector of bytes to a base64 encoded string.
 std::string base64_encode(const std::vector<std::uint8_t>& data)
 {
     using namespace boost::archive::iterators;

@@ -23,7 +23,10 @@
 
 namespace cxtream::tensorflow {
 
-/// Run a session and feed its graph with the provided inputs.
+/// \ingroup Tensorflow
+/// \brief Run a session and feed its graph with the provided inputs.
+///
+/// The session can be obtained using load_graph().
 ///
 /// The lengths of input_names, input_shapes and input_data arguments have to be equal.
 /// The lengths of output_names and the OutT template parameter list have to be equal.

@@ -6,6 +6,7 @@
  *  This file is distributed under the MIT License.
  *  See the accompanying file LICENSE.txt for the complete license agreement.
  ****************************************************************************/
+/// \defgroup Filesystem Filesystem utilities.
 
 #ifndef CXTREAM_CORE_UTILITY_FILESYSTEM_HPP
 #define CXTREAM_CORE_UTILITY_FILESYSTEM_HPP
@@ -35,9 +36,10 @@ namespace detail {
 
 }  // namespace detail
 
-/// Create a temporary directory.
+/// \ingroup Filesystem
+/// \brief Create a temporary directory.
 ///
-/// \param pattern Directory name pattern. All '%' symbols in the pattern are
+/// \param pattern Directory name pattern. All '\%' symbols in the pattern are
 ///                replaced by a random character from [0-9a-f].
 std::experimental::filesystem::path create_temp_directory(const std::string &pattern)
 {
