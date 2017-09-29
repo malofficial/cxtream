@@ -15,6 +15,7 @@
 #include <boost/thread/thread.hpp>
 
 #include <cmath>
+#include <functional>
 #include <future>
 #include <thread>
 #include <experimental/tuple>
@@ -51,16 +52,16 @@ public:
     ///
     /// \code
     ///     thread_pool tp{3};
-    ///     auto task = [](int i) { return i + 1; };
-    ///     std::future<int> f1 = tp.enqueue(task, 10);
-    ///     std::future<int> f2 = tp.enqueue(task, 11);
+    ///     auto fun = [](int i) { return i + 1; };
+    ///     std::future<int> f1 = tp.enqueue(fun, 10);
+    ///     std::future<int> f2 = tp.enqueue(fun, 11);
     ///     assert(f1.get() == 11);
     ///     assert(f2.get() == 12);
     /// \endcode
     ///
     /// \param fun The function to be executed.
-    /// \param args Parameters for the task. Note that they are taken by value.
-    /// \returns An std::future corresponding to the result of the task.
+    /// \param args Parameters for the function. Note that they are taken by value.
+    /// \returns An std::future corresponding to the result of the function call.
     template<typename Fun, typename... Args>
     std::future<std::result_of_t<Fun(Args...)>> enqueue(Fun fun, Args... args)
     {

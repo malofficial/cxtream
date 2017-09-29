@@ -63,7 +63,7 @@ BOOST_AUTO_TEST_CASE(test_enqueue)
     
     // make sure that exactly 2 threads were spawned
     // (exactly one pair has to be the same)
-    BOOST_CHECK(ids[0] == ids[1] ^ ids[1] == ids[2] ^ ids[0] == ids[2]);
+    BOOST_CHECK((ids[0] == ids[1]) ^ (ids[1] == ids[2]) ^ (ids[0] == ids[2]));
 }
 
 BOOST_AUTO_TEST_CASE(test_enqueue_move)
