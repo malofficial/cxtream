@@ -57,8 +57,6 @@ endif()
 # Find Common Libraries
 # ---------------------
 
-find_package(Boost REQUIRED)
-
 if(BUILD_PYTHON)
   find_package(PythonInterp 3 REQUIRED)
   find_package(PythonLibs 3 REQUIRED)
@@ -75,6 +73,12 @@ if(BUILD_DOC)
   find_package(Doxygen REQUIRED)
 endif()
 
+if(BUILD_TEST)
+  find_package(Boost COMPONENTS system thread unit_test_framework REQUIRED)
+else()
+  find_package(Boost COMPONENTS system thread REQUIRED)
+endif()
+
 # ------------------
 # Build cxtream core
 # ------------------
@@ -89,6 +93,7 @@ target_compile_options(
 )
 target_link_libraries(
   cxtream_core INTERFACE
+  ${Boost_LIBRARIES}
   pthread
   stdc++fs
 )
@@ -129,12 +134,14 @@ if(BUILD_PYTHON)
     cxtream_python
     PUBLIC ${Boost_INCLUDE_DIRS}
     PUBLIC ${PYTHON_INCLUDE_DIRS}
+    PUBLIC ${BoostPython3_INCLUDE_DIRS}
   )
   target_link_libraries(
     cxtream_python
     cxtream_core
     ${Boost_LIBRARIES}
     ${PYTHON_LIBRARIES}
+    ${BoostPython3_LIBRARIES}
     stdc++fs
   )
   set_target_properties(
@@ -215,7 +222,6 @@ endif()
 # -----
 
 if(BUILD_TEST)
-  find_package(Boost COMPONENTS unit_test_framework REQUIRED)
   enable_testing()
   include("AddBoostTest")
   if(BUILD_PYTHON)
