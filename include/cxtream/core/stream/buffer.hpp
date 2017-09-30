@@ -66,7 +66,11 @@ private:
             fill_buffer();
         }
 
-        decltype(auto) read() const { return buffer_.front().get(); }
+        decltype(auto) read() const
+        {
+            return buffer_.front().get();
+        }
+
         bool equal(ranges::default_sentinel) const
         {
             return buffer_.empty() && it_ == ranges::end(rng_->rng_);
