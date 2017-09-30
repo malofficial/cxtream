@@ -6,11 +6,11 @@ Requirements
 ---
 
 Officially supported systems are Ubuntu 16.10+ and Arch Linux, although __cxtream__ should
-work on any recent enough system. The __cxtream__ core is a header-only C++ library with
-dependencies to header-only parts of [Boost C++ Libraries](http://www.boost.org/)
+work on any recent enough system. The __cxtream__ core is a pure C++ library with a
+single dependency to [Boost C++ Libraries](http://www.boost.org/)
 (Boost 1.61+ is required).
 
-If you want to use __cxtream__ core only, install Boost via one of the following commands:
+If you want to use __cxtream core__ only, install Boost via one of the following commands:
 
 ```
 # Arch Linux
@@ -20,7 +20,7 @@ pacman -S boost
 apt install libboost-all-dev
 ```
 
-If you plan to use the Python bindings and OpenCV support,
+If you plan to use also the Python bindings with OpenCV support,
 use one of the following commands to install all the additional dependencies.
 
 ```

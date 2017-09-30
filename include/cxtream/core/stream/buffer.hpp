@@ -10,6 +10,8 @@
 #ifndef CXTREAM_CORE_STREAM_BUFFER_HPP
 #define CXTREAM_CORE_STREAM_BUFFER_HPP
 
+#include <cxtream/core/thread.hpp>
+
 #include <range/v3/core.hpp>
 #include <range/v3/view/all.hpp>
 #include <range/v3/view/view.hpp>
@@ -29,7 +31,6 @@ private:
 
     Rng rng_;
     std::size_t n_;
-    std::launch policy_;
 
     struct cursor {
     private:
@@ -37,7 +38,6 @@ private:
         ranges::iterator_t<Rng> it_ = {};
 
         std::size_t n_;
-        std::launch policy_;
         std::deque<std::shared_future<ranges::range_value_type_t<Rng>>> buffer_;
 
         void pop_buffer()
@@ -50,7 +50,8 @@ private:
         void fill_buffer()
         {
             while (it_ != ranges::end(rng_->rng_) && buffer_.size() < n_) {
-                buffer_.emplace_back(std::async(policy_, [it = it_]() { return *it; }));
+                auto task = [it = it_]() { return *it; };
+                buffer_.emplace_back(global_thread_pool.enqueue(std::move(task)));
                 ++it_;
             }
         }
@@ -61,12 +62,15 @@ private:
           : rng_{&rng}
           , it_{ranges::begin(rng.rng_)}
           , n_{rng.n_}
-          , policy_{rng.policy_}
         {
             fill_buffer();
         }
 
-        decltype(auto) read() const { return buffer_.front().get(); }
+        decltype(auto) read() const
+        {
+            return buffer_.front().get();
+        }
+
         bool equal(ranges::default_sentinel) const
         {
             return buffer_.empty() && it_ == ranges::end(rng_->rng_);
@@ -93,10 +97,9 @@ private:
 public:
     buffer_view() = default;
 
-    buffer_view(Rng rng, std::size_t n, std::launch policy)
+    buffer_view(Rng rng, std::size_t n)
       : rng_{rng}
       , n_{n}
-      , policy_{policy}
     {
     }
 
@@ -119,19 +122,17 @@ private:
     friend ranges::view::view_access;
     /// \endcond
 
-    static auto bind(buffer_fn buffer, std::size_t n = std::numeric_limits<std::size_t>::max(),
-                     std::launch policy = std::launch::async)
+    static auto bind(buffer_fn buffer, std::size_t n = std::numeric_limits<std::size_t>::max())
     {
-        return ranges::make_pipeable(std::bind(buffer, std::placeholders::_1, n, policy));
+        return ranges::make_pipeable(std::bind(buffer, std::placeholders::_1, n));
     }
 
 public:
     template<typename Rng, CONCEPT_REQUIRES_(ranges::ForwardRange<Rng>())>
     buffer_view<ranges::view::all_t<Rng>>
-    operator()(Rng&& rng, std::size_t n = std::numeric_limits<std::size_t>::max(),
-               std::launch policy = std::launch::async) const
+    operator()(Rng&& rng, std::size_t n = std::numeric_limits<std::size_t>::max()) const
     {
-        return {ranges::view::all(std::forward<Rng>(rng)), n, policy};
+        return {ranges::view::all(std::forward<Rng>(rng)), n};
     }
 };
 

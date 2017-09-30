@@ -34,6 +34,11 @@ while(NOT BoostPython3_FOUND)
 
 endwhile()
 
+if(BoostPython3_FOUND)
+  set(BoostPython3_LIBRARIES ${Boost_LIBRARIES})
+  set(BoostPython3_INCLUDE_DIRS ${Boost_INCLUDE_DIRS})
+endif()
+
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(
   BoostPython3 DEFAULT_MSG
