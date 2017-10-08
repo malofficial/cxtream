@@ -37,9 +37,8 @@ useful funcionality of the library is \ref Stream "data stream processing".
 Before we dive into details, we recommend to get familiar with the concept of C++
 ranges and [Range-v3](http://ericniebler.github.io/range-v3/) library by Eric Niebler.
 Ranges will soon become a fundamental part of C++ standard and Range-v3 library
-is an experimental implementation of the proposal. To sum up the idea,
-a range can be thought of as a pair of begin/end iterators, with potentially
-infinite distance.
+is an experimental implementation of the proposal. To sum up the idea, a range can be
+thought of as a pair of begin/end iterators with potentially infinite distance.
 
 Now, a stream in the context of __cxtream__ is a range of tuples, where the tuples
 contain so-called _columns_.  Each column contains a single _batch_ of data of
@@ -175,7 +174,7 @@ Python
 
 __cxtream__ provides a convenient functions to convert and stream data to Python.
 This part of the documentation is yet to be prepared.
-For more information, please refer to the \ref Python "Python binding API" documentation.
+Meanwhile, please refer to the \ref Python "Python binding API" documentation.
 
 Example
 -------

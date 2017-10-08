@@ -188,8 +188,8 @@ public:
 /// \ingroup Stream
 /// \brief Accumulate the stream and yield batches of a different size.
 ///
-/// The batch size of the accumulated columns may differ between batches.
-/// To make a one large batch of all the data, use std::numeric_limits<std::size_t>::max().
+/// The batch size of the accumulated columns is allowed to differ between batches.
+/// To make one large batch of all the data, use std::numeric_limits<std::size_t>::max().
 ///
 /// \code
 ///     CXTREAM_DEFINE_COLUMN(value, int)
