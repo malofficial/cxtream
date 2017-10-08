@@ -16,6 +16,8 @@ execute_process(
 )
 
 add_custom_target(doc.deploy
+  # checkout gh-pages branch
+  COMMAND "${GIT_EXECUTABLE}" checkout gh-pages
   # pull
   COMMAND "${GIT_EXECUTABLE}" pull
   # clean
