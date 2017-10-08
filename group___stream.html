@@ -613,7 +613,7 @@ template&lt;typename Rng , typename... FromColumns, int Dim = 1&gt; </div>
 </div><div class="memdoc">
 
 <p>Accumulate the stream and yield batches of a different size. </p>
-<p>The batch size of the accumulated columns may differ between batches. To make a one large batch of all the data, use std::numeric_limits&lt;std::size_t&gt;::max().</p>
+<p>The batch size of the accumulated columns is allowed to differ between batches. To make one large batch of all the data, use std::numeric_limits&lt;std::size_t&gt;::max().</p>
 <div class="fragment"><div class="line"><a class="code" href="group___stream.html#ga62dc0fa23d7ef87ebbc1e5b9a11ac0a7">CXTREAM_DEFINE_COLUMN</a>(value, <span class="keywordtype">int</span>)</div><div class="line"><span class="keyword">auto</span> rng = view::iota(0, 10)</div><div class="line">  | create&lt;value&gt;(2)  <span class="comment">// batches the data by two examples</span></div><div class="line">  | <a class="code" href="group___stream.html#ga1128bec8e45492cb42643e33655c3535">batch</a>(3);         <span class="comment">// changes the batch size to three examples</span></div></div><!-- fragment --> 
 <p class="definition">Definition at line <a class="el" href="batch_8hpp_source.html#l00200">200</a> of file <a class="el" href="batch_8hpp_source.html">batch.hpp</a>.</p>
 

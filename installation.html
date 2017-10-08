@@ -67,18 +67,42 @@ $(function() {
 <div class="contents">
 <div class="textblock"><h2>Requirements </h2>
 <hr/>
-<p>Officially supported systems are Ubuntu 16.10+ and Arch Linux, although <b>cxtream</b> should work on any recent enough system. The <b>cxtream</b> core is a pure C++ library with a single dependency to <a href="http://www.boost.org/">Boost C++ Libraries</a> (Boost 1.61+ is required).</p>
-<p>If you want to use <b>cxtream core</b> only, install Boost via one of the following commands:</p>
-<div class="fragment"><div class="line"># Arch Linux</div><div class="line">pacman -S boost</div><div class="line"></div><div class="line"># Ubuntu 16.10+</div><div class="line">apt install libboost-all-dev</div></div><!-- fragment --><p>If you plan to use also the Python bindings with OpenCV support, use one of the following commands to install all the additional dependencies.</p>
-<div class="fragment"><div class="line"># Arch Linux</div><div class="line">pacman -S git openssh base-devel cmake opencv boost python python-numpy</div><div class="line"></div><div class="line"># Ubuntu 16.10+</div><div class="line">apt install git build-essential cmake libopencv-dev libboost-all-dev python3-dev python3-numpy</div></div><!-- fragment --><p>If you plan to use <a href="https://www.tensorflow.org/api_guides/cc/guide">TensorFlow C++ API</a>, please install the TensorFlow C++ library into your system using <a href="https://github.com/FloopCZ/tensorflow_cc">tensorflow_cc</a> project.</p>
+<p>Officially supported systems are Ubuntu 16.10+ and Arch Linux, although <b>cxtream</b> should work on any recent enough system. The <b>cxtream core</b> is a pure C++ library with a single dependency to <a href="http://www.boost.org/">Boost C++ Libraries</a> (Boost 1.61+ is required). Extensions to the core library are <b>Python bindings</b> with automatic <a href="http://opencv.org/">OpenCV</a> image conversion between C++ and Python.</p>
+<p>If you plan to use the full functionality (this is the default behavior), install all the requirements by one of the following commands:</p>
+<div class="fragment"><div class="line"># Arch Linux</div><div class="line">pacman -S git base-devel cmake boost opencv python python-numpy</div><div class="line"></div><div class="line"># Ubuntu 16.10+</div><div class="line">apt install git build-essential cmake libboost-all-dev libopencv-dev python3-dev python3-numpy</div></div><!-- fragment --><p>If you want to use <b>cxtream core</b> only, use one of the following instead:</p>
+<div class="fragment"><div class="line"># Arch Linux</div><div class="line">pacman -S git base-devel cmake boost</div><div class="line"></div><div class="line"># Ubuntu 16.10+</div><div class="line">apt install git build-essential cmake libboost-all-dev</div></div><!-- fragment --><p>If you plan to use <a href="https://www.tensorflow.org/api_guides/cc/guide">TensorFlow C++ API</a>, please install the TensorFlow C++ library into your system using <a href="https://github.com/FloopCZ/tensorflow_cc">tensorflow_cc</a> project. This is not neccessary if you only want to use TensorFlow in Python and it is disabled by default.</p>
 <h2>Download </h2>
 <hr/>
 <p>The complete source code can be downloaded from our official GitHub <a href="https://github.com/Cognexa/cxtream">repository</a> using the following commands:</p>
 <div class="fragment"><div class="line">git clone --recursive https://github.com/Cognexa/cxtream.git</div><div class="line">cd cxtream</div></div><!-- fragment --><h2>Build &amp; Install </h2>
 <hr/>
 <p>Use the following for system-wide installation:</p>
-<div class="fragment"><div class="line">mkdir build &amp;&amp; cd build</div><div class="line">cmake ..</div><div class="line">make -j5</div><div class="line">make test</div><div class="line">sudo make install</div></div><!-- fragment --><p>Or use the following for userspacee installation:</p>
-<div class="fragment"><div class="line">mkdir build &amp;&amp; cd build</div><div class="line">cmake -DCMAKE_INSTALL_PREFIX=~/.local ..</div><div class="line">make -j5</div><div class="line">make test</div><div class="line">make install</div></div><!-- fragment --><p>For userspace installation, don't forget to set the appropriate environmental variables, e.g., add the following to your <code>.bashrc</code> / <code>.zshrc</code>: </p><div class="fragment"><div class="line"># register ~/.local system hierarchy</div><div class="line">export PATH=&quot;${HOME}/.local/bin:$PATH&quot;</div><div class="line">export LIBRARY_PATH=&quot;${HOME}/.local/lib:$LIBRARY_PATH&quot;</div><div class="line">export LD_LIBRARY_PATH=&quot;${HOME}/.local/lib:$LD_LIBRARY_PATH&quot;</div><div class="line">export CPLUS_INCLUDE_PATH=&quot;${HOME}/.local/include:$CPLUS_INCLUDE_PATH&quot;</div></div><!-- fragment --> </div></div><!-- contents -->
+<div class="fragment"><div class="line">mkdir build &amp;&amp; cd build</div><div class="line">cmake ..</div><div class="line">make -j5</div><div class="line">make test</div><div class="line">sudo make install</div></div><!-- fragment --><p>Or use the following for userspace installation:</p>
+<div class="fragment"><div class="line">mkdir build &amp;&amp; cd build</div><div class="line">cmake -DCMAKE_INSTALL_PREFIX=~/.local ..</div><div class="line">make -j5</div><div class="line">make test</div><div class="line">make install</div></div><!-- fragment --><p>For userspace installation, don't forget to set the appropriate environmental variables, e.g., add the following to your <code>.bashrc</code> / <code>.zshrc</code>: </p><div class="fragment"><div class="line"># register ~/.local system hierarchy</div><div class="line">export PATH=&quot;${HOME}/.local/bin:$PATH&quot;</div><div class="line">export LIBRARY_PATH=&quot;${HOME}/.local/lib:$LIBRARY_PATH&quot;</div><div class="line">export LD_LIBRARY_PATH=&quot;${HOME}/.local/lib:$LD_LIBRARY_PATH&quot;</div><div class="line">export CPLUS_INCLUDE_PATH=&quot;${HOME}/.local/include:$CPLUS_INCLUDE_PATH&quot;</div></div><!-- fragment --><h2>Advanced Build Options </h2>
+<hr/>
+<p>There are multiple build options that can be set when configuring the project with CMake. For instance, if you don't want to build tests because it takes a lot of time, and you are also not interested in Python interoperability, you may use the <code>BUILD_TEST</code> and <code>BUILD_PYTHON</code> flags as follows:</p>
+<div class="fragment"><div class="line">cmake -DBUILD_TEST=OFF -DBUILD_PYTHON=OFF ..</div></div><!-- fragment --><p>The full list of supported options is the following:</p>
+<table class="doxtable">
+<tr>
+<th>Option </th><th>Description </th><th>Default  </th></tr>
+<tr>
+<td>BUILD_TEST </td><td>Build tests. </td><td>ON </td></tr>
+<tr>
+<td>BUILD_DOC </td><td>Build documentation. </td><td>OFF </td></tr>
+<tr>
+<td>BUILD_PYTHON </td><td>Build Python functionality. </td><td>ON </td></tr>
+<tr>
+<td>BUILD_PYTHON_OPENCV </td><td>Build Python OpenCV converters (requires BUILD_PYTHON). </td><td>ON </td></tr>
+<tr>
+<td>BUILD_TENSORFLOW </td><td>Build TensorFlow functionality (unnecessary if you use TensorFlow in Python). </td><td>OFF </td></tr>
+<tr>
+<td>BUILTIN_RANGEV3 </td><td>Install and use the built-in Range-v3 library. </td><td>ON </td></tr>
+<tr>
+<td>CMAKE_INSTALL_PREFIX </td><td>The path where cxtream will be installed. </td><td>OS-dependent </td></tr>
+<tr>
+<td>CMAKE_CXX_COMPILER </td><td>The compiler command to be used, e.g., g++ or clang++. </td><td>OS-dependent </td></tr>
+</table>
+</div></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
 Generated by &#160;<a href="http://www.doxygen.org/index.html">
