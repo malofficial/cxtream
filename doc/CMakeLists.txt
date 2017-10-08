@@ -28,6 +28,8 @@ add_custom_target(doc.deploy
   # commit
   COMMAND "${GIT_EXECUTABLE}" add --all
   COMMAND "${GIT_EXECUTABLE}" commit -m "Update docs (commit ${CXTREAM_GIT_HEAD_SHORT_SHA})"
+  # push
+  COMMAND "${GIT_EXECUTABLE}" push
   WORKING_DIRECTORY "${CMAKE_CURRENT_LIST_DIR}/gh-pages"
   DEPENDS doc
   VERBATIM
