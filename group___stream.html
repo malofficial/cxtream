@@ -634,7 +634,7 @@ template&lt;typename Rng , typename... FromColumns, int Dim = 1&gt; </div>
 <p>Asynchronously buffers the given range. </p>
 <p>Asynchronously evaluates the given number of elements in advance. When queried for the next element, it is already prepared. This view works for any range, not only for cxtream streams.</p>
 <div class="fragment"><div class="line">std::vector&lt;int&gt; data = {1, 2, 3, 4, 5};</div><div class="line"><span class="keyword">auto</span> buffered_rng = data</div><div class="line">  | <a class="code" href="group___stream.html#ga9e008212805f649e6991d619b7548a40">ranges::view::transform</a>([](<span class="keywordtype">int</span> v) { <span class="keywordflow">return</span> v + 1; })</div><div class="line">  | <a class="code" href="group___stream.html#ga817b6ada9087d435e5ab2b4e20e61a4d">buffer</a>(2);</div></div><!-- fragment --> 
-<p class="definition">Definition at line <a class="el" href="buffer_8hpp_source.html#l00151">151</a> of file <a class="el" href="buffer_8hpp_source.html">buffer.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="buffer_8hpp_source.html#l00152">152</a> of file <a class="el" href="buffer_8hpp_source.html">buffer.hpp</a>.</p>
 
 </div>
 </div>

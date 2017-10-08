@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['random_5fgenerator',['random_generator',['../group___random.html#ga942164ce9fd5e244b264c4bf60edffa8',1,'cxtream::utility']]]
+  ['global_5fthread_5fpool',['global_thread_pool',['../group___thread.html#ga879599645608916f0b4d55d5818dd54f',1,'cxtream']]]
 ];

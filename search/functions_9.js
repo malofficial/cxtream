@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['make_5funique_5findex_5fmapper',['make_unique_index_mapper',['../group___index_mapper.html#ga84aba711f71d3cc00344ced081a5aedb',1,'cxtream']]]
+  ['load_5fgraph',['load_graph',['../group___tensorflow.html#ga5e21494138aafba9430a96e2b0ae79b5',1,'cxtream::tensorflow']]]
 ];

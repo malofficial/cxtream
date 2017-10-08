@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['header',['header',['../classcxtream_1_1dataframe.html#a61c285016201e44bf6816ad42be21ce2',1,'cxtream::dataframe']]]
+  ['generate_5fgroups',['generate_groups',['../group___groups.html#gaecc4f370695f1d116136ddcf7b6890a8',1,'cxtream::generate_groups(std::size_t size, std::vector&lt; double &gt; ratio, Prng &amp;&amp;gen=utility::random_generator)'],['../group___groups.html#ga9bd077a33a06f6883c64f17ea1bd34dd',1,'cxtream::generate_groups(std::size_t n, std::size_t size, const std::vector&lt; double &gt; &amp;volatile_ratio, const std::vector&lt; double &gt; &amp;fixed_ratio, Prng &amp;&amp;gen=utility::random_generator)']]]
 ];
