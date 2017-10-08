@@ -25,10 +25,10 @@ use one of the following commands to install all the additional dependencies.
 
 ```
 # Arch Linux
-pacman -S base-devel cmake opencv boost python python-numpy
+pacman -S git openssh base-devel cmake opencv boost python python-numpy
 
 # Ubuntu 16.10+
-apt install build-essential cmake libopencv-dev libboost-all-dev python3-dev python3-numpy
+apt install git build-essential cmake libopencv-dev libboost-all-dev python3-dev python3-numpy
 ```
 
 If you plan to use [TensorFlow C++ API](https://www.tensorflow.org/api_guides/cc/guide),
