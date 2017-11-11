@@ -23,7 +23,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">cxtream
-   &#160;<span id="projectnumber">0.5.0</span>
+   &#160;<span id="projectnumber">0.5.1</span>
    </div>
    <div id="projectbrief">C++17 data pipeline with Python bindings.</div>
   </td>
@@ -80,9 +80,8 @@ Functions</h2></td></tr>
 <tr class="memitem:ga3bcaf47f4154f9d1f9b5dc40bfd2cc63"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classcxtream_1_1dataframe.html">dataframe</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group___c_s_v.html#ga3bcaf47f4154f9d1f9b5dc40bfd2cc63">cxtream::read_csv</a> (std::istream &amp;in, int drop=0, bool has_header=true, char separator=',', char quote='&quot;', char escape = '\) </td></tr>
 <tr class="memdesc:ga3bcaf47f4154f9d1f9b5dc40bfd2cc63"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parse csv file from an std::istream.  <a href="group___c_s_v.html#ga3bcaf47f4154f9d1f9b5dc40bfd2cc63">More...</a><br /></td></tr>
 <tr class="separator:ga3bcaf47f4154f9d1f9b5dc40bfd2cc63"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga58310ba434186b5d59b3e8a29f5921e9"><td class="memItemLeft" align="right" valign="top"><a id="ga58310ba434186b5d59b3e8a29f5921e9"></a>
-<a class="el" href="classcxtream_1_1dataframe.html">dataframe</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group___c_s_v.html#ga58310ba434186b5d59b3e8a29f5921e9">cxtream::read_csv</a> (const std::experimental::filesystem::path &amp;file, int drop=0, bool header=true, char separator=',', char quote='&quot;', char escape = '\) </td></tr>
-<tr class="memdesc:ga58310ba434186b5d59b3e8a29f5921e9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Same as <a class="el" href="group___c_s_v.html#ga58310ba434186b5d59b3e8a29f5921e9" title="Same as read_csv() but read directly from a file. ">read_csv()</a> but read directly from a file. <br /></td></tr>
+<tr class="memitem:ga58310ba434186b5d59b3e8a29f5921e9"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classcxtream_1_1dataframe.html">dataframe</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group___c_s_v.html#ga58310ba434186b5d59b3e8a29f5921e9">cxtream::read_csv</a> (const std::experimental::filesystem::path &amp;file, int drop=0, bool header=true, char separator=',', char quote='&quot;', char escape = '\) </td></tr>
+<tr class="memdesc:ga58310ba434186b5d59b3e8a29f5921e9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Same as <a class="el" href="group___c_s_v.html#ga58310ba434186b5d59b3e8a29f5921e9" title="Same as read_csv() but read directly from a file. ">read_csv()</a> but read directly from a file.  <a href="group___c_s_v.html#ga58310ba434186b5d59b3e8a29f5921e9">More...</a><br /></td></tr>
 <tr class="separator:ga58310ba434186b5d59b3e8a29f5921e9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gac9da257cb657482088429c412e4f78b4"><td class="memTemplParams" colspan="2">template&lt;typename Row &gt; </td></tr>
 <tr class="memitem:gac9da257cb657482088429c412e4f78b4"><td class="memTemplItemLeft" align="right" valign="top">std::ostream &amp;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group___c_s_v.html#gac9da257cb657482088429c412e4f78b4">cxtream::write_csv_row</a> (std::ostream &amp;out, Row &amp;&amp;row, char separator=',', char quote='&quot;', char escape = '\) </td></tr>
@@ -92,16 +91,15 @@ Functions</h2></td></tr>
 <tr class="memitem:ga7b30b0cb8e71526db4517539255e3a72"><td class="memTemplItemLeft" align="right" valign="top">std::ostream &amp;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group___c_s_v.html#ga7b30b0cb8e71526db4517539255e3a72">cxtream::write_csv</a> (std::ostream &amp;out, const <a class="el" href="classcxtream_1_1dataframe.html">dataframe</a>&lt; DataTable &gt; &amp;df, char separator=',', char quote='&quot;', char escape = '\) </td></tr>
 <tr class="memdesc:ga7b30b0cb8e71526db4517539255e3a72"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write a dataframe to an std::ostream.  <a href="group___c_s_v.html#ga7b30b0cb8e71526db4517539255e3a72">More...</a><br /></td></tr>
 <tr class="separator:ga7b30b0cb8e71526db4517539255e3a72"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga538b384d4c9981f8d187d8f16d56e0f9"><td class="memTemplParams" colspan="2"><a id="ga538b384d4c9981f8d187d8f16d56e0f9"></a>
-template&lt;typename DataTable &gt; </td></tr>
+<tr class="memitem:ga538b384d4c9981f8d187d8f16d56e0f9"><td class="memTemplParams" colspan="2">template&lt;typename DataTable &gt; </td></tr>
 <tr class="memitem:ga538b384d4c9981f8d187d8f16d56e0f9"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group___c_s_v.html#ga538b384d4c9981f8d187d8f16d56e0f9">cxtream::write_csv</a> (const std::experimental::filesystem::path &amp;file, const <a class="el" href="classcxtream_1_1dataframe.html">dataframe</a>&lt; DataTable &gt; &amp;df, char separator=',', char quote='&quot;', char escape = '\) </td></tr>
-<tr class="memdesc:ga538b384d4c9981f8d187d8f16d56e0f9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Same as write_csv(std::ostream...), but write directly to a file. <br /></td></tr>
+<tr class="memdesc:ga538b384d4c9981f8d187d8f16d56e0f9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Same as write_csv(std::ostream...), but write directly to a file.  <a href="group___c_s_v.html#ga538b384d4c9981f8d187d8f16d56e0f9">More...</a><br /></td></tr>
 <tr class="separator:ga538b384d4c9981f8d187d8f16d56e0f9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <h2 class="groupheader">Function Documentation</h2>
 <a id="ga3bcaf47f4154f9d1f9b5dc40bfd2cc63"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga3bcaf47f4154f9d1f9b5dc40bfd2cc63">&#9670;&nbsp;</a></span>read_csv()</h2>
+<h2 class="memtitle"><span class="permalink"><a href="#ga3bcaf47f4154f9d1f9b5dc40bfd2cc63">&#9670;&nbsp;</a></span>read_csv() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -168,8 +166,70 @@ template&lt;typename DataTable &gt; </td></tr>
 
 </div>
 </div>
+<a id="ga58310ba434186b5d59b3e8a29f5921e9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga58310ba434186b5d59b3e8a29f5921e9">&#9670;&nbsp;</a></span>read_csv() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classcxtream_1_1dataframe.html">dataframe</a> cxtream::read_csv </td>
+          <td>(</td>
+          <td class="paramtype">const std::experimental::filesystem::path &amp;&#160;</td>
+          <td class="paramname"><em>file</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>drop</em> = <code>0</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>header</em> = <code>true</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">char&#160;</td>
+          <td class="paramname"><em>separator</em> = <code>','</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">char&#160;</td>
+          <td class="paramname"><em>quote</em> = <code>'&quot;'</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">char&#160;</td>
+          <td class="paramname"><em>escape</em> = <code>'\\'</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Same as <a class="el" href="group___c_s_v.html#ga58310ba434186b5d59b3e8a29f5921e9" title="Same as read_csv() but read directly from a file. ">read_csv()</a> but read directly from a file. </p>
+<dl class="exception"><dt>Exceptions</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">std::ios_base::failure</td><td>If the specified file cannot be opened. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="csv_8hpp_source.html#l00244">244</a> of file <a class="el" href="csv_8hpp_source.html">csv.hpp</a>.</p>
+
+</div>
+</div>
 <a id="ga7b30b0cb8e71526db4517539255e3a72"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga7b30b0cb8e71526db4517539255e3a72">&#9670;&nbsp;</a></span>write_csv()</h2>
+<h2 class="memtitle"><span class="permalink"><a href="#ga7b30b0cb8e71526db4517539255e3a72">&#9670;&nbsp;</a></span>write_csv() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -223,7 +283,65 @@ template&lt;typename DataTable &gt; </div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="csv_8hpp_source.html#l00298">298</a> of file <a class="el" href="csv_8hpp_source.html">csv.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="csv_8hpp_source.html#l00302">302</a> of file <a class="el" href="csv_8hpp_source.html">csv.hpp</a>.</p>
+
+</div>
+</div>
+<a id="ga538b384d4c9981f8d187d8f16d56e0f9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga538b384d4c9981f8d187d8f16d56e0f9">&#9670;&nbsp;</a></span>write_csv() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename DataTable &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">void cxtream::write_csv </td>
+          <td>(</td>
+          <td class="paramtype">const std::experimental::filesystem::path &amp;&#160;</td>
+          <td class="paramname"><em>file</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="classcxtream_1_1dataframe.html">dataframe</a>&lt; DataTable &gt; &amp;&#160;</td>
+          <td class="paramname"><em>df</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">char&#160;</td>
+          <td class="paramname"><em>separator</em> = <code>','</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">char&#160;</td>
+          <td class="paramname"><em>quote</em> = <code>'&quot;'</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">char&#160;</td>
+          <td class="paramname"><em>escape</em> = <code>'\\'</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Same as write_csv(std::ostream...), but write directly to a file. </p>
+<dl class="exception"><dt>Exceptions</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">std::ios_base::failure</td><td>If the specified file cannot be opened. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="csv_8hpp_source.html#l00319">319</a> of file <a class="el" href="csv_8hpp_source.html">csv.hpp</a>.</p>
 
 </div>
 </div>
@@ -282,7 +400,7 @@ template&lt;typename Row &gt; </div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="csv_8hpp_source.html#l00261">261</a> of file <a class="el" href="csv_8hpp_source.html">csv.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="csv_8hpp_source.html#l00265">265</a> of file <a class="el" href="csv_8hpp_source.html">csv.hpp</a>.</p>
 
 </div>
 </div>

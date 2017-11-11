@@ -23,7 +23,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">cxtream
-   &#160;<span id="projectnumber">0.5.0</span>
+   &#160;<span id="projectnumber">0.5.1</span>
    </div>
    <div id="projectbrief">C++17 data pipeline with Python bindings.</div>
   </td>
@@ -81,29 +81,25 @@ $(function() {
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:a112b940681399cbd00e149a4c42a0bbb"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
-<tr class="memitem:a112b940681399cbd00e149a4c42a0bbb"><td class="memTemplItemLeft" align="right" valign="top">&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classcxtream_1_1dataframe.html#a112b940681399cbd00e149a4c42a0bbb">dataframe</a> (std::vector&lt; std::vector&lt; T &gt;&gt; columns, std::vector&lt; std::string &gt; <a class="el" href="classcxtream_1_1dataframe.html#a61c285016201e44bf6816ad42be21ce2">header</a>={})</td></tr>
+<tr class="memitem:a112b940681399cbd00e149a4c42a0bbb"><td class="memTemplItemLeft" align="right" valign="top">&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classcxtream_1_1dataframe.html#a112b940681399cbd00e149a4c42a0bbb">dataframe</a> (std::vector&lt; std::vector&lt; T &gt;&gt; columns, std::vector&lt; std::string &gt; <a class="el" href="classcxtream_1_1dataframe.html#a94a5b8cc9185a2474111b2b6f7c01fc6">header</a>={})</td></tr>
 <tr class="separator:a112b940681399cbd00e149a4c42a0bbb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5aac98ee6a001ceeef3955601e0136c9"><td class="memTemplParams" colspan="2">template&lt;typename... Ts&gt; </td></tr>
-<tr class="memitem:a5aac98ee6a001ceeef3955601e0136c9"><td class="memTemplItemLeft" align="right" valign="top">&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classcxtream_1_1dataframe.html#a5aac98ee6a001ceeef3955601e0136c9">dataframe</a> (std::tuple&lt; Ts... &gt; columns, std::vector&lt; std::string &gt; <a class="el" href="classcxtream_1_1dataframe.html#a61c285016201e44bf6816ad42be21ce2">header</a>={})</td></tr>
-<tr class="separator:a5aac98ee6a001ceeef3955601e0136c9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9561f65139f26f64ee071b53545ef4a0"><td class="memTemplParams" colspan="2">template&lt;typename Rng , typename ToStrFun  = std::string (*)(ranges::range_value_type_t&lt;Rng&gt;)&gt; </td></tr>
-<tr class="memitem:a9561f65139f26f64ee071b53545ef4a0"><td class="memTemplItemLeft" align="right" valign="top">std::size_t&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classcxtream_1_1dataframe.html#a9561f65139f26f64ee071b53545ef4a0">col_insert</a> (Rng rng, std::string col_name={}, std::function&lt; std::string(ranges::range_value_type_t&lt; Rng &gt;)&gt; cvt=static_cast&lt; ToStrFun &gt;(utility::to_string))</td></tr>
-<tr class="separator:a9561f65139f26f64ee071b53545ef4a0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9f0206c1d01242d521ae7cc2fd55a7c8"><td class="memTemplParams" colspan="2">template&lt;typename... Ts&gt; </td></tr>
-<tr class="memitem:a9f0206c1d01242d521ae7cc2fd55a7c8"><td class="memTemplItemLeft" align="right" valign="top">std::size_t&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classcxtream_1_1dataframe.html#a9f0206c1d01242d521ae7cc2fd55a7c8">row_insert</a> (std::tuple&lt; Ts... &gt; row_tuple, std::tuple&lt; std::function&lt; std::string(Ts)&gt;... &gt; cvts=std::make_tuple(static_cast&lt; std::string(*)(Ts)&gt;(utility::to_string)...))</td></tr>
-<tr class="separator:a9f0206c1d01242d521ae7cc2fd55a7c8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8f1c8569baf81dd496ebcd1ec7a703df"><td class="memItemLeft" align="right" valign="top"><a id="a8f1c8569baf81dd496ebcd1ec7a703df"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcxtream_1_1dataframe.html#a8f1c8569baf81dd496ebcd1ec7a703df">icol_drop</a> (std::size_t col_index)</td></tr>
-<tr class="memdesc:a8f1c8569baf81dd496ebcd1ec7a703df"><td class="mdescLeft">&#160;</td><td class="mdescRight">Drop a column with the given index. <br /></td></tr>
-<tr class="separator:a8f1c8569baf81dd496ebcd1ec7a703df"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a08749e57ca64672158bd585374e8362e"><td class="memItemLeft" align="right" valign="top"><a id="a08749e57ca64672158bd585374e8362e"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcxtream_1_1dataframe.html#a08749e57ca64672158bd585374e8362e">col_drop</a> (const std::string &amp;col_name)</td></tr>
-<tr class="memdesc:a08749e57ca64672158bd585374e8362e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Drop a column with the given name. <br /></td></tr>
-<tr class="separator:a08749e57ca64672158bd585374e8362e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a613ffba0a6e5943647014add2bf74381"><td class="memItemLeft" align="right" valign="top"><a id="a613ffba0a6e5943647014add2bf74381"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcxtream_1_1dataframe.html#a613ffba0a6e5943647014add2bf74381">row_drop</a> (const std::size_t row_idx)</td></tr>
-<tr class="memdesc:a613ffba0a6e5943647014add2bf74381"><td class="mdescLeft">&#160;</td><td class="mdescRight">Drop a row. <br /></td></tr>
-<tr class="separator:a613ffba0a6e5943647014add2bf74381"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a963539b9ab394b7759e650b3fb3cb741"><td class="memTemplParams" colspan="2">template&lt;typename... Ts&gt; </td></tr>
+<tr class="memitem:a963539b9ab394b7759e650b3fb3cb741"><td class="memTemplItemLeft" align="right" valign="top">&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classcxtream_1_1dataframe.html#a963539b9ab394b7759e650b3fb3cb741">dataframe</a> (std::tuple&lt; std::vector&lt; Ts &gt;... &gt; columns, std::vector&lt; std::string &gt; <a class="el" href="classcxtream_1_1dataframe.html#a94a5b8cc9185a2474111b2b6f7c01fc6">header</a>={})</td></tr>
+<tr class="separator:a963539b9ab394b7759e650b3fb3cb741"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6d9ea063477066807958732fdcf2374e"><td class="memTemplParams" colspan="2">template&lt;typename Rng , typename ToStrFun  = std::string (*)(ranges::range_value_type_t&lt;Rng&gt;)&gt; </td></tr>
+<tr class="memitem:a6d9ea063477066807958732fdcf2374e"><td class="memTemplItemLeft" align="right" valign="top">std::size_t&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classcxtream_1_1dataframe.html#a6d9ea063477066807958732fdcf2374e">insert_col</a> (Rng &amp;&amp;rng, std::string col_name={}, std::function&lt; std::string(ranges::range_value_type_t&lt; Rng &gt;)&gt; cvt=static_cast&lt; ToStrFun &gt;(utility::to_string))</td></tr>
+<tr class="separator:a6d9ea063477066807958732fdcf2374e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1e7fef645148c68d6079dc6012fd0ae3"><td class="memTemplParams" colspan="2">template&lt;typename... Ts&gt; </td></tr>
+<tr class="memitem:a1e7fef645148c68d6079dc6012fd0ae3"><td class="memTemplItemLeft" align="right" valign="top">std::size_t&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classcxtream_1_1dataframe.html#a1e7fef645148c68d6079dc6012fd0ae3">insert_row</a> (std::tuple&lt; Ts... &gt; row_tuple, std::tuple&lt; std::function&lt; std::string(Ts)&gt;... &gt; cvts=std::make_tuple(static_cast&lt; std::string(*)(Ts)&gt;(utility::to_string)...))</td></tr>
+<tr class="separator:a1e7fef645148c68d6079dc6012fd0ae3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af10ba7bf730b32329d487d24c000f463"><td class="memItemLeft" align="right" valign="top">std::size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcxtream_1_1dataframe.html#af10ba7bf730b32329d487d24c000f463">insert_row</a> (std::vector&lt; std::string &gt; row)</td></tr>
+<tr class="separator:af10ba7bf730b32329d487d24c000f463"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2cbe28f3b4a8013d4185e19ef2373775"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcxtream_1_1dataframe.html#a2cbe28f3b4a8013d4185e19ef2373775">drop_icol</a> (std::size_t col_index)</td></tr>
+<tr class="separator:a2cbe28f3b4a8013d4185e19ef2373775"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9b39efee94a6ca769ec2eeb6c51d0d03"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcxtream_1_1dataframe.html#a9b39efee94a6ca769ec2eeb6c51d0d03">drop_col</a> (const std::string &amp;col_name)</td></tr>
+<tr class="separator:a9b39efee94a6ca769ec2eeb6c51d0d03"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ade2d42312f57ec8499b0f56fca518e84"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcxtream_1_1dataframe.html#ade2d42312f57ec8499b0f56fca518e84">drop_row</a> (const std::size_t row_idx)</td></tr>
+<tr class="separator:ade2d42312f57ec8499b0f56fca518e84"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abaa8ce9461a811fd4243e52c4e7b9ebe"><td class="memItemLeft" align="right" valign="top">auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcxtream_1_1dataframe.html#abaa8ce9461a811fd4243e52c4e7b9ebe">raw_icol</a> (std::size_t col_index)</td></tr>
 <tr class="separator:abaa8ce9461a811fd4243e52c4e7b9ebe"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac87ca5b6cebeca5704802107c7d8f454"><td class="memItemLeft" align="right" valign="top">auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcxtream_1_1dataframe.html#ac87ca5b6cebeca5704802107c7d8f454">raw_icol</a> (std::size_t col_index) const</td></tr>
@@ -174,14 +170,20 @@ std::size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hre
 std::size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcxtream_1_1dataframe.html#a5b5a975ec376611fa7ca1c4f0ac6f4cd">n_rows</a> () const</td></tr>
 <tr class="memdesc:a5b5a975ec376611fa7ca1c4f0ac6f4cd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the number of rows (excluding header). <br /></td></tr>
 <tr class="separator:a5b5a975ec376611fa7ca1c4f0ac6f4cd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a94a5b8cc9185a2474111b2b6f7c01fc6"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcxtream_1_1dataframe.html#a94a5b8cc9185a2474111b2b6f7c01fc6">header</a> (std::vector&lt; std::string &gt; new_header)</td></tr>
+<tr class="separator:a94a5b8cc9185a2474111b2b6f7c01fc6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a61c285016201e44bf6816ad42be21ce2"><td class="memItemLeft" align="right" valign="top"><a id="a61c285016201e44bf6816ad42be21ce2"></a>
 std::vector&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcxtream_1_1dataframe.html#a61c285016201e44bf6816ad42be21ce2">header</a> () const</td></tr>
 <tr class="memdesc:a61c285016201e44bf6816ad42be21ce2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the names of columns. <br /></td></tr>
 <tr class="separator:a61c285016201e44bf6816ad42be21ce2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a625e1d71782b3e021a5d465ad5ea84a2"><td class="memItemLeft" align="right" valign="top"><a id="a625e1d71782b3e021a5d465ad5ea84a2"></a>
 DataTable &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcxtream_1_1dataframe.html#a625e1d71782b3e021a5d465ad5ea84a2">data</a> ()</td></tr>
-<tr class="memdesc:a625e1d71782b3e021a5d465ad5ea84a2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the reference to the raw data table. <br /></td></tr>
+<tr class="memdesc:a625e1d71782b3e021a5d465ad5ea84a2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return a reference to the raw data table. <br /></td></tr>
 <tr class="separator:a625e1d71782b3e021a5d465ad5ea84a2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a67d18b7bb0ce4a286acbf1280a16cca8"><td class="memItemLeft" align="right" valign="top"><a id="a67d18b7bb0ce4a286acbf1280a16cca8"></a>
+const DataTable &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcxtream_1_1dataframe.html#a67d18b7bb0ce4a286acbf1280a16cca8">data</a> () const</td></tr>
+<tr class="memdesc:a67d18b7bb0ce4a286acbf1280a16cca8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return a const reference to the raw data table. <br /></td></tr>
+<tr class="separator:a67d18b7bb0ce4a286acbf1280a16cca8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><h3>template&lt;typename DataTable = std::vector&lt;std::vector&lt;std::string&gt;&gt;&gt;<br />
@@ -190,7 +192,7 @@ class cxtream::dataframe&lt; DataTable &gt;</h3>
 <p>Tabular object with convenient data access methods. </p>
 <p>By default, all fields are stored as std::string and they are cast to the requested type on demand. </p>
 
-<p class="definition">Definition at line <a class="el" href="dataframe_8hpp_source.html#l00037">37</a> of file <a class="el" href="dataframe_8hpp_source.html">dataframe.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dataframe_8hpp_source.html#l00038">38</a> of file <a class="el" href="dataframe_8hpp_source.html">dataframe.hpp</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a112b940681399cbd00e149a4c42a0bbb"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a112b940681399cbd00e149a4c42a0bbb">&#9670;&nbsp;</a></span>dataframe() <span class="overload">[1/2]</span></h2>
@@ -230,13 +232,19 @@ template&lt;typename T &gt; </div>
 </table>
 </div><div class="memdoc">
 <p>Constructs the dataset from a vector of columns of the same type.</p>
-<p>Example: </p><div class="fragment"><div class="line">dataframe&lt;&gt; df{</div><div class="line">  <span class="comment">// columns</span></div><div class="line">  std::vector&lt;std::vector&lt;int&gt;&gt;{{1, 2, 3}, {4, 5, 6}, {7, 8, 9}},</div><div class="line">  <span class="comment">// header</span></div><div class="line">  std::vector&lt;std::string&gt;{<span class="stringliteral">&quot;A&quot;</span>, <span class="stringliteral">&quot;B&quot;</span>, <span class="stringliteral">&quot;C&quot;</span>}</div><div class="line">};</div></div><!-- fragment --> 
-<p class="definition">Definition at line <a class="el" href="dataframe_8hpp_source.html#l00053">53</a> of file <a class="el" href="dataframe_8hpp_source.html">dataframe.hpp</a>.</p>
+<p>Example: </p><div class="fragment"><div class="line">dataframe&lt;&gt; df{</div><div class="line">  <span class="comment">// columns</span></div><div class="line">  std::vector&lt;std::vector&lt;int&gt;&gt;{{1, 2, 3}, {4, 5, 6}, {7, 8, 9}},</div><div class="line">  <span class="comment">// header</span></div><div class="line">  std::vector&lt;std::string&gt;{<span class="stringliteral">&quot;A&quot;</span>, <span class="stringliteral">&quot;B&quot;</span>, <span class="stringliteral">&quot;C&quot;</span>}</div><div class="line">};</div></div><!-- fragment --><dl class="exception"><dt>Exceptions</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">std::invalid_argument</td><td>1) If the header is provided, but some of the column names are empty. 2) If the column sizes mismatch. 3) If the provided header does not match the number of provided columns. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="dataframe_8hpp_source.html#l00060">60</a> of file <a class="el" href="dataframe_8hpp_source.html">dataframe.hpp</a>.</p>
 
 </div>
 </div>
-<a id="a5aac98ee6a001ceeef3955601e0136c9"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a5aac98ee6a001ceeef3955601e0136c9">&#9670;&nbsp;</a></span>dataframe() <span class="overload">[2/2]</span></h2>
+<a id="a963539b9ab394b7759e650b3fb3cb741"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a963539b9ab394b7759e650b3fb3cb741">&#9670;&nbsp;</a></span>dataframe() <span class="overload">[2/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -251,7 +259,7 @@ template&lt;typename... Ts&gt; </div>
         <tr>
           <td class="memname"><a class="el" href="classcxtream_1_1dataframe.html">cxtream::dataframe</a>&lt; DataTable &gt;::<a class="el" href="classcxtream_1_1dataframe.html">dataframe</a> </td>
           <td>(</td>
-          <td class="paramtype">std::tuple&lt; Ts... &gt;&#160;</td>
+          <td class="paramtype">std::tuple&lt; std::vector&lt; Ts &gt;... &gt;&#160;</td>
           <td class="paramname"><em>columns</em>, </td>
         </tr>
         <tr>
@@ -273,8 +281,14 @@ template&lt;typename... Ts&gt; </div>
 </table>
 </div><div class="memdoc">
 <p>Constructs the dataset from a tuple of columns of possibly different types.</p>
-<p>Example: </p><div class="fragment"><div class="line">dataframe&lt;&gt; df{</div><div class="line">  <span class="comment">// columns</span></div><div class="line">  std::make_tuple(</div><div class="line">    std::vector&lt;int&gt;{1, 2, 3},</div><div class="line">    std::vector&lt;std::string&gt;{<span class="stringliteral">&quot;a1&quot;</span>, <span class="stringliteral">&quot;a2&quot;</span>, <span class="stringliteral">&quot;a3&quot;</span>},</div><div class="line">    std::vector&lt;std::string&gt;{<span class="stringliteral">&quot;1.1&quot;</span>, <span class="stringliteral">&quot;1.2&quot;</span>, <span class="stringliteral">&quot;1.3&quot;</span>}</div><div class="line">  ),</div><div class="line">  <span class="comment">// header</span></div><div class="line">  std::vector&lt;std::string&gt;{<span class="stringliteral">&quot;Id&quot;</span>, <span class="stringliteral">&quot;A&quot;</span>, <span class="stringliteral">&quot;B&quot;</span>}</div><div class="line">};</div></div><!-- fragment --> 
-<p class="definition">Definition at line <a class="el" href="dataframe_8hpp_source.html#l00078">78</a> of file <a class="el" href="dataframe_8hpp_source.html">dataframe.hpp</a>.</p>
+<p>Example: </p><div class="fragment"><div class="line">dataframe&lt;&gt; df{</div><div class="line">  <span class="comment">// columns</span></div><div class="line">  std::make_tuple(</div><div class="line">    std::vector&lt;int&gt;{1, 2, 3},</div><div class="line">    std::vector&lt;std::string&gt;{<span class="stringliteral">&quot;a1&quot;</span>, <span class="stringliteral">&quot;a2&quot;</span>, <span class="stringliteral">&quot;a3&quot;</span>},</div><div class="line">    std::vector&lt;std::string&gt;{<span class="stringliteral">&quot;1.1&quot;</span>, <span class="stringliteral">&quot;1.2&quot;</span>, <span class="stringliteral">&quot;1.3&quot;</span>}</div><div class="line">  ),</div><div class="line">  <span class="comment">// header</span></div><div class="line">  std::vector&lt;std::string&gt;{<span class="stringliteral">&quot;Id&quot;</span>, <span class="stringliteral">&quot;A&quot;</span>, <span class="stringliteral">&quot;B&quot;</span>}</div><div class="line">};</div></div><!-- fragment --><dl class="exception"><dt>Exceptions</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">std::invalid_argument</td><td>1) If the header is provided, but some of the column names are empty. 2) If the column sizes mismatch. 3) If the provided header does not match the number of provided columns. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="dataframe_8hpp_source.html#l00091">91</a> of file <a class="el" href="dataframe_8hpp_source.html">dataframe.hpp</a>.</p>
 
 </div>
 </div>
@@ -319,57 +333,14 @@ template&lt;typename T &gt; </div>
 <p>Return a typed view of a column.</p>
 <p>By default, this function does not provide a direct access to the stored data. Instead, each field is converted to the type T and a copy is returned.</p>
 <p>Example: </p><div class="fragment"><div class="line">std::vector&lt;long&gt; data = df.col&lt;<span class="keywordtype">long</span>&gt;(<span class="stringliteral">&quot;long column&quot;</span>);</div></div><!-- fragment --><dl class="section return"><dt>Returns</dt><dd>A range of T. </dd></dl>
+<dl class="exception"><dt>Exceptions</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">std::out_of_range</td><td>If the column is not in the dataframe. </td></tr>
+  </table>
+  </dd>
+</dl>
 
-<p class="definition">Definition at line <a class="el" href="dataframe_8hpp_source.html#l00244">244</a> of file <a class="el" href="dataframe_8hpp_source.html">dataframe.hpp</a>.</p>
-
-</div>
-</div>
-<a id="a9561f65139f26f64ee071b53545ef4a0"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a9561f65139f26f64ee071b53545ef4a0">&#9670;&nbsp;</a></span>col_insert()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;typename DataTable = std::vector&lt;std::vector&lt;std::string&gt;&gt;&gt; </div>
-<div class="memtemplate">
-template&lt;typename Rng , typename ToStrFun  = std::string (*)(ranges::range_value_type_t&lt;Rng&gt;)&gt; </div>
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">std::size_t <a class="el" href="classcxtream_1_1dataframe.html">cxtream::dataframe</a>&lt; DataTable &gt;::col_insert </td>
-          <td>(</td>
-          <td class="paramtype">Rng&#160;</td>
-          <td class="paramname"><em>rng</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">std::string&#160;</td>
-          <td class="paramname"><em>col_name</em> = <code>{}</code>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">std::function&lt; std::string(ranges::range_value_type_t&lt; Rng &gt;)&gt;&#160;</td>
-          <td class="paramname"><em>cvt</em> = <code>static_cast&lt;ToStrFun&gt;(utility::to_string)</code>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-<p>Inserts a new column to the dataframe.</p>
-<p>Example: </p><div class="fragment"><div class="line">df.col_insert(std::vector&lt;int&gt;{5, 6, 7}, <span class="stringliteral">&quot;C&quot;</span>);</div></div><!-- fragment --> 
-<p class="definition">Definition at line <a class="el" href="dataframe_8hpp_source.html#l00097">97</a> of file <a class="el" href="dataframe_8hpp_source.html">dataframe.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dataframe_8hpp_source.html#l00295">295</a> of file <a class="el" href="dataframe_8hpp_source.html">dataframe.hpp</a>.</p>
 
 </div>
 </div>
@@ -412,8 +383,162 @@ template&lt;typename... Ts&gt; </div>
 </div><div class="memdoc">
 <p>Return a typed view of multiple columns.</p>
 <p>Example: </p><div class="fragment"><div class="line">std::tuple&lt;std::vector&lt;int&gt;, std::vector&lt;double&gt;&gt; data =</div><div class="line">  df.cols&lt;int, <span class="keywordtype">double</span>&gt;({<span class="stringliteral">&quot;column 1&quot;</span>, <span class="stringliteral">&quot;column 2&quot;</span>});</div></div><!-- fragment --><dl class="section return"><dt>Returns</dt><dd>A tuple of ranges of Ts. </dd></dl>
+<dl class="exception"><dt>Exceptions</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">std::out_of_range</td><td>If any of the columns is not in the dataframe. </td></tr>
+  </table>
+  </dd>
+</dl>
 
-<p class="definition">Definition at line <a class="el" href="dataframe_8hpp_source.html#l00365">365</a> of file <a class="el" href="dataframe_8hpp_source.html">dataframe.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dataframe_8hpp_source.html#l00424">424</a> of file <a class="el" href="dataframe_8hpp_source.html">dataframe.hpp</a>.</p>
+
+</div>
+</div>
+<a id="a9b39efee94a6ca769ec2eeb6c51d0d03"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9b39efee94a6ca769ec2eeb6c51d0d03">&#9670;&nbsp;</a></span>drop_col()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename DataTable = std::vector&lt;std::vector&lt;std::string&gt;&gt;&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="classcxtream_1_1dataframe.html">cxtream::dataframe</a>&lt; DataTable &gt;::drop_col </td>
+          <td>(</td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>col_name</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Drop a column with the given name.</p>
+<dl class="exception"><dt>Exceptions</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">std::out_of_range</td><td>If the column is not in the dataframe. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="dataframe_8hpp_source.html#l00186">186</a> of file <a class="el" href="dataframe_8hpp_source.html">dataframe.hpp</a>.</p>
+
+</div>
+</div>
+<a id="a2cbe28f3b4a8013d4185e19ef2373775"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2cbe28f3b4a8013d4185e19ef2373775">&#9670;&nbsp;</a></span>drop_icol()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename DataTable = std::vector&lt;std::vector&lt;std::string&gt;&gt;&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="classcxtream_1_1dataframe.html">cxtream::dataframe</a>&lt; DataTable &gt;::drop_icol </td>
+          <td>(</td>
+          <td class="paramtype">std::size_t&#160;</td>
+          <td class="paramname"><em>col_index</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Drop a column with the given index.</p>
+<dl class="exception"><dt>Exceptions</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">std::out_of_range</td><td>If the column is not in the dataframe. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="dataframe_8hpp_source.html#l00170">170</a> of file <a class="el" href="dataframe_8hpp_source.html">dataframe.hpp</a>.</p>
+
+</div>
+</div>
+<a id="ade2d42312f57ec8499b0f56fca518e84"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ade2d42312f57ec8499b0f56fca518e84">&#9670;&nbsp;</a></span>drop_row()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename DataTable = std::vector&lt;std::vector&lt;std::string&gt;&gt;&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="classcxtream_1_1dataframe.html">cxtream::dataframe</a>&lt; DataTable &gt;::drop_row </td>
+          <td>(</td>
+          <td class="paramtype">const std::size_t&#160;</td>
+          <td class="paramname"><em>row_idx</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Drop a row.</p>
+<dl class="exception"><dt>Exceptions</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">std::out_of_range</td><td>If the row is not in the dataframe. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="dataframe_8hpp_source.html#l00195">195</a> of file <a class="el" href="dataframe_8hpp_source.html">dataframe.hpp</a>.</p>
+
+</div>
+</div>
+<a id="a94a5b8cc9185a2474111b2b6f7c01fc6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a94a5b8cc9185a2474111b2b6f7c01fc6">&#9670;&nbsp;</a></span>header()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename DataTable = std::vector&lt;std::vector&lt;std::string&gt;&gt;&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="classcxtream_1_1dataframe.html">cxtream::dataframe</a>&lt; DataTable &gt;::header </td>
+          <td>(</td>
+          <td class="paramtype">std::vector&lt; std::string &gt;&#160;</td>
+          <td class="paramname"><em>new_header</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Set the column names.</p>
+<dl class="exception"><dt>Exceptions</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">std::invalid_argument</td><td>1) If some of the column names are empty. 2) If the header does not match the number of columns. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="dataframe_8hpp_source.html#l00682">682</a> of file <a class="el" href="dataframe_8hpp_source.html">dataframe.hpp</a>.</p>
 
 </div>
 </div>
@@ -457,8 +582,14 @@ template&lt;typename T &gt; </div>
 <p>Return a typed view of a column.</p>
 <p>By default, this function does not provide a direct access to the stored data. Instead, each field is converted to the type T and a copy is returned.</p>
 <p>Example: </p><div class="fragment"><div class="line">std::vector&lt;long&gt; data = df.icol&lt;<span class="keywordtype">long</span>&gt;(3);</div></div><!-- fragment --><dl class="section return"><dt>Returns</dt><dd>A range of T. </dd></dl>
+<dl class="exception"><dt>Exceptions</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">std::out_of_range</td><td>If the column is not in the dataframe. </td></tr>
+  </table>
+  </dd>
+</dl>
 
-<p class="definition">Definition at line <a class="el" href="dataframe_8hpp_source.html#l00226">226</a> of file <a class="el" href="dataframe_8hpp_source.html">dataframe.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dataframe_8hpp_source.html#l00276">276</a> of file <a class="el" href="dataframe_8hpp_source.html">dataframe.hpp</a>.</p>
 
 </div>
 </div>
@@ -501,8 +632,14 @@ template&lt;typename... Ts&gt; </div>
 </div><div class="memdoc">
 <p>Return a typed view of multiple columns.</p>
 <p>Example: </p><div class="fragment"><div class="line">std::tuple&lt;std::vector&lt;int&gt;, std::vector&lt;double&gt;&gt; data = df.icols&lt;int, <span class="keywordtype">double</span>&gt;({1, 2});</div></div><!-- fragment --><dl class="section return"><dt>Returns</dt><dd>A tuple of ranges of Ts. </dd></dl>
+<dl class="exception"><dt>Exceptions</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">std::out_of_range</td><td>If any of the columns is not in the dataframe. </td></tr>
+  </table>
+  </dd>
+</dl>
 
-<p class="definition">Definition at line <a class="el" href="dataframe_8hpp_source.html#l00344">344</a> of file <a class="el" href="dataframe_8hpp_source.html">dataframe.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dataframe_8hpp_source.html#l00402">402</a> of file <a class="el" href="dataframe_8hpp_source.html">dataframe.hpp</a>.</p>
 
 </div>
 </div>
@@ -556,9 +693,14 @@ template&lt;typename IndexT , typename ColT &gt; </div>
 </table>
 </div><div class="memdoc">
 <p>Return an indexed typed view of a single column.</p>
-<div class="fragment"><div class="line">std::unordered_map&lt;int, double&gt; mapper = df.index_col&lt;int, <span class="keywordtype">double</span>&gt;(<span class="stringliteral">&quot;first&quot;</span>, <span class="stringliteral">&quot;second&quot;</span>);</div></div><!-- fragment --><p>This function is the same as <a class="el" href="classcxtream_1_1dataframe.html#aa4190dd22d153c94df35dcfbaf643a7a">index_icol()</a>, but columns are selected by name. </p>
+<div class="fragment"><div class="line">std::unordered_map&lt;int, double&gt; mapper = df.index_col&lt;int, <span class="keywordtype">double</span>&gt;(<span class="stringliteral">&quot;first&quot;</span>, <span class="stringliteral">&quot;second&quot;</span>);</div></div><!-- fragment --><p>This function is the same as <a class="el" href="classcxtream_1_1dataframe.html#aa4190dd22d153c94df35dcfbaf643a7a">index_icol()</a>, but columns are selected by name. </p><dl class="exception"><dt>Exceptions</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">std::out_of_range</td><td>If any of the columns is not in the dataframe. </td></tr>
+  </table>
+  </dd>
+</dl>
 
-<p class="definition">Definition at line <a class="el" href="dataframe_8hpp_source.html#l00527">527</a> of file <a class="el" href="dataframe_8hpp_source.html">dataframe.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dataframe_8hpp_source.html#l00596">596</a> of file <a class="el" href="dataframe_8hpp_source.html">dataframe.hpp</a>.</p>
 
 </div>
 </div>
@@ -613,9 +755,14 @@ template&lt;typename IndexT , typename... Ts&gt; </div>
 </div><div class="memdoc">
 <p>Return an indexed typed view of multiple columns.</p>
 <p>See <a class="el" href="classcxtream_1_1dataframe.html#aa4190dd22d153c94df35dcfbaf643a7a">index_icol()</a>.</p>
-<div class="fragment"><div class="line">std::unordered_map&lt;int, std::tuple&lt;long, double&gt;&gt; mapper =</div><div class="line">  df.index_cols&lt;int, long, <span class="keywordtype">double</span>&gt;(<span class="stringliteral">&quot;id&quot;</span>, {<span class="stringliteral">&quot;col1&quot;</span>, <span class="stringliteral">&quot;col2&quot;</span>});</div></div><!-- fragment --><p>This function is similar to <a class="el" href="classcxtream_1_1dataframe.html#a269b31edab452f8caccebc9f6f40d8ff">index_icols()</a>, but columns are selected by name. </p>
+<div class="fragment"><div class="line">std::unordered_map&lt;int, std::tuple&lt;long, double&gt;&gt; mapper =</div><div class="line">  df.index_cols&lt;int, long, <span class="keywordtype">double</span>&gt;(<span class="stringliteral">&quot;id&quot;</span>, {<span class="stringliteral">&quot;col1&quot;</span>, <span class="stringliteral">&quot;col2&quot;</span>});</div></div><!-- fragment --><p>This function is similar to <a class="el" href="classcxtream_1_1dataframe.html#a269b31edab452f8caccebc9f6f40d8ff">index_icols()</a>, but columns are selected by name. </p><dl class="exception"><dt>Exceptions</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">std::out_of_range</td><td>If any of the columns is not in the dataframe. </td></tr>
+  </table>
+  </dd>
+</dl>
 
-<p class="definition">Definition at line <a class="el" href="dataframe_8hpp_source.html#l00575">575</a> of file <a class="el" href="dataframe_8hpp_source.html">dataframe.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dataframe_8hpp_source.html#l00647">647</a> of file <a class="el" href="dataframe_8hpp_source.html">dataframe.hpp</a>.</p>
 
 </div>
 </div>
@@ -680,8 +827,14 @@ template&lt;typename IndexT , typename ColT &gt; </div>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>A range of tuples &lt;key, value&gt;. </dd></dl>
+<dl class="exception"><dt>Exceptions</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">std::out_of_range</td><td>If any of the columns is not in the dataframe. </td></tr>
+  </table>
+  </dd>
+</dl>
 
-<p class="definition">Definition at line <a class="el" href="dataframe_8hpp_source.html#l00509">509</a> of file <a class="el" href="dataframe_8hpp_source.html">dataframe.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dataframe_8hpp_source.html#l00577">577</a> of file <a class="el" href="dataframe_8hpp_source.html">dataframe.hpp</a>.</p>
 
 </div>
 </div>
@@ -736,9 +889,157 @@ template&lt;typename IndexT , typename... Ts&gt; </div>
 </div><div class="memdoc">
 <p>Return an indexed typed view of multiple columns.</p>
 <p>See <a class="el" href="classcxtream_1_1dataframe.html#aa4190dd22d153c94df35dcfbaf643a7a">index_icol()</a>.</p>
-<div class="fragment"><div class="line">std::unordered_map&lt;int, std::tuple&lt;long, double&gt;&gt; mapper =</div><div class="line">  df.index_icols&lt;int, long, <span class="keywordtype">double</span>&gt;(0, {1, 2});</div></div><!-- fragment --><p>This function is similar to <a class="el" href="classcxtream_1_1dataframe.html#aa4190dd22d153c94df35dcfbaf643a7a">index_icol()</a>, but value type is a tuple of Ts. </p>
+<div class="fragment"><div class="line">std::unordered_map&lt;int, std::tuple&lt;long, double&gt;&gt; mapper =</div><div class="line">  df.index_icols&lt;int, long, <span class="keywordtype">double</span>&gt;(0, {1, 2});</div></div><!-- fragment --><p>This function is similar to <a class="el" href="classcxtream_1_1dataframe.html#aa4190dd22d153c94df35dcfbaf643a7a">index_icol()</a>, but value type is a tuple of Ts. </p><dl class="exception"><dt>Exceptions</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">std::out_of_range</td><td>If any of the columns is not in the dataframe. </td></tr>
+  </table>
+  </dd>
+</dl>
 
-<p class="definition">Definition at line <a class="el" href="dataframe_8hpp_source.html#l00552">552</a> of file <a class="el" href="dataframe_8hpp_source.html">dataframe.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dataframe_8hpp_source.html#l00623">623</a> of file <a class="el" href="dataframe_8hpp_source.html">dataframe.hpp</a>.</p>
+
+</div>
+</div>
+<a id="a6d9ea063477066807958732fdcf2374e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6d9ea063477066807958732fdcf2374e">&#9670;&nbsp;</a></span>insert_col()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename DataTable = std::vector&lt;std::vector&lt;std::string&gt;&gt;&gt; </div>
+<div class="memtemplate">
+template&lt;typename Rng , typename ToStrFun  = std::string (*)(ranges::range_value_type_t&lt;Rng&gt;)&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::size_t <a class="el" href="classcxtream_1_1dataframe.html">cxtream::dataframe</a>&lt; DataTable &gt;::insert_col </td>
+          <td>(</td>
+          <td class="paramtype">Rng &amp;&amp;&#160;</td>
+          <td class="paramname"><em>rng</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>col_name</em> = <code>{}</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::function&lt; std::string(ranges::range_value_type_t&lt; Rng &gt;)&gt;&#160;</td>
+          <td class="paramname"><em>cvt</em> = <code>static_cast&lt;ToStrFun&gt;(utility::to_string)</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Inserts a new column to the dataframe.</p>
+<p>Example: </p><div class="fragment"><div class="line">df.insert_col(std::vector&lt;int&gt;{5, 6, 7}, <span class="stringliteral">&quot;C&quot;</span>);</div></div><!-- fragment --><dl class="exception"><dt>Exceptions</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">std::invalid_argument</td><td>1) If the dataframe has a header but no column name was provided. 2) If the column size is not equal to n_rows. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="dataframe_8hpp_source.html#l00114">114</a> of file <a class="el" href="dataframe_8hpp_source.html">dataframe.hpp</a>.</p>
+
+</div>
+</div>
+<a id="a1e7fef645148c68d6079dc6012fd0ae3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1e7fef645148c68d6079dc6012fd0ae3">&#9670;&nbsp;</a></span>insert_row() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename DataTable = std::vector&lt;std::vector&lt;std::string&gt;&gt;&gt; </div>
+<div class="memtemplate">
+template&lt;typename... Ts&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::size_t <a class="el" href="classcxtream_1_1dataframe.html">cxtream::dataframe</a>&lt; DataTable &gt;::insert_row </td>
+          <td>(</td>
+          <td class="paramtype">std::tuple&lt; Ts... &gt;&#160;</td>
+          <td class="paramname"><em>row_tuple</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::tuple&lt; std::function&lt; std::string(Ts)&gt;... &gt;&#160;</td>
+          <td class="paramname"><em>cvts</em> = <code>std::make_tuple(&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;static_cast&lt;std::string&#160;(*)(Ts)&gt;(utility::to_string)...)</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Inserts a new typed row to the dataframe.</p>
+<p>Example: </p><div class="fragment"><div class="line">df.insert_row(std::make_tuple(4, <span class="stringliteral">&quot;a3&quot;</span>, <span class="keyword">true</span>));</div></div><!-- fragment --><dl class="section return"><dt>Returns</dt><dd>The index of the new row. </dd></dl>
+<dl class="exception"><dt>Exceptions</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">std::invalid_argument</td><td>If the row size is not equal to n_cols. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="dataframe_8hpp_source.html#l00135">135</a> of file <a class="el" href="dataframe_8hpp_source.html">dataframe.hpp</a>.</p>
+
+</div>
+</div>
+<a id="af10ba7bf730b32329d487d24c000f463"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af10ba7bf730b32329d487d24c000f463">&#9670;&nbsp;</a></span>insert_row() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename DataTable = std::vector&lt;std::vector&lt;std::string&gt;&gt;&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::size_t <a class="el" href="classcxtream_1_1dataframe.html">cxtream::dataframe</a>&lt; DataTable &gt;::insert_row </td>
+          <td>(</td>
+          <td class="paramtype">std::vector&lt; std::string &gt;&#160;</td>
+          <td class="paramname"><em>row</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Inserts a new raw row to the dataframe.</p>
+<p>Example: </p><div class="fragment"><div class="line">df.insert_row({<span class="stringliteral">&quot;field 1&quot;</span>, <span class="stringliteral">&quot;field 2&quot;</span>, <span class="stringliteral">&quot;field 3&quot;</span>});</div></div><!-- fragment --><dl class="section return"><dt>Returns</dt><dd>The index of the new row. </dd></dl>
+<dl class="exception"><dt>Exceptions</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">std::invalid_argument</td><td>If the row size is not equal to n_cols. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="dataframe_8hpp_source.html#l00156">156</a> of file <a class="el" href="dataframe_8hpp_source.html">dataframe.hpp</a>.</p>
 
 </div>
 </div>
@@ -782,8 +1083,14 @@ template&lt;typename... Ts&gt; </div>
 <p>Return a typed view of multiple rows.</p>
 <p>This function provides the same data as <a class="el" href="classcxtream_1_1dataframe.html#a369548ae6584c9966915b0d8549f1f81">icols()</a> but transposed.</p>
 <p>Example: </p><div class="fragment"><div class="line">std::vector&lt;std::tuple&lt;int, double&gt;&gt; data =</div><div class="line">  df.irows&lt;int, <span class="keywordtype">double</span>&gt;({0, 2});</div></div><!-- fragment --><dl class="section return"><dt>Returns</dt><dd>A range of tuples of Ts. </dd></dl>
+<dl class="exception"><dt>Exceptions</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">std::out_of_range</td><td>If any of the columns is not in the dataframe. </td></tr>
+  </table>
+  </dd>
+</dl>
 
-<p class="definition">Definition at line <a class="el" href="dataframe_8hpp_source.html#l00461">461</a> of file <a class="el" href="dataframe_8hpp_source.html">dataframe.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dataframe_8hpp_source.html#l00527">527</a> of file <a class="el" href="dataframe_8hpp_source.html">dataframe.hpp</a>.</p>
 
 </div>
 </div>
@@ -815,8 +1122,14 @@ template&lt;typename DataTable = std::vector&lt;std::vector&lt;std::string&gt;&g
 <p>Return a raw view of a column.</p>
 <p>The data can be directly changed by writing to the view.</p>
 <p>Example: </p><div class="fragment"><div class="line">df.raw_col(<span class="stringliteral">&quot;long column&quot;</span>)[2] = <span class="stringliteral">&quot;new_value&quot;</span>;</div></div><!-- fragment --><dl class="section return"><dt>Returns</dt><dd>A of range of std::string&amp;. </dd></dl>
+<dl class="exception"><dt>Exceptions</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">std::out_of_range</td><td>If the column is not in the dataframe. </td></tr>
+  </table>
+  </dd>
+</dl>
 
-<p class="definition">Definition at line <a class="el" href="dataframe_8hpp_source.html#l00195">195</a> of file <a class="el" href="dataframe_8hpp_source.html">dataframe.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dataframe_8hpp_source.html#l00243">243</a> of file <a class="el" href="dataframe_8hpp_source.html">dataframe.hpp</a>.</p>
 
 </div>
 </div>
@@ -848,8 +1161,14 @@ template&lt;typename DataTable = std::vector&lt;std::vector&lt;std::string&gt;&g
 <p>Return a raw view of a column.</p>
 <p>This is just a const overload of the non-const <a class="el" href="classcxtream_1_1dataframe.html#a771039e48c9de8e46a3c3eead0c71b42">raw_col()</a>.</p>
 <dl class="section return"><dt>Returns</dt><dd>A of range of const std::string&amp;. </dd></dl>
+<dl class="exception"><dt>Exceptions</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">std::out_of_range</td><td>If the column is not in the dataframe. </td></tr>
+  </table>
+  </dd>
+</dl>
 
-<p class="definition">Definition at line <a class="el" href="dataframe_8hpp_source.html#l00206">206</a> of file <a class="el" href="dataframe_8hpp_source.html">dataframe.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dataframe_8hpp_source.html#l00255">255</a> of file <a class="el" href="dataframe_8hpp_source.html">dataframe.hpp</a>.</p>
 
 </div>
 </div>
@@ -881,7 +1200,7 @@ template&lt;typename DataTable = std::vector&lt;std::vector&lt;std::string&gt;&g
 <p>The data can be directly changed by writing to the view.</p>
 <p>Example: </p><div class="fragment"><div class="line"><span class="comment">// get the third row from the sixth column</span></div><div class="line">std::string field = df.raw_cols()[5][2];</div></div><!-- fragment --><dl class="section return"><dt>Returns</dt><dd>A range of ranges of std::string&amp;. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="dataframe_8hpp_source.html#l00264">264</a> of file <a class="el" href="dataframe_8hpp_source.html">dataframe.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dataframe_8hpp_source.html#l00315">315</a> of file <a class="el" href="dataframe_8hpp_source.html">dataframe.hpp</a>.</p>
 
 </div>
 </div>
@@ -913,7 +1232,7 @@ template&lt;typename DataTable = std::vector&lt;std::vector&lt;std::string&gt;&g
 <p>This is just a const overload of the non-const argument-less <a class="el" href="classcxtream_1_1dataframe.html#a6fe40457184f8858cd34455845eb8b10">raw_cols()</a>.</p>
 <dl class="section return"><dt>Returns</dt><dd>A range of ranges of const std::string&amp;. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="dataframe_8hpp_source.html#l00274">274</a> of file <a class="el" href="dataframe_8hpp_source.html">dataframe.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dataframe_8hpp_source.html#l00325">325</a> of file <a class="el" href="dataframe_8hpp_source.html">dataframe.hpp</a>.</p>
 
 </div>
 </div>
@@ -945,8 +1264,14 @@ template&lt;typename DataTable = std::vector&lt;std::vector&lt;std::string&gt;&g
 <p>Return a raw view of multiple columns.</p>
 <p>The data can be directly changed by writing to the view.</p>
 <p>Example: </p><div class="fragment"><div class="line"><span class="comment">// get the sixth row from the column named &quot;column 2&quot;</span></div><div class="line">std::string field = df.raw_cols({<span class="stringliteral">&quot;column 1&quot;</span>, <span class="stringliteral">&quot;column 2&quot;</span>})[1][5];</div></div><!-- fragment --><dl class="section return"><dt>Returns</dt><dd>A range of ranges of std::string&amp;. </dd></dl>
+<dl class="exception"><dt>Exceptions</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">std::out_of_range</td><td>If any of the columns is not in the dataframe. </td></tr>
+  </table>
+  </dd>
+</dl>
 
-<p class="definition">Definition at line <a class="el" href="dataframe_8hpp_source.html#l00316">316</a> of file <a class="el" href="dataframe_8hpp_source.html">dataframe.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dataframe_8hpp_source.html#l00372">372</a> of file <a class="el" href="dataframe_8hpp_source.html">dataframe.hpp</a>.</p>
 
 </div>
 </div>
@@ -978,8 +1303,14 @@ template&lt;typename DataTable = std::vector&lt;std::vector&lt;std::string&gt;&g
 <p>Return a raw view of multiple columns.</p>
 <p>This is just a const overload of the non-const <a class="el" href="classcxtream_1_1dataframe.html#a6fe40457184f8858cd34455845eb8b10">raw_cols()</a>.</p>
 <dl class="section return"><dt>Returns</dt><dd>A range of ranges of const std::string&amp;. </dd></dl>
+<dl class="exception"><dt>Exceptions</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">std::out_of_range</td><td>If any of the columns is not in the dataframe. </td></tr>
+  </table>
+  </dd>
+</dl>
 
-<p class="definition">Definition at line <a class="el" href="dataframe_8hpp_source.html#l00327">327</a> of file <a class="el" href="dataframe_8hpp_source.html">dataframe.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dataframe_8hpp_source.html#l00384">384</a> of file <a class="el" href="dataframe_8hpp_source.html">dataframe.hpp</a>.</p>
 
 </div>
 </div>
@@ -1011,8 +1342,14 @@ template&lt;typename DataTable = std::vector&lt;std::vector&lt;std::string&gt;&g
 <p>Return a raw view of a column.</p>
 <p>The data can be directly changed by writing to the view.</p>
 <p>Example: </p><div class="fragment"><div class="line">df.raw_icol(3)[2] = <span class="stringliteral">&quot;new_value&quot;</span>;</div></div><!-- fragment --><dl class="section return"><dt>Returns</dt><dd>A of range of std::string&amp;. </dd></dl>
+<dl class="exception"><dt>Exceptions</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">std::out_of_range</td><td>If the column is not in the dataframe. </td></tr>
+  </table>
+  </dd>
+</dl>
 
-<p class="definition">Definition at line <a class="el" href="dataframe_8hpp_source.html#l00172">172</a> of file <a class="el" href="dataframe_8hpp_source.html">dataframe.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dataframe_8hpp_source.html#l00216">216</a> of file <a class="el" href="dataframe_8hpp_source.html">dataframe.hpp</a>.</p>
 
 </div>
 </div>
@@ -1043,8 +1380,14 @@ template&lt;typename DataTable = std::vector&lt;std::vector&lt;std::string&gt;&g
 </div><div class="memdoc">
 <p>Return a raw view of a column.</p>
 <dl class="section return"><dt>Returns</dt><dd>A of range of const std::string&amp;. </dd></dl>
+<dl class="exception"><dt>Exceptions</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">std::out_of_range</td><td>If the column is not in the dataframe. </td></tr>
+  </table>
+  </dd>
+</dl>
 
-<p class="definition">Definition at line <a class="el" href="dataframe_8hpp_source.html#l00180">180</a> of file <a class="el" href="dataframe_8hpp_source.html">dataframe.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dataframe_8hpp_source.html#l00226">226</a> of file <a class="el" href="dataframe_8hpp_source.html">dataframe.hpp</a>.</p>
 
 </div>
 </div>
@@ -1076,8 +1419,14 @@ template&lt;typename DataTable = std::vector&lt;std::vector&lt;std::string&gt;&g
 <p>Return a raw view of multiple columns.</p>
 <p>The data can be directly changed by writing to the view.</p>
 <p>Example: </p><div class="fragment"><div class="line"><span class="comment">// get the third row from the sixth column (with index 5)</span></div><div class="line">std::string field = df.raw_icols({1, 5})[1][2];</div></div><!-- fragment --><dl class="section return"><dt>Returns</dt><dd>A range of ranges of std::string&amp;. </dd></dl>
+<dl class="exception"><dt>Exceptions</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">std::out_of_range</td><td>If any of the columns is not in the dataframe. </td></tr>
+  </table>
+  </dd>
+</dl>
 
-<p class="definition">Definition at line <a class="el" href="dataframe_8hpp_source.html#l00290">290</a> of file <a class="el" href="dataframe_8hpp_source.html">dataframe.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dataframe_8hpp_source.html#l00342">342</a> of file <a class="el" href="dataframe_8hpp_source.html">dataframe.hpp</a>.</p>
 
 </div>
 </div>
@@ -1109,8 +1458,14 @@ template&lt;typename DataTable = std::vector&lt;std::vector&lt;std::string&gt;&g
 <p>Return a raw view of multiple columns.</p>
 <p>This is just a const overload of the non-const <a class="el" href="classcxtream_1_1dataframe.html#a2c21604264a40adc6df12997dea3b01c">raw_icols()</a>.</p>
 <dl class="section return"><dt>Returns</dt><dd>A range of ranges of const std::string&amp;. </dd></dl>
+<dl class="exception"><dt>Exceptions</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">std::out_of_range</td><td>If any of the columns is not in the dataframe. </td></tr>
+  </table>
+  </dd>
+</dl>
 
-<p class="definition">Definition at line <a class="el" href="dataframe_8hpp_source.html#l00300">300</a> of file <a class="el" href="dataframe_8hpp_source.html">dataframe.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dataframe_8hpp_source.html#l00354">354</a> of file <a class="el" href="dataframe_8hpp_source.html">dataframe.hpp</a>.</p>
 
 </div>
 </div>
@@ -1141,8 +1496,14 @@ template&lt;typename DataTable = std::vector&lt;std::vector&lt;std::string&gt;&g
 </div><div class="memdoc">
 <p>Return a raw view of multiple rows.</p>
 <p>Example: </p><div class="fragment"><div class="line"><span class="comment">// get the third row from the sixth column (with index 5)</span></div><div class="line">std::string field = df.raw_irows({3, 5})[2][1];</div></div><!-- fragment --><dl class="section return"><dt>Returns</dt><dd>A range of ranges of std::string&amp;. </dd></dl>
+<dl class="exception"><dt>Exceptions</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">std::out_of_range</td><td>If any of the columns is not in the dataframe. </td></tr>
+  </table>
+  </dd>
+</dl>
 
-<p class="definition">Definition at line <a class="el" href="dataframe_8hpp_source.html#l00406">406</a> of file <a class="el" href="dataframe_8hpp_source.html">dataframe.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dataframe_8hpp_source.html#l00466">466</a> of file <a class="el" href="dataframe_8hpp_source.html">dataframe.hpp</a>.</p>
 
 </div>
 </div>
@@ -1174,8 +1535,14 @@ template&lt;typename DataTable = std::vector&lt;std::vector&lt;std::string&gt;&g
 <p>Return a raw view of multiple rows.</p>
 <p>This is just a const overload of the non-const <a class="el" href="classcxtream_1_1dataframe.html#a30485a5bd9c94c23648516b87ef15720">raw_irows()</a>.</p>
 <dl class="section return"><dt>Returns</dt><dd>A range of ranges of const std::string&amp;. </dd></dl>
+<dl class="exception"><dt>Exceptions</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">std::out_of_range</td><td>If any of the columns is not in the dataframe. </td></tr>
+  </table>
+  </dd>
+</dl>
 
-<p class="definition">Definition at line <a class="el" href="dataframe_8hpp_source.html#l00416">416</a> of file <a class="el" href="dataframe_8hpp_source.html">dataframe.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dataframe_8hpp_source.html#l00478">478</a> of file <a class="el" href="dataframe_8hpp_source.html">dataframe.hpp</a>.</p>
 
 </div>
 </div>
@@ -1206,7 +1573,7 @@ template&lt;typename DataTable = std::vector&lt;std::vector&lt;std::string&gt;&g
 <p>Return a raw view of all rows.</p>
 <p>Example: </p><div class="fragment"><div class="line"><span class="comment">// get the third row from the sixth column</span></div><div class="line">std::string field = df.raw_rows()[2][5];</div></div><!-- fragment --><dl class="section return"><dt>Returns</dt><dd>A range of ranges of std::string&amp;. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="dataframe_8hpp_source.html#l00382">382</a> of file <a class="el" href="dataframe_8hpp_source.html">dataframe.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dataframe_8hpp_source.html#l00441">441</a> of file <a class="el" href="dataframe_8hpp_source.html">dataframe.hpp</a>.</p>
 
 </div>
 </div>
@@ -1238,7 +1605,7 @@ template&lt;typename DataTable = std::vector&lt;std::vector&lt;std::string&gt;&g
 <p>This is just a const overload of the non-const argument-less <a class="el" href="classcxtream_1_1dataframe.html#aee778d05d404e9895c8ac1a30787a894">raw_rows()</a>.</p>
 <dl class="section return"><dt>Returns</dt><dd>A range of ranges of const std::string&amp;. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="dataframe_8hpp_source.html#l00392">392</a> of file <a class="el" href="dataframe_8hpp_source.html">dataframe.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dataframe_8hpp_source.html#l00451">451</a> of file <a class="el" href="dataframe_8hpp_source.html">dataframe.hpp</a>.</p>
 
 </div>
 </div>
@@ -1269,8 +1636,14 @@ template&lt;typename DataTable = std::vector&lt;std::vector&lt;std::string&gt;&g
 </div><div class="memdoc">
 <p>Return a raw view of multiple rows.</p>
 <p>Example: </p><div class="fragment"><div class="line"><span class="comment">// get the third row from column named &quot;col2&quot;</span></div><div class="line">std::string field = df.raw_rows({<span class="stringliteral">&quot;col1&quot;</span>, <span class="stringliteral">&quot;col2&quot;</span>})[2][1];</div></div><!-- fragment --><dl class="section return"><dt>Returns</dt><dd>A range of ranges of std::string&amp;. </dd></dl>
+<dl class="exception"><dt>Exceptions</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">std::out_of_range</td><td>If any of the columns is not in the dataframe. </td></tr>
+  </table>
+  </dd>
+</dl>
 
-<p class="definition">Definition at line <a class="el" href="dataframe_8hpp_source.html#l00430">430</a> of file <a class="el" href="dataframe_8hpp_source.html">dataframe.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dataframe_8hpp_source.html#l00494">494</a> of file <a class="el" href="dataframe_8hpp_source.html">dataframe.hpp</a>.</p>
 
 </div>
 </div>
@@ -1302,51 +1675,14 @@ template&lt;typename DataTable = std::vector&lt;std::vector&lt;std::string&gt;&g
 <p>Return a raw view of multiple rows.</p>
 <p>This is just a const overload of the non-const <a class="el" href="classcxtream_1_1dataframe.html#aee778d05d404e9895c8ac1a30787a894">raw_rows()</a>.</p>
 <dl class="section return"><dt>Returns</dt><dd>A range of ranges of const std::string&amp;. </dd></dl>
+<dl class="exception"><dt>Exceptions</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">std::out_of_range</td><td>If any of the columns is not in the dataframe. </td></tr>
+  </table>
+  </dd>
+</dl>
 
-<p class="definition">Definition at line <a class="el" href="dataframe_8hpp_source.html#l00441">441</a> of file <a class="el" href="dataframe_8hpp_source.html">dataframe.hpp</a>.</p>
-
-</div>
-</div>
-<a id="a9f0206c1d01242d521ae7cc2fd55a7c8"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a9f0206c1d01242d521ae7cc2fd55a7c8">&#9670;&nbsp;</a></span>row_insert()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;typename DataTable = std::vector&lt;std::vector&lt;std::string&gt;&gt;&gt; </div>
-<div class="memtemplate">
-template&lt;typename... Ts&gt; </div>
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">std::size_t <a class="el" href="classcxtream_1_1dataframe.html">cxtream::dataframe</a>&lt; DataTable &gt;::row_insert </td>
-          <td>(</td>
-          <td class="paramtype">std::tuple&lt; Ts... &gt;&#160;</td>
-          <td class="paramname"><em>row_tuple</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">std::tuple&lt; std::function&lt; std::string(Ts)&gt;... &gt;&#160;</td>
-          <td class="paramname"><em>cvts</em> = <code>std::make_tuple(&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;static_cast&lt;std::string&#160;(*)(Ts)&gt;(utility::to_string)...)</code>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-<p>Inserts a new row to the dataframe.</p>
-<p>Example: </p><div class="fragment"><div class="line">df.row_insert(std::make_tuple(4, <span class="stringliteral">&quot;a3&quot;</span>, <span class="keyword">true</span>));</div></div><!-- fragment --> 
-<p class="definition">Definition at line <a class="el" href="dataframe_8hpp_source.html#l00116">116</a> of file <a class="el" href="dataframe_8hpp_source.html">dataframe.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dataframe_8hpp_source.html#l00506">506</a> of file <a class="el" href="dataframe_8hpp_source.html">dataframe.hpp</a>.</p>
 
 </div>
 </div>
@@ -1390,8 +1726,14 @@ template&lt;typename... Ts&gt; </div>
 <p>Return a typed view of multiple rows.</p>
 <p>This function provides the same data as <a class="el" href="classcxtream_1_1dataframe.html#ae0eba920efd029d5aee93a1b88e12f38">cols()</a> but transposed.</p>
 <p>Example: </p><div class="fragment"><div class="line">std::vector&lt;std::tuple&lt;int, double&gt;&gt; data =</div><div class="line">  df.rows&lt;int, <span class="keywordtype">double</span>&gt;({<span class="stringliteral">&quot;int_col&quot;</span>, <span class="stringliteral">&quot;double_col&quot;</span>});</div></div><!-- fragment --><dl class="section return"><dt>Returns</dt><dd>A range of tuples of Ts. </dd></dl>
+<dl class="exception"><dt>Exceptions</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">std::out_of_range</td><td>If any of the columns is not in the dataframe. </td></tr>
+  </table>
+  </dd>
+</dl>
 
-<p class="definition">Definition at line <a class="el" href="dataframe_8hpp_source.html#l00482">482</a> of file <a class="el" href="dataframe_8hpp_source.html">dataframe.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dataframe_8hpp_source.html#l00549">549</a> of file <a class="el" href="dataframe_8hpp_source.html">dataframe.hpp</a>.</p>
 
 </div>
 </div>

@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['ndims',['ndims',['../structcxtream_1_1utility_1_1ndims.html',1,'cxtream::utility']]]
+  ['maybe_5ftuple_5fimpl',['maybe_tuple_impl',['../structcxtream_1_1utility_1_1maybe__tuple__impl.html',1,'cxtream::utility']]]
 ];

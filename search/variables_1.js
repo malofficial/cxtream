@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['drop',['drop',['../group___stream.html#ga063d4d373d785b6c0f20af2de129f853',1,'cxtream::stream']]]
+  ['create',['create',['../group___stream.html#gaf6b703d16feb7a57b505f49dc1629404',1,'cxtream::stream']]]
 ];

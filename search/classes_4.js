@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['range',['range',['../classcxtream_1_1python_1_1range.html',1,'cxtream::python']]]
+  ['ndims',['ndims',['../structcxtream_1_1utility_1_1ndims.html',1,'cxtream::utility']]]
 ];

@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['thread_5fpool',['thread_pool',['../classcxtream_1_1thread__pool.html',1,'cxtream']]],
-  ['tuple_5fcontains',['tuple_contains',['../structcxtream_1_1utility_1_1tuple__contains.html',1,'cxtream::utility']]]
+  ['stop_5fiteration_5fexception',['stop_iteration_exception',['../structcxtream_1_1python_1_1stop__iteration__exception.html',1,'cxtream::python']]]
 ];

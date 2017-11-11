@@ -1,7 +1,6 @@
 var searchData=
 [
   ['icol',['icol',['../classcxtream_1_1dataframe.html#a33a3205a1cd539271d934e7403c07a89',1,'cxtream::dataframe']]],
-  ['icol_5fdrop',['icol_drop',['../classcxtream_1_1dataframe.html#a8f1c8569baf81dd496ebcd1ec7a703df',1,'cxtream::dataframe']]],
   ['icols',['icols',['../classcxtream_1_1dataframe.html#a369548ae6584c9966915b0d8549f1f81',1,'cxtream::dataframe']]],
   ['introduction',['Introduction',['../index.html',1,'']]],
   ['index_5fcol',['index_col',['../classcxtream_1_1dataframe.html#a5edc94ed34634ec6f0d66aa0d6b2199b',1,'cxtream::dataframe']]],
@@ -13,6 +12,8 @@ var searchData=
   ['index_5fmapper_3c_20std_3a_3astring_20_3e',['index_mapper&lt; std::string &gt;',['../classcxtream_1_1index__mapper.html',1,'cxtream']]],
   ['initialize',['initialize',['../group___python.html#gaa846e80169fe47a8b8c9197cdc029a0b',1,'cxtream::python']]],
   ['insert',['insert',['../classcxtream_1_1index__mapper.html#ab4ceccc58685a5cb197885e6e89d7310',1,'cxtream::index_mapper::insert(T val)'],['../classcxtream_1_1index__mapper.html#ac9cd49a9dee4ad0d393bfaa742a74d4d',1,'cxtream::index_mapper::insert(Rng rng)'],['../classcxtream_1_1index__mapper.html#ac9cd49a9dee4ad0d393bfaa742a74d4d',1,'cxtream::index_mapper::insert(Rng rng)']]],
+  ['insert_5fcol',['insert_col',['../classcxtream_1_1dataframe.html#a6d9ea063477066807958732fdcf2374e',1,'cxtream::dataframe']]],
+  ['insert_5frow',['insert_row',['../classcxtream_1_1dataframe.html#a1e7fef645148c68d6079dc6012fd0ae3',1,'cxtream::dataframe::insert_row(std::tuple&lt; Ts... &gt; row_tuple, std::tuple&lt; std::function&lt; std::string(Ts)&gt;... &gt; cvts=std::make_tuple(static_cast&lt; std::string(*)(Ts)&gt;(utility::to_string)...))'],['../classcxtream_1_1dataframe.html#af10ba7bf730b32329d487d24c000f463',1,'cxtream::dataframe::insert_row(std::vector&lt; std::string &gt; row)']]],
   ['installation',['Installation',['../installation.html',1,'']]],
   ['irows',['irows',['../classcxtream_1_1dataframe.html#ac0bcf7129c71376c9971a0ccc1bce540',1,'cxtream::dataframe']]],
   ['is_5fregistered',['is_registered',['../group___python.html#gab36e95f70927bff890ff3b4f40895a2a',1,'cxtream::python::utility']]]

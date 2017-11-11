@@ -23,7 +23,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">cxtream
-   &#160;<span id="projectnumber">0.5.0</span>
+   &#160;<span id="projectnumber">0.5.1</span>
    </div>
    <div id="projectbrief">C++17 data pipeline with Python bindings.</div>
   </td>
@@ -85,7 +85,7 @@ Functions</h2></td></tr>
 <tr class="memitem:ga22b5ec96dff9a62267c50bd1c1d437e5"><td class="memTemplItemLeft" align="right" valign="top">std::vector&lt; std::vector&lt; long &gt; &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group___vector.html#ga22b5ec96dff9a62267c50bd1c1d437e5">ndim_size</a> (const Rng &amp;rng)</td></tr>
 <tr class="memdesc:ga22b5ec96dff9a62267c50bd1c1d437e5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calculates the size of a multidimensional range.  <a href="#ga22b5ec96dff9a62267c50bd1c1d437e5">More...</a><br /></td></tr>
 <tr class="separator:ga22b5ec96dff9a62267c50bd1c1d437e5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gae19f03543c00663978310a98708cb104"><td class="memTemplParams" colspan="2">template&lt;typename T , typename ValT  = typename ndim_type&lt;std::vector&lt;T&gt;&gt;::type&gt; </td></tr>
+<tr class="memitem:gae19f03543c00663978310a98708cb104"><td class="memTemplParams" colspan="2">template&lt;typename T , typename ValT  = ndim_type_t&lt;std::vector&lt;T&gt;&gt;&gt; </td></tr>
 <tr class="memitem:gae19f03543c00663978310a98708cb104"><td class="memTemplItemLeft" align="right" valign="top">std::vector&lt; T &gt; &amp;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group___vector.html#gae19f03543c00663978310a98708cb104">ndim_resize</a> (std::vector&lt; T &gt; &amp;vec, const std::vector&lt; std::vector&lt; long &gt;&gt; &amp;vec_size, ValT val=ValT{})</td></tr>
 <tr class="memdesc:gae19f03543c00663978310a98708cb104"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resizes a multidimensional std::vector to the given size.  <a href="#gae19f03543c00663978310a98708cb104">More...</a><br /></td></tr>
 <tr class="separator:gae19f03543c00663978310a98708cb104"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -149,7 +149,7 @@ template&lt;long NDims, typename Rng &gt; </div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Flat view (InputRange) of the given range. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="vector_8hpp_source.html#l00344">344</a> of file <a class="el" href="vector_8hpp_source.html">vector.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="vector_8hpp_source.html#l00348">348</a> of file <a class="el" href="vector_8hpp_source.html">vector.hpp</a>.</p>
 
 </div>
 </div>
@@ -159,7 +159,7 @@ template&lt;long NDims, typename Rng &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename T , typename ValT  = typename ndim_type&lt;std::vector&lt;T&gt;&gt;::type&gt; </div>
+template&lt;typename T , typename ValT  = ndim_type_t&lt;std::vector&lt;T&gt;&gt;&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">std::vector&lt;T&gt;&amp; ndim_resize </td>
@@ -199,7 +199,7 @@ template&lt;typename T , typename ValT  = typename ndim_type&lt;std::vector&lt;T
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The reference to the given vector after resizing. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="vector_8hpp_source.html#l00206">206</a> of file <a class="el" href="vector_8hpp_source.html">vector.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="vector_8hpp_source.html#l00210">210</a> of file <a class="el" href="vector_8hpp_source.html">vector.hpp</a>.</p>
 
 </div>
 </div>
@@ -237,7 +237,7 @@ template&lt;long NDims, typename Rng &gt; </div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The sizes of the given range. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="vector_8hpp_source.html#l00133">133</a> of file <a class="el" href="vector_8hpp_source.html">vector.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="vector_8hpp_source.html#l00137">137</a> of file <a class="el" href="vector_8hpp_source.html">vector.hpp</a>.</p>
 
 </div>
 </div>
@@ -262,7 +262,7 @@ template&lt;typename Rng &gt; </div>
 <p>Calculates the size of a multidimensional range. </p>
 <p>This overload automatically deduces the number of dimension using ndims&lt;Rng&gt;. </p>
 
-<p class="definition">Definition at line <a class="el" href="vector_8hpp_source.html#l00146">146</a> of file <a class="el" href="vector_8hpp_source.html">vector.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="vector_8hpp_source.html#l00150">150</a> of file <a class="el" href="vector_8hpp_source.html">vector.hpp</a>.</p>
 
 </div>
 </div>
@@ -318,7 +318,7 @@ template&lt;typename T , typename Prng  = std::mt19937&amp;, typename Dist  = st
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="vector_8hpp_source.html#l00511">511</a> of file <a class="el" href="vector_8hpp_source.html">vector.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="vector_8hpp_source.html#l00515">515</a> of file <a class="el" href="vector_8hpp_source.html">vector.hpp</a>.</p>
 
 </div>
 </div>
@@ -366,7 +366,7 @@ template&lt;long N, typename Rng &gt; </div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>View (InputRange) of the original range with the given shape. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="vector_8hpp_source.html#l00434">434</a> of file <a class="el" href="vector_8hpp_source.html">vector.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="vector_8hpp_source.html#l00438">438</a> of file <a class="el" href="vector_8hpp_source.html">vector.hpp</a>.</p>
 
 </div>
 </div>
@@ -396,7 +396,7 @@ template&lt;typename Tuple &gt; </div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="vector_8hpp_source.html#l00550">550</a> of file <a class="el" href="vector_8hpp_source.html">vector.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="vector_8hpp_source.html#l00554">554</a> of file <a class="el" href="vector_8hpp_source.html">vector.hpp</a>.</p>
 
 </div>
 </div>
@@ -433,7 +433,7 @@ template&lt;long NDims, typename Rng &gt; </div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The shape of the given range. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="vector_8hpp_source.html#l00281">281</a> of file <a class="el" href="vector_8hpp_source.html">vector.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="vector_8hpp_source.html#l00285">285</a> of file <a class="el" href="vector_8hpp_source.html">vector.hpp</a>.</p>
 
 </div>
 </div>
@@ -458,7 +458,7 @@ template&lt;typename Rng &gt; </div>
 <p>Calculates the shape of a multidimensional range. </p>
 <p>This overload automatically deduces the number of dimension using ndims&lt;Rng&gt;. </p>
 
-<p class="definition">Definition at line <a class="el" href="vector_8hpp_source.html#l00296">296</a> of file <a class="el" href="vector_8hpp_source.html">vector.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="vector_8hpp_source.html#l00300">300</a> of file <a class="el" href="vector_8hpp_source.html">vector.hpp</a>.</p>
 
 </div>
 </div>

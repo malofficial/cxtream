@@ -23,7 +23,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">cxtream
-   &#160;<span id="projectnumber">0.5.0</span>
+   &#160;<span id="projectnumber">0.5.1</span>
    </div>
    <div id="projectbrief">C++17 data pipeline with Python bindings.</div>
   </td>
@@ -85,10 +85,6 @@ Macros</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:ga77b4da8ed09dc9cda9ea7f6aee462eed"><td class="memTemplParams" colspan="2">template&lt;typename... Columns&gt; </td></tr>
-<tr class="memitem:ga77b4da8ed09dc9cda9ea7f6aee462eed"><td class="memTemplItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group___stream.html#ga77b4da8ed09dc9cda9ea7f6aee462eed">cxtream::stream::create</a> (std::size_t batch_size=1)</td></tr>
-<tr class="memdesc:ga77b4da8ed09dc9cda9ea7f6aee462eed"><td class="mdescLeft">&#160;</td><td class="mdescRight">Converts a range to a stream (i.e., to a range of tuples of columns).  <a href="group___stream.html#ga77b4da8ed09dc9cda9ea7f6aee462eed">More...</a><br /></td></tr>
-<tr class="separator:ga77b4da8ed09dc9cda9ea7f6aee462eed"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gaac8eaed8d19679a885d1a98fa2ae1625"><td class="memTemplParams" colspan="2">template&lt;typename... FromColumns, typename... ByColumns, typename Fun , int Dim = 1&gt; </td></tr>
 <tr class="memitem:gaac8eaed8d19679a885d1a98fa2ae1625"><td class="memTemplItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group___stream.html#gaac8eaed8d19679a885d1a98fa2ae1625">cxtream::stream::filter</a> (from_t&lt; FromColumns... &gt; f, by_t&lt; ByColumns... &gt; b, Fun fun, dim_t&lt; Dim &gt; d=dim_t&lt; 1 &gt;{})</td></tr>
 <tr class="memdesc:gaac8eaed8d19679a885d1a98fa2ae1625"><td class="mdescLeft">&#160;</td><td class="mdescRight">Filter stream data.  <a href="group___stream.html#gaac8eaed8d19679a885d1a98fa2ae1625">More...</a><br /></td></tr>
@@ -126,10 +122,14 @@ Variables</h2></td></tr>
 <tr class="memitem:ga817b6ada9087d435e5ab2b4e20e61a4d"><td class="memItemLeft" align="right" valign="top">constexpr ranges::view::view&lt; buffer_fn &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group___stream.html#ga817b6ada9087d435e5ab2b4e20e61a4d">cxtream::stream::buffer</a> {}</td></tr>
 <tr class="memdesc:ga817b6ada9087d435e5ab2b4e20e61a4d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Asynchronously buffers the given range.  <a href="group___stream.html#ga817b6ada9087d435e5ab2b4e20e61a4d">More...</a><br /></td></tr>
 <tr class="separator:ga817b6ada9087d435e5ab2b4e20e61a4d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga063d4d373d785b6c0f20af2de129f853"><td class="memTemplParams" colspan="2">template&lt;typename... Columns&gt; </td></tr>
-<tr class="memitem:ga063d4d373d785b6c0f20af2de129f853"><td class="memTemplItemLeft" align="right" valign="top">auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group___stream.html#ga063d4d373d785b6c0f20af2de129f853">cxtream::stream::drop</a> = drop_fn&lt;Columns...&gt;()</td></tr>
-<tr class="memdesc:ga063d4d373d785b6c0f20af2de129f853"><td class="mdescLeft">&#160;</td><td class="mdescRight">Drops columns from a stream.  <a href="group___stream.html#ga063d4d373d785b6c0f20af2de129f853">More...</a><br /></td></tr>
-<tr class="separator:ga063d4d373d785b6c0f20af2de129f853"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaf6b703d16feb7a57b505f49dc1629404"><td class="memTemplParams" colspan="2">template&lt;typename... Columns&gt; </td></tr>
+<tr class="memitem:gaf6b703d16feb7a57b505f49dc1629404"><td class="memTemplItemLeft" align="right" valign="top">constexpr ranges::view::view&lt; detail::create_fn&lt; Columns... &gt; &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group___stream.html#gaf6b703d16feb7a57b505f49dc1629404">cxtream::stream::create</a> {}</td></tr>
+<tr class="memdesc:gaf6b703d16feb7a57b505f49dc1629404"><td class="mdescLeft">&#160;</td><td class="mdescRight">Converts a range to a stream (i.e., to a range of tuples of columns).  <a href="group___stream.html#gaf6b703d16feb7a57b505f49dc1629404">More...</a><br /></td></tr>
+<tr class="separator:gaf6b703d16feb7a57b505f49dc1629404"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga74ef7093e167fa9346e2f74f03dfeecf"><td class="memTemplParams" colspan="2">template&lt;typename... Columns&gt; </td></tr>
+<tr class="memitem:ga74ef7093e167fa9346e2f74f03dfeecf"><td class="memTemplItemLeft" align="right" valign="top">constexpr ranges::view::view&lt; detail::drop_fn&lt; Columns... &gt; &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group___stream.html#ga74ef7093e167fa9346e2f74f03dfeecf">cxtream::stream::drop</a> {}</td></tr>
+<tr class="memdesc:ga74ef7093e167fa9346e2f74f03dfeecf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Drops columns from a stream.  <a href="group___stream.html#ga74ef7093e167fa9346e2f74f03dfeecf">More...</a><br /></td></tr>
+<tr class="separator:ga74ef7093e167fa9346e2f74f03dfeecf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <h2 class="groupheader">Macro Definition Documentation</h2>
@@ -163,42 +163,11 @@ Variables</h2></td></tr>
 <p>Macro for fast column definition. </p>
 <p>Under the hood, it creates a new type derived from column_base. </p>
 
-<p class="definition">Definition at line <a class="el" href="column_8hpp_source.html#l00087">87</a> of file <a class="el" href="column_8hpp_source.html">column.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="column_8hpp_source.html#l00090">90</a> of file <a class="el" href="column_8hpp_source.html">column.hpp</a>.</p>
 
 </div>
 </div>
 <h2 class="groupheader">Function Documentation</h2>
-<a id="ga77b4da8ed09dc9cda9ea7f6aee462eed"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga77b4da8ed09dc9cda9ea7f6aee462eed">&#9670;&nbsp;</a></span>create()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;typename... Columns&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">constexpr auto cxtream::stream::create </td>
-          <td>(</td>
-          <td class="paramtype">std::size_t&#160;</td>
-          <td class="paramname"><em>batch_size</em> = <code>1</code></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Converts a range to a stream (i.e., to a range of tuples of columns). </p>
-<p>The value type of the input range is supposed to be either the type represented by the column to be created, or a tuple of such types if there are more columns to be created.</p>
-<p>Example: </p><div class="fragment"><div class="line"><a class="code" href="group___stream.html#ga62dc0fa23d7ef87ebbc1e5b9a11ac0a7">CXTREAM_DEFINE_COLUMN</a>(<span class="keywordtype">id</span>, <span class="keywordtype">int</span>)</div><div class="line"><a class="code" href="group___stream.html#ga62dc0fa23d7ef87ebbc1e5b9a11ac0a7">CXTREAM_DEFINE_COLUMN</a>(age, <span class="keywordtype">int</span>)</div><div class="line"></div><div class="line"><span class="comment">// rng is a stream where each batch is a single element from 0..9</span></div><div class="line"><span class="keyword">auto</span> rng = view::iota(0, 10) | create&lt;id&gt;();</div><div class="line"></div><div class="line"><span class="comment">// batched_rng is a stream with a single batch with numbers 0..9</span></div><div class="line"><span class="keyword">auto</span> rng = view::iota(0, 10) | create&lt;id&gt;(50);</div><div class="line"></div><div class="line"><span class="comment">// also multiple columns can be created at once</span></div><div class="line"><span class="keyword">auto</span> rng = view::zip(view::iota(0, 10), view::iota(30, 50)) | create&lt;id, age&gt;();</div></div><!-- fragment --><dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">batch_size</td><td>The requested batch size for the provided data. </td></tr>
-  </table>
-  </dd>
-</dl>
-
-<p class="definition">Definition at line <a class="el" href="create_8hpp_source.html#l00044">44</a> of file <a class="el" href="create_8hpp_source.html">create.hpp</a>.</p>
-
-</div>
-</div>
 <a id="gaac8eaed8d19679a885d1a98fa2ae1625"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#gaac8eaed8d19679a885d1a98fa2ae1625">&#9670;&nbsp;</a></span>filter()</h2>
 
@@ -250,7 +219,7 @@ template&lt;typename... FromColumns, typename... ByColumns, typename Fun , int D
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="filter_8hpp_source.html#l00153">153</a> of file <a class="el" href="filter_8hpp_source.html">filter.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="filter_8hpp_source.html#l00127">127</a> of file <a class="el" href="filter_8hpp_source.html">filter.hpp</a>.</p>
 
 </div>
 </div>
@@ -299,7 +268,7 @@ template&lt;typename... FromColumns, typename Fun , int Dim = 1&gt; </div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="for__each_8hpp_source.html#l00100">100</a> of file <a class="el" href="for__each_8hpp_source.html">for_each.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="for__each_8hpp_source.html#l00059">59</a> of file <a class="el" href="for__each_8hpp_source.html">for_each.hpp</a>.</p>
 
 </div>
 </div>
@@ -364,7 +333,7 @@ template&lt;typename FromColumn , typename ToColumn , typename Prng  = std::mt19
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="random__fill_8hpp_source.html#l00051">51</a> of file <a class="el" href="random__fill_8hpp_source.html">random_fill.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="random__fill_8hpp_source.html#l00082">82</a> of file <a class="el" href="random__fill_8hpp_source.html">random_fill.hpp</a>.</p>
 
 </div>
 </div>
@@ -419,7 +388,7 @@ template&lt;typename... FromColumns, typename... ToColumns, typename Fun , int D
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="transform_8hpp_source.html#l00108">108</a> of file <a class="el" href="transform_8hpp_source.html">transform.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="transform_8hpp_source.html#l00177">177</a> of file <a class="el" href="transform_8hpp_source.html">transform.hpp</a>.</p>
 
 </div>
 </div>
@@ -483,7 +452,7 @@ template&lt;typename... FromColumns, typename... ToColumns, typename CondColumn 
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="transform_8hpp_source.html#l00242">242</a> of file <a class="el" href="transform_8hpp_source.html">transform.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="transform_8hpp_source.html#l00284">284</a> of file <a class="el" href="transform_8hpp_source.html">transform.hpp</a>.</p>
 
 </div>
 </div>
@@ -553,7 +522,7 @@ template&lt;typename... FromColumns, typename... ToColumns, typename Fun , typen
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="transform_8hpp_source.html#l00347">347</a> of file <a class="el" href="transform_8hpp_source.html">transform.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="transform_8hpp_source.html#l00393">393</a> of file <a class="el" href="transform_8hpp_source.html">transform.hpp</a>.</p>
 
 </div>
 </div>
@@ -634,12 +603,12 @@ template&lt;typename Rng , typename... FromColumns, int Dim = 1&gt; </div>
 <p>Asynchronously buffers the given range. </p>
 <p>Asynchronously evaluates the given number of elements in advance. When queried for the next element, it is already prepared. This view works for any range, not only for cxtream streams.</p>
 <div class="fragment"><div class="line">std::vector&lt;int&gt; data = {1, 2, 3, 4, 5};</div><div class="line"><span class="keyword">auto</span> buffered_rng = data</div><div class="line">  | <a class="code" href="group___stream.html#ga9e008212805f649e6991d619b7548a40">ranges::view::transform</a>([](<span class="keywordtype">int</span> v) { <span class="keywordflow">return</span> v + 1; })</div><div class="line">  | <a class="code" href="group___stream.html#ga817b6ada9087d435e5ab2b4e20e61a4d">buffer</a>(2);</div></div><!-- fragment --> 
-<p class="definition">Definition at line <a class="el" href="buffer_8hpp_source.html#l00152">152</a> of file <a class="el" href="buffer_8hpp_source.html">buffer.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="buffer_8hpp_source.html#l00161">161</a> of file <a class="el" href="buffer_8hpp_source.html">buffer.hpp</a>.</p>
 
 </div>
 </div>
-<a id="ga063d4d373d785b6c0f20af2de129f853"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga063d4d373d785b6c0f20af2de129f853">&#9670;&nbsp;</a></span>drop</h2>
+<a id="gaf6b703d16feb7a57b505f49dc1629404"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gaf6b703d16feb7a57b505f49dc1629404">&#9670;&nbsp;</a></span>create</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -647,14 +616,41 @@ template&lt;typename Rng , typename... FromColumns, int Dim = 1&gt; </div>
 template&lt;typename... Columns&gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname">auto cxtream::stream::drop = drop_fn&lt;Columns...&gt;()</td>
+          <td class="memname">constexpr ranges::view::view&lt;detail::create_fn&lt;Columns...&gt; &gt; cxtream::stream::create {}</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Converts a range to a stream (i.e., to a range of tuples of columns). </p>
+<p>The value type of the input range is supposed to be either the type represented by the column to be created, or a tuple of such types if there are more columns to be created.</p>
+<p>Example: </p><div class="fragment"><div class="line"><a class="code" href="group___stream.html#ga62dc0fa23d7ef87ebbc1e5b9a11ac0a7">CXTREAM_DEFINE_COLUMN</a>(<span class="keywordtype">id</span>, <span class="keywordtype">int</span>)</div><div class="line"><a class="code" href="group___stream.html#ga62dc0fa23d7ef87ebbc1e5b9a11ac0a7">CXTREAM_DEFINE_COLUMN</a>(age, <span class="keywordtype">int</span>)</div><div class="line"></div><div class="line"><span class="comment">// rng is a stream where each batch is a single element from 0..9</span></div><div class="line"><span class="keyword">auto</span> rng = view::iota(0, 10) | create&lt;id&gt;();</div><div class="line"></div><div class="line"><span class="comment">// batched_rng is a stream with a single batch with numbers 0..9</span></div><div class="line"><span class="keyword">auto</span> rng = view::iota(0, 10) | create&lt;id&gt;(50);</div><div class="line"></div><div class="line"><span class="comment">// also multiple columns can be created at once</span></div><div class="line"><span class="keyword">auto</span> rng = view::zip(view::iota(0, 10), view::iota(30, 50)) | create&lt;id, age&gt;();</div></div><!-- fragment --><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">batch_size</td><td>The requested batch size for the provided data. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="create_8hpp_source.html#l00089">89</a> of file <a class="el" href="create_8hpp_source.html">create.hpp</a>.</p>
+
+</div>
+</div>
+<a id="ga74ef7093e167fa9346e2f74f03dfeecf"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga74ef7093e167fa9346e2f74f03dfeecf">&#9670;&nbsp;</a></span>drop</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename... Columns&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr ranges::view::view&lt;detail::drop_fn&lt;Columns...&gt; &gt; cxtream::stream::drop {}</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 <p>Drops columns from a stream. </p>
 <p>Example: </p><div class="fragment"><div class="line"><a class="code" href="group___stream.html#ga62dc0fa23d7ef87ebbc1e5b9a11ac0a7">CXTREAM_DEFINE_COLUMN</a>(<span class="keywordtype">id</span>, <span class="keywordtype">int</span>)</div><div class="line"><a class="code" href="group___stream.html#ga62dc0fa23d7ef87ebbc1e5b9a11ac0a7">CXTREAM_DEFINE_COLUMN</a>(value, <span class="keywordtype">double</span>)</div><div class="line">std::vector&lt;std::tuple&lt;int, double&gt;&gt; data = {{3, 5.}, {1, 2.}};</div><div class="line"><span class="keyword">auto</span> rng = data | create&lt;id, value&gt;() | drop&lt;id&gt;;</div></div><!-- fragment --> 
-<p class="definition">Definition at line <a class="el" href="drop_8hpp_source.html#l00038">38</a> of file <a class="el" href="drop_8hpp_source.html">drop.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="drop_8hpp_source.html#l00077">77</a> of file <a class="el" href="drop_8hpp_source.html">drop.hpp</a>.</p>
 
 </div>
 </div>
