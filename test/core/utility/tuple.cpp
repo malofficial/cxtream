@@ -36,6 +36,13 @@ BOOST_AUTO_TEST_CASE(test_variadic_find)
     static_assert(variadic_find<float, int, double, float>::value == 2);
 }
 
+BOOST_AUTO_TEST_CASE(test_maybe_tuple)
+{
+    static_assert(std::is_same<maybe_tuple<int, double>, std::tuple<int, double>>{});
+    static_assert(std::is_same<maybe_tuple<int>, int>{});
+    static_assert(std::is_same<maybe_tuple<>, std::tuple<>>{});
+}
+
 BOOST_AUTO_TEST_CASE(test_plus_index_sequence)
 {
     static_assert(std::is_same<decltype(plus<2>(std::index_sequence<1, 3, 4>{})),
@@ -96,7 +103,7 @@ BOOST_AUTO_TEST_CASE(test_tuple_index_view)
 {
     auto t1 = std::make_tuple(0, 5., 'c');
     auto t2 = tuple_index_view<1, 0>(t1);
-    auto t3 = tuple_index_view<2, 0>(t1);
+    auto t3 = tuple_index_view(t1, std::index_sequence<2, 0>{});
     static_assert(std::is_same<std::tuple<char&, int&>, decltype(t3)>{});
     BOOST_TEST(t2 == std::make_tuple(5., 0));
     BOOST_TEST(t2 == std::make_tuple(5., 0));
@@ -486,6 +493,47 @@ BOOST_AUTO_TEST_CASE(test_unzip_if_move_only)
     for (std::size_t i = 0; i < 3; ++i) {
         BOOST_TEST(*vc[i] == (int)i + 5);
     }
+}
+
+BOOST_AUTO_TEST_CASE(test_maybe_untuple)
+{
+    std::tuple<int, double> t1{1, 3.};
+    auto t2 = maybe_untuple(t1);
+    static_assert(std::is_same<decltype(t2), std::tuple<int, double>>{});
+
+    std::tuple<int> t3{1};
+    auto t4 = maybe_untuple(t3);
+    static_assert(std::is_same<decltype(t4), int>{});
+ 
+    int i = 1;
+    std::tuple<int&> t5{i};
+    auto& t6 = maybe_untuple(t5);
+    static_assert(std::is_same<decltype(t6), int&>{});
+    t6 = 2;
+    BOOST_TEST(i == 2);
+
+    std::tuple<int&, int&> t7{i, i};
+    auto t8 = maybe_untuple(t7);
+    static_assert(std::is_same<decltype(t8), std::tuple<int&, int&>>{});
+    ++std::get<0>(t8);
+    ++std::get<1>(t8);
+    BOOST_TEST(i == 4);
+}
+
+BOOST_AUTO_TEST_CASE(test_maybe_untuple_move_only)
+{
+    std::tuple<std::unique_ptr<int>> t1{std::make_unique<int>(1)};
+    auto t2 = maybe_untuple(std::move(t1));
+    static_assert(std::is_same<decltype(t2), std::unique_ptr<int>>{});
+    BOOST_TEST(*t2 == 1);
+
+    std::tuple<std::unique_ptr<int>, std::shared_ptr<int>>
+      t3{std::make_unique<int>(1), std::make_shared<int>(2)};
+    auto t4 = maybe_untuple(std::move(t3));
+    static_assert(std::is_same<decltype(t4),
+      std::tuple<std::unique_ptr<int>, std::shared_ptr<int>>>{});
+    BOOST_TEST(*std::get<0>(t4) == 1);
+    BOOST_TEST(std::get<1>(t4).use_count() == 1);
 }
 
 BOOST_AUTO_TEST_CASE(test_range_to_tuple)

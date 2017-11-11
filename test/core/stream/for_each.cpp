@@ -26,40 +26,6 @@
 
 using namespace cxtream::stream;
 
-BOOST_AUTO_TEST_CASE(test_partial_for_each)
-{
-    // partial_for_each
-    std::vector<int> generated;
-  
-    ranges::view::iota(1, 5)
-      | ranges::view::transform(std::make_tuple<int>)
-      | partial_for_each(from<int>, [&generated](const std::tuple<int> &t) {
-            generated.push_back(std::get<0>(t));
-            return 42;
-        })
-      | ranges::to_vector;
-  
-    test_ranges_equal(generated, ranges::view::iota(1, 5));
-}
-
-BOOST_AUTO_TEST_CASE(test_partial_for_each_move_only)
-{
-    // partial_for_each of a move-only column
-    std::vector<int> generated;
-  
-    ranges::view::iota(1, 5)
-      | ranges::view::transform([](int i) {
-            return std::make_tuple(std::make_unique<int>(i));
-        })
-      | partial_for_each(from<std::unique_ptr<int>>,
-          [&generated](const std::tuple<std::unique_ptr<int>&>& t) {
-              generated.push_back(*std::get<0>(t));
-        })
-      | ranges::to_vector;
-  
-    test_ranges_equal(generated, ranges::view::iota(1, 5));
-}
-
 BOOST_AUTO_TEST_CASE(test_for_each_of_two)
 {
     // for_each of two columns
@@ -76,7 +42,6 @@ BOOST_AUTO_TEST_CASE(test_for_each_of_two)
 
 BOOST_AUTO_TEST_CASE(test_for_each_mutable)
 {
-#ifdef CXTREAM_MUTABLE_LAMBDA
     std::vector<std::tuple<Int>> data = {{{1, 3}}, {{5, 7}}};
     struct {
         int i = 0;
@@ -87,10 +52,7 @@ BOOST_AUTO_TEST_CASE(test_for_each_mutable)
     auto generated = data
       | for_each(from<Int>, func)
       | ranges::to_vector;
-    BOOST_TEST(*(func.i_ptr) == 2);
-#else
-    BOOST_TEST_MESSAGE("Cxtream does not support mutable lambdas in this compiler version.");
-#endif
+    BOOST_TEST(*(func.i_ptr) == 4);
 }
 
 BOOST_AUTO_TEST_CASE(test_for_each_move_only)
@@ -151,7 +113,6 @@ BOOST_AUTO_TEST_CASE(test_for_each_dim2_move_only)
 
 BOOST_AUTO_TEST_CASE(test_for_each_dim2_move_only_mutable)
 {
-#ifdef CXTREAM_MUTABLE_LAMBDA
     auto data = generate_move_only_data();
 
     std::vector<int> generated;
@@ -164,9 +125,6 @@ BOOST_AUTO_TEST_CASE(test_for_each_dim2_move_only_mutable)
           }, dim<2>)
       | ranges::to_vector;
 
-    std::vector<int> desired = {4, 5, 4, 5, 4, 5};
+    std::vector<int> desired = {4, 5, 6, 7, 8, 9};
     BOOST_CHECK(generated == desired);
-#else
-    BOOST_TEST_MESSAGE("Cxtream does not support mutable lambdas in this compiler version.");
-#endif
 }

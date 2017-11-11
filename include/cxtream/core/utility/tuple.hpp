@@ -45,6 +45,28 @@ struct variadic_find<T, T, Ts...> : std::integral_constant<std::size_t, 0> {
 };
 
 /// \ingroup Tuple
+/// \brief Wrap variadic template pack in a tuple if there is more than one type.
+///
+/// Example:
+/// \code
+///     static_assert(std::is_same_v<maybe_tuple<int, double>, std::tuple<int, double>>);
+///     static_assert(std::is_same_v<maybe_tuple<int>, int>);
+///     static_assert(std::is_same_v<maybe_tuple<>, std::tuple<>>);
+/// \endcode
+template<std::size_t N, typename... Ts>
+struct maybe_tuple_impl {
+    using type = std::tuple<Ts...>;
+};
+
+template<typename T>
+struct maybe_tuple_impl<1, T> {
+    using type = T;
+};
+
+template<typename... Ts>
+using maybe_tuple = typename maybe_tuple_impl<sizeof...(Ts), Ts...>::type;
+
+/// \ingroup Tuple
 /// \brief Add a number to all values in std::index_sequence.
 ///
 /// Example:
@@ -173,16 +195,84 @@ constexpr auto tuple_type_view(Tuple& tuple)
 /// \code
 ///     auto tpl = std::make_tuple(0, 5., 'c');
 ///     auto subtpl = tuple_index_view<2, 0>(t1);
+///     // or equivalently: auto subtpl = tuple_index_view(t1, std::index_sequence<2, 0>{});
 ///     static_assert(std::is_same<std::tuple<char&, int&>, decltype(subtpl)>{});
 ///     assert(subtpl == std::tuple<char, int>{'c', 0});
 /// \endcode
 ///
 /// \returns The view of the original tuple.
 template<std::size_t... Idxs, typename Tuple>
-constexpr auto tuple_index_view(Tuple& tuple)
+constexpr auto tuple_index_view(Tuple& tuple, std::index_sequence<Idxs...> = {})
 {
     return std::make_tuple(std::ref(std::get<Idxs>(tuple))...);
 }
+
+// tuple cat unique //
+
+namespace detail {
+
+    // This finds the indices of the first elements of each unique type in
+    // a tuple. E.g, for tuple<int, double, int, char, double>, the
+    // unique_indices class inherits from std::index_sequence<0, 1, 3>
+    //
+    // This implementation is sligthly faster than the previous one
+    // which was using boost::hana.
+    template<typename Tuple,
+             typename Known = std::tuple<>,
+             typename Is = std::index_sequence<>,
+             std::size_t I = 0,
+             bool In = tuple_contains<std::tuple_element_t<0, Tuple>, Known>::value>
+    struct unique_indices_impl;
+
+    template<typename THead1, typename THead2, typename... TTail, typename... Types,
+             std::size_t... Is, std::size_t I>
+    struct unique_indices_impl<std::tuple<THead1, THead2, TTail...>, std::tuple<Types...>,
+                               std::index_sequence<Is...>, I, true>
+      : unique_indices_impl<std::tuple<THead2, TTail...>, std::tuple<Types...>,
+                            std::index_sequence<Is...>, I + 1>
+    { };
+
+    template<typename THead1, typename THead2, typename... TTail, typename... Types,
+             std::size_t... Is, std::size_t I>
+    struct unique_indices_impl<std::tuple<THead1, THead2, TTail...>, std::tuple<Types...>,
+                               std::index_sequence<Is...>, I, false>
+      : unique_indices_impl<std::tuple<THead2, TTail...>, std::tuple<THead1, Types...>,
+                            std::index_sequence<Is..., I>, I + 1>
+    { };
+
+    template<typename THead, typename Known, std::size_t... Is, std::size_t I>
+    struct unique_indices_impl<std::tuple<THead>, Known, std::index_sequence<Is...>, I, false>
+      : std::index_sequence<Is..., I>
+    { };
+
+    template<typename THead, typename Known, std::size_t... Is, std::size_t I>
+    struct unique_indices_impl<std::tuple<THead>, Known, std::index_sequence<Is...>, I, true>
+      : std::index_sequence<Is...>
+    { };
+
+    template<typename Tuple>
+    struct unique_indices
+      : unique_indices_impl<Tuple>
+    { };
+
+    template<>
+    struct unique_indices<std::tuple<>>
+      : std::index_sequence<>
+    { };
+
+    template<std::size_t... Idxs, typename Tuple>
+    constexpr auto make_tuple_by_idxs(Tuple&& tuple, std::index_sequence<Idxs...> = {})
+    {
+        return std::make_tuple(std::get<Idxs>(std::forward<Tuple>(tuple))...);
+    }
+
+    template<typename Tuple>
+    constexpr auto make_unique_tuple(Tuple tuple)
+    {
+        return detail::make_tuple_by_idxs(std::move(tuple), unique_indices<Tuple>{});
+    }
+
+}  // namespace detail
 
 /// \ingroup Tuple
 /// \brief Concatenate two tuples and keep only the first element of each type.
@@ -200,12 +290,8 @@ constexpr auto tuple_index_view(Tuple& tuple)
 template <typename... Tuples>
 constexpr auto tuple_cat_unique(Tuples&&... tuples)
 {
-    auto values = std::tuple_cat(std::forward<Tuples>(tuples)...);
-    auto type_value_pairs = boost::hana::transform(std::move(values), [](auto v) {
-        return boost::hana::make_pair(boost::hana::type_c<decltype(v)>, std::move(v));
-    });
-    auto map = boost::hana::to_map(std::move(type_value_pairs));
-    return boost::hana::to<boost::hana::ext::std::tuple_tag>(boost::hana::values(std::move(map)));
+    auto all = std::tuple_cat(std::forward<Tuples>(tuples)...);
+    return detail::make_unique_tuple(std::move(all));
 }
 
 /// \ingroup Tuple
@@ -382,6 +468,61 @@ template<bool Enable, typename RangeT>
 decltype(auto) unzip_if(RangeT&& range)
 {
     return detail::unzip_if_impl<Enable>::impl(std::forward<RangeT>(range));
+}
+
+// maybe untuple //
+
+namespace detail {
+
+    template<std::size_t Size>
+    struct maybe_untuple_impl
+    {
+        template<typename Tuple>
+        static Tuple&& impl(Tuple&& tuple)
+        {
+            return std::forward<Tuple>(tuple);
+        }
+    };
+
+    template<>
+    struct maybe_untuple_impl<1>
+    {
+        template<typename Tuple>
+        static decltype(auto) impl(Tuple&& tuple)
+        {
+            return std::get<0>(std::forward<Tuple>(tuple));
+        }
+    };
+
+}  // namespace detail
+
+/// \ingroup Tuple
+/// \brief Extract a value from a tuple if the tuple contains only a single value.
+///
+/// If the tuple contains zero or more than one element, this is an identity.
+///
+/// Example:
+/// \code
+///     std::tuple<int, double> t1{1, 3.};
+///     auto t2 = maybe_untuple(t1);
+///     static_assert(std::is_same_v<decltype(t2), std::tuple<int, double>>);
+/// 
+///     std::tuple<int> t3{1};
+///     auto t4 = maybe_untuple(t3);
+///     static_assert(std::is_same_v<decltype(t4), int>);
+///  
+///     int i = 1;
+///     std::tuple<int&> t5{i};
+///     auto& t6 = maybe_untuple(t5);
+///     static_assert(std::is_same_v<decltype(t6), int&>);
+///     t6 = 2;
+///     BOOST_TEST(i == 2);
+/// \endcode
+template<typename Tuple>
+decltype(auto) maybe_untuple(Tuple&& tuple)
+{
+    constexpr std::size_t tuple_size = std::tuple_size<std::decay_t<Tuple>>::value;
+    return detail::maybe_untuple_impl<tuple_size>::impl(std::forward<Tuple>(tuple));
 }
 
 // range to tuple //
