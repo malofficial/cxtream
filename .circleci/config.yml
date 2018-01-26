@@ -81,7 +81,7 @@ jobs:
 
   test_archlinux_gcc:
     docker:
-      - image: pritunl/archlinux:2017-07-08
+      - image: pritunl/archlinux:2018-01-20
     working_directory: ~/cxtream
     steps:
       - *arch_deps
@@ -90,9 +90,20 @@ jobs:
       - *build_by_gcc
       - *test
 
-  test_ubuntu16.10_gcc:
+  test_archlinux_clang:
     docker:
-      - image: ubuntu:16.10
+      - image: pritunl/archlinux:2018-01-20
+    working_directory: ~/cxtream
+    steps:
+      - *arch_deps
+      - checkout
+      - *update_submodules
+      - *build_by_clang
+      - *test
+
+  test_ubuntu_rolling_gcc:
+    docker:
+      - image: ubuntu:rolling
     working_directory: ~/cxtream
     steps:
       - *ubuntu_deps
@@ -101,9 +112,9 @@ jobs:
       - *build_by_gcc
       - *test
 
-  test_ubuntu16.10_gcc_tf_static:
+  test_ubuntu_rolling_gcc_tf_static:
     docker:
-      - image: ubuntu:16.10
+      - image: ubuntu:rolling
     working_directory: ~/cxtream
     steps:
       - *ubuntu_deps
@@ -115,9 +126,9 @@ jobs:
       - *build_with_tf_static
       - *test
 
-  test_ubuntu17.04_clang:
+  test_ubuntu_rolling_clang:
     docker:
-      - image: ubuntu:17.04
+      - image: ubuntu:rolling
     working_directory: ~/cxtream
     steps:
       - *ubuntu_deps
@@ -132,10 +143,13 @@ workflows:
   test-matrix:
     jobs:
       - test_archlinux_gcc
-      - test_ubuntu16.10_gcc
-      - test_ubuntu17.04_clang
-
+      - test_archlinux_clang
+      - test_ubuntu_rolling_gcc
+      # TODO: Ubuntu 17.10 has a version of clang unable to
+      # parse libstdc++ deduction guides. Do not test clang on 17.10.
+      # TODO: Ubuntu devel is not ready yet and things like installation of
+      # packages sometimes fails. Add it when it is ready.
       # TODO: It would be convenient to test cxtream::tensorflow as well, but
       # TensorFlow cannot be compiled in the current CircleCI limits. If those
       # increase, uncomment the following:
-      # - test_ubuntu16.10_gcc_tf_static
+      # - test_ubuntu_rolling_gcc_tf_static
