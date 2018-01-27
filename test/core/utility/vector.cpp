@@ -119,22 +119,32 @@ BOOST_AUTO_TEST_CASE(test_ndim_resize)
 
     std::vector<int> vec5_desired = {7, 8, 9, 1, 1};
     std::vector<std::vector<int>> vec3231_desired = {{1, 1}, {3, 4, 2}, {2}};
-    std::vector<std::vector<std::vector<int>>> vec3302_desired = {
+    std::vector<std::list<std::vector<int>>> vec3302_desired = {
       {{0, 0, 0, 0}, {0, 0, 0}, {0, 0}},
       {},
       {{0}, {}}
     };
-    std::vector<std::vector<std::vector<int>>> vec200_desired = {{}, {}};
+    std::list<std::vector<std::vector<int>>> vec200_desired = {{}, {}};
 
     std::vector<int> vec5 = {7, 8, 9};
     std::vector<std::vector<int>> vec3231 = {{1, 1, 1}, {3, 4}};
-    std::vector<std::vector<std::vector<int>>> vec3302;
-    std::vector<std::vector<std::vector<int>>> vec200;
+    std::vector<std::list<std::vector<int>>> vec3302;
+    std::list<std::vector<std::vector<int>>> vec200;
 
     BOOST_CHECK(ndim_resize(vec5, vec5_size, 1) == vec5_desired);
     BOOST_CHECK(ndim_resize(vec3231, vec3231_size, 2) == vec3231_desired);
     BOOST_CHECK(ndim_resize(vec3302, vec3302_size) == vec3302_desired);
     BOOST_CHECK(ndim_resize(vec200, vec200_size, 3) == vec200_desired);
+
+    // check also size vectors shorter than the number of dims
+    vec3231 = {{1, 1, 1}, {3, 4}};
+    vec3302 = {};
+    vec3231_desired = {{1, 1, 1}, {3, 4}, {7}};
+    vec3302_desired = {{{7, 3}, {2}}, {{7, 3}, {2}}};
+    BOOST_CHECK((ndim_resize(vec3231, {{3}}, std::vector<int>{7})
+                  == vec3231_desired));
+    BOOST_CHECK((ndim_resize(vec3302, {{2}}, std::list<std::vector<int>>{{7, 3}, {2}})
+                  == vec3302_desired));
 }
 
 BOOST_AUTO_TEST_CASE(test_flatten)
@@ -292,6 +302,19 @@ BOOST_AUTO_TEST_CASE(test_generate)
     BOOST_CHECK((data == DataType{{{0, 0, 0}, {1}}, {{}, {}}, {{4}, {5, 5}}}));
     generate(data, gen{}, 3);
     BOOST_CHECK((data == DataType{{{0, 1, 2}, {3}}, {{}, {}}, {{4}, {5, 6}}}));
+}
+
+BOOST_AUTO_TEST_CASE(test_generate_cut_dim)
+{
+    using DataType = std::list<std::vector<int>>;
+    DataType data = {{-1, -1, -1}, {}, {-1, -1, -1}};
+    generate<1>(data, [i = 0]() mutable { return std::vector<int>(2, i++); }, 0);
+    BOOST_CHECK((data == DataType{{0, 0}, {0, 0}, {0, 0}}));
+    generate<1>(data, [i = 0]() mutable { return std::vector<int>(2, i++); }, 1);
+    BOOST_CHECK((data == DataType{{0, 0}, {1, 1}, {2, 2}}));
+    // also check whether dimension deduction works for generators generating ranges
+    generate(data, [i = 5]() mutable { return std::vector<int>(2, i++); }, 1);
+    BOOST_CHECK((data == DataType{{5, 5}, {6, 6}, {7, 7}}));
 }
 
 BOOST_AUTO_TEST_CASE(test_random_fill_1d)

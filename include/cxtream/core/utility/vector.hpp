@@ -29,6 +29,7 @@
 #include <memory>
 #include <random>
 #include <type_traits>
+#include <utility>
 #include <vector>
 
 namespace cxtream::utility {
@@ -152,48 +153,44 @@ std::vector<std::vector<long>> ndim_size(const Rng& rng)
     return utility::ndim_size<ndims<Rng>{}>(rng);
 }
 
-// multidimensional std::vector resize //
+// multidimensional range resize //
 
 namespace detail {
 
-    template<typename T, long Dim>
+    template<long Dim, long NDims>
     struct ndim_resize_impl {
-    };
-
-    template<typename T, long Dim>
-    struct ndim_resize_impl<std::vector<T>, Dim> {
-        template<typename ValT>
-        static void impl(std::vector<T>& vec,
+        template<typename Rng, typename ValT>
+        static void impl(Rng& vec,
                          const std::vector<std::vector<long>>& vec_size,
                          std::vector<long>& vec_size_idx,
                          const ValT& val)
         {
-            vec.resize(vec_size[Dim][vec_size_idx[Dim]++], val);
+            vec.resize(vec_size[Dim-1][vec_size_idx[Dim-1]++]);
+            for (auto& subvec : vec) {
+                ndim_resize_impl<Dim+1, NDims>::impl(subvec, vec_size, vec_size_idx, val);
+            }
         }
     };
 
-    template<typename T, long Dim>
-    struct ndim_resize_impl<std::vector<std::vector<T>>, Dim> {
-        template<typename ValT>
-        static void impl(std::vector<std::vector<T>>& vec,
+    template<long Dim>
+    struct ndim_resize_impl<Dim, Dim> {
+        template<typename Rng, typename ValT>
+        static void impl(Rng& vec,
                          const std::vector<std::vector<long>>& vec_size,
                          std::vector<long>& vec_size_idx,
                          const ValT& val)
         {
-            vec.resize(vec_size[Dim][vec_size_idx[Dim]++]);
-            for (auto& subvec : vec) {
-                ndim_resize_impl<std::vector<T>, Dim+1>::impl(subvec, vec_size, vec_size_idx, val);
-            }
+            vec.resize(vec_size[Dim-1][vec_size_idx[Dim-1]++], val);
         }
     };
 
 }  // namespace detail
 
 /// \ingroup Vector
-/// \brief Resizes a multidimensional std::vector to the given size.
+/// \brief Resizes a multidimensional range to the given size.
 ///
-/// i-th element of the given size vector are the sizes of the vectors in the i-th dimension.
-/// See ndim_size.
+/// i-th element of the given size vector are the sizes of the ranges in the i-th dimension.
+/// See ndim_size. The range has to support `.resize()` method up to the given dimension.
 ///
 /// Example:
 /// \code
@@ -202,25 +199,37 @@ namespace detail {
 ///     // vec == {{2, 2, 2}, {2}};
 /// \endcode
 ///
-/// \param vec The vector to be resized.
+/// \param vec The range to be resized.
 /// \param vec_size The requested size created by ndim_size.
 /// \param val The value to pad with.
+/// \tparam NDims The number of dimensions to be considered.
+///               If omitted, it defaults to ndims<Rng> - ndims<ValT>.
 /// \returns The reference to the given vector after resizing.
-template<typename T, typename ValT = ndim_type_t<std::vector<T>>>
-std::vector<T>& ndim_resize(std::vector<T>& vec,
-                            const std::vector<std::vector<long>>& vec_size,
-                            ValT val = ValT{})
+template<long NDims, typename Rng, typename ValT = ndim_type_t<Rng, NDims>>
+Rng& ndim_resize(Rng& vec,
+                 const std::vector<std::vector<long>>& vec_size,
+                 ValT val = ValT{})
 {
     // check that the size is valid
-    assert(vec_size.size() == ndims<std::vector<T>>{});
+    assert(vec_size.size() == NDims);
+    static_assert(NDims <= ndims<Rng>{} - ndims<ValT>{});
     for (std::size_t i = 1; i < vec_size.size(); ++i) {
         assert(vec_size[i].size() == ranges::accumulate(vec_size[i-1], 0UL));
     }
     // build initial indices
     std::vector<long> vec_size_idx(vec_size.size());
     // recursively resize
-    detail::ndim_resize_impl<std::vector<T>, 0>::impl(vec, vec_size, vec_size_idx, val);
+    detail::ndim_resize_impl<1, NDims>::impl(vec, vec_size, vec_size_idx, val);
     return vec;
+}
+
+/// A specialization which automatically deduces the number of dimensions.
+template<typename Rng, typename ValT = ndim_type_t<Rng>>
+Rng& ndim_resize(Rng& vec,
+                 const std::vector<std::vector<long>>& vec_size,
+                 ValT val = ValT{})
+{
+    return ndim_resize<ndims<Rng>{}-ndims<ValT>{}>(vec, vec_size, std::move(val));
 }
 
 // multidimensional range shape //
@@ -359,7 +368,7 @@ auto flat_view(const Rng& rng)
     return rng | detail::flat_view_impl<NDims>::impl();
 }
 
-/// flat_view specialization with automatically deduced number of dimensions.
+/// flat_view specialization which automatically deduced number of dimensions.
 template<typename Rng>
 auto flat_view(Rng&& rng)
 {
@@ -451,40 +460,36 @@ auto reshaped_view(const Rng& rng, std::vector<long> shape)
 
 namespace detail {
 
-    template<typename T, long Dim>
+    template<long Dim, long NDims>
     struct generate_impl {
-    };
-
-    template<typename T, long Dim>
-    struct generate_impl<std::vector<T>, Dim> {
-        template<typename Gen>
-        static void impl(std::vector<T>& vec, Gen& gen, long ndims)
+        template<typename Rng, typename Gen>
+        static void impl(Rng& rng, Gen& gen, long gendims)
         {
-            if (Dim >= ndims) ranges::fill(vec, std::invoke(gen));
-            else for (auto& val : vec) val = std::invoke(gen);
+            if (Dim > gendims) {
+                auto val = std::invoke(gen);
+                for (auto& elem : flat_view<NDims-Dim+1>(rng)) elem = val;
+            } else {
+                for (auto& subrng : rng) {
+                    detail::generate_impl<Dim+1, NDims>::impl(subrng, gen, gendims);
+                }
+            }
         }
     };
 
-    template<typename T, long Dim>
-    struct generate_impl<std::vector<std::vector<T>>, Dim> {
-        template<typename Gen>
-        static void impl(std::vector<std::vector<T>>& vec, Gen& gen, long ndims)
+    template<long Dim>
+    struct generate_impl<Dim, Dim> {
+        template<typename Rng, typename Gen>
+        static void impl(Rng& rng, Gen& gen, long gendims)
         {
-            if (Dim >= ndims) {
-                auto val = std::invoke(gen);
-                for (auto& elem : flat_view(vec)) elem = val;
-            } else {
-                for (auto& subvec : vec) {
-                    detail::generate_impl<std::vector<T>, Dim+1>::impl(subvec, gen, ndims);
-                }
-            }
+            if (Dim > gendims) ranges::fill(rng, std::invoke(gen));
+            else for (auto& val : rng) val = std::invoke(gen);
         }
     };
 
 }  // namespace detail
 
 /// \ingroup Vector
-/// \brief Fill a multidimensional std::vector with values generated by a nullary function.
+/// \brief Fill a multidimensional range with values generated by a nullary function.
 ///
 /// If the vector is multidimensional, the generator will be used only up to the
 /// given dimension and the rest of the dimensions will be constant.
@@ -517,24 +522,38 @@ namespace detail {
 ///     // data == {{{0, 1, 2}, {3}}, {{}, {}}, {{4}, {5, 6}}};
 /// \endcode
 ///
-/// \param vec The vector to be filled.
+/// \param rng The range to be filled.
 /// \param gen The generator to be used.
-/// \param ndims The generator will be used only for this number of dimension. The
-///              rest of the dimensions will be filled by the last generated value.
-///              Use std::numeric_limits<long>::max() to fill all the dimensions using
-///              the generator.
-template<typename T, typename Gen>
-constexpr void generate(std::vector<T>& vec,
+/// \param gendims The generator will be used only for this number of dimension. The
+///                rest of the dimensions will be filled by the last generated value.
+///                Use std::numeric_limits<long>::max() to fill all the dimensions using
+///                the generator.
+/// \tparam NDims The number of dimensions to which will the fill routine recurse.
+///               Elements after this dimension are considered to be units (even if
+///               they are ranges). If omitted, it defaults to ndims<Rng> - ndims<gen()>.
+template<long NDims, typename Rng, typename Gen>
+constexpr void generate(Rng&& rng,
                         Gen&& gen,
-                        long ndims = std::numeric_limits<long>::max())
+                        long gendims = std::numeric_limits<long>::max())
 {
-    detail::generate_impl<std::vector<T>, 0>::impl(vec, gen, ndims);
+    static_assert(NDims > 0);
+    detail::generate_impl<1, NDims>::impl(rng, gen, gendims);
+}
+
+/// A specialization which automatically deduces the number of dimensions.
+template<typename Rng, typename Gen>
+constexpr void generate(Rng&& rng,
+                        Gen&& gen,
+                        long gendims = std::numeric_limits<long>::max())
+{
+    using GenT = std::result_of_t<Gen()>;
+    detail::generate_impl<1, ndims<Rng>{}-ndims<GenT>{}>::impl(rng, gen, gendims);
 }
 
 /// \ingroup Vector
-/// \brief Fill a multidimensional std::vector with random values.
+/// \brief Fill a multidimensional range with random values.
 ///
-/// If the vector is multidimensional, the random generator will be used only up to the
+/// If the range is multidimensional, the random generator will be used only up to the
 /// given dimension and the rest of the dimensions will be constant.
 ///
 /// Note: This function internally uses \ref utility::generate().
@@ -557,18 +576,36 @@ constexpr void generate(std::vector<T>& vec,
 /// \param vec The vector to be filled.
 /// \param dist The distribution to be used.
 /// \param prng The random generator to be used.
-/// \param ndims The random generator will be used only for this number of dimension. The
-///              rest of the dimensions will be filled by the last generated value.
-///              Use std::numeric_limits<long>::max() to randomly fill all the dimensions.
-template<typename T, typename Prng = std::mt19937&,
+/// \param gendims The random generator will be used only for this number of dimension. The
+///                rest of the dimensions will be filled by the last generated value.
+///                Use std::numeric_limits<long>::max() to randomly fill all the dimensions.
+/// \tparam NDims The number of dimensions to which will the fill routine recurse.
+///               Elements after this dimension are considered to be units (even if
+///               they are ranges). If omitted, it defaults to ndims<Rng> - ndims<dist(prng)>.
+template<long NDims,
+         typename Rng,
+         typename Prng = std::mt19937&,
          typename Dist = std::uniform_real_distribution<double>>
-constexpr void random_fill(std::vector<T>& vec,
+constexpr void random_fill(Rng&& rng,
                            Dist&& dist = Dist{0, 1},
                            Prng&& prng = utility::random_generator,
-                           long ndims = std::numeric_limits<long>::max())
+                           long gendims = std::numeric_limits<long>::max())
 {
     auto gen = [&dist, &prng]() { return std::invoke(dist, prng); };
-    utility::generate(vec, std::move(gen), ndims);
+    utility::generate<NDims>(std::forward<Rng>(rng), std::move(gen), gendims);
+}
+
+/// A specialization which automatically deduces the number of dimensions.
+template<typename Rng,
+         typename Prng = std::mt19937&,
+         typename Dist = std::uniform_real_distribution<double>>
+constexpr void random_fill(Rng&& rng,
+                           Dist&& dist = Dist{0, 1},
+                           Prng&& prng = utility::random_generator,
+                           long gendims = std::numeric_limits<long>::max())
+{
+    auto gen = [&dist, &prng]() { return std::invoke(dist, prng); };
+    utility::generate(std::forward<Rng>(rng), std::move(gen), gendims);
 }
 
 namespace detail {
