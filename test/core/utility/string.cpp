@@ -14,6 +14,7 @@
 
 #include <boost/test/unit_test.hpp>
 
+#include <experimental/filesystem>
 #include <string>
 #include <type_traits>
 #include <vector>
@@ -30,18 +31,38 @@ BOOST_AUTO_TEST_CASE(test_string_to__string)
     BOOST_TEST(str2 == "test");
 }
 
+BOOST_AUTO_TEST_CASE(test_string_to__path)
+{
+    namespace fs = std::experimental::filesystem;
+    auto p1 = fs::path{"ro ot"} / "this is folder" / "my file.txt";
+    std::string str1 = p1.string();
+    auto p2 = string_to<fs::path>(str1);
+    static_assert(std::is_same<fs::path, decltype(p2)>{});
+    BOOST_TEST(p2 == p1);
+}
+
 BOOST_AUTO_TEST_CASE(test_string_to__float)
 {
     std::string str = "0.25";
     auto flt = string_to<float>(str);
     static_assert(std::is_same<float, decltype(flt)>{});
     BOOST_TEST(flt == 0.25);
+    BOOST_CHECK_THROW(string_to<float>("0,25"), std::ios_base::failure);
 }
 
-BOOST_AUTO_TEST_CASE(test_string_to__float_exc)
+BOOST_AUTO_TEST_CASE(test_string_to__bool)
 {
-    std::string str = "0,25";
-    BOOST_CHECK_THROW(string_to<float>(str), std::ios_base::failure);
+    // check correct type
+    auto b = string_to<bool>("false");
+    static_assert(std::is_same<bool, decltype(b)>{});
+    // check all recognized values
+    for (const std::string& y : detail::true_set) BOOST_TEST(string_to<bool>(y) == true);
+    for (const std::string& n : detail::false_set) BOOST_TEST(string_to<bool>(n) == false);
+    // check some unrecognized values
+    BOOST_CHECK_THROW(string_to<bool>("trUe"), std::ios_base::failure);
+    BOOST_CHECK_THROW(string_to<bool>("fAlse"), std::ios_base::failure);
+    BOOST_CHECK_THROW(string_to<bool>("abc"), std::ios_base::failure);
+    BOOST_CHECK_THROW(string_to<bool>("2"), std::ios_base::failure);
 }
 
 BOOST_AUTO_TEST_CASE(test_string__to_string)
@@ -54,6 +75,15 @@ BOOST_AUTO_TEST_CASE(test_string__to_string)
     BOOST_TEST(str2 == "test");
 }
 
+BOOST_AUTO_TEST_CASE(test_path__to_string)
+{
+    namespace fs = std::experimental::filesystem;
+    auto p1 = fs::path{"rooty root"} / "this is folder" / "nice file .csv";
+    auto str = to_string(std::move(p1));
+    static_assert(std::is_same<std::string, decltype(str)>{});
+    BOOST_TEST(fs::path{str} == p1);
+}
+
 BOOST_AUTO_TEST_CASE(test_float__to_string)
 {
     float flt = 0.25;
@@ -62,14 +92,18 @@ BOOST_AUTO_TEST_CASE(test_float__to_string)
     BOOST_TEST(std::stof(str) == 0.25);
 }
 
-BOOST_AUTO_TEST_CASE(test_trim)
+BOOST_AUTO_TEST_CASE(test_const_char_ptr__to_string)
 {
-    BOOST_TEST(trim("") == "");
-    BOOST_TEST(trim(" \t\n\t  ") == "");
-    BOOST_TEST(trim("hello") == "hello");
-    BOOST_TEST(trim(" hello") == "hello");
-    BOOST_TEST(trim("hello ") == "hello");
-    BOOST_TEST(trim(" hello ") == "hello");
-    BOOST_TEST(trim("\t\n hello\n\t ") == "hello");
-    BOOST_TEST(trim("\t\t\n\n   hello \t\t\n\n  ") == "hello");
+    const char* c_str = "C madness";
+    auto str = to_string(c_str);
+    static_assert(std::is_same<std::string, decltype(str)>{});
+    BOOST_TEST(str == c_str);
+}
+
+BOOST_AUTO_TEST_CASE(test_bool__to_string)
+{
+    auto str = to_string(true);
+    static_assert(std::is_same<std::string, decltype(str)>{});
+    BOOST_TEST(to_string(true) == "true");
+    BOOST_TEST(to_string(false) == "false");
 }

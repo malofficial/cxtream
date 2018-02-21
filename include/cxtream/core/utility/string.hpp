@@ -11,10 +11,13 @@
 #ifndef CXTREAM_CORE_UTILITY_STRING_HPP
 #define CXTREAM_CORE_UTILITY_STRING_HPP
 
+#include <boost/lexical_cast.hpp>
 #include <range/v3/view/transform.hpp>
 
 #include <algorithm>
 #include <locale>
+#include <experimental/filesystem>
+#include <set>
 #include <sstream>
 #include <string>
 
@@ -23,62 +26,102 @@ namespace cxtream::utility {
 /// \ingroup String
 /// \brief Convert std::string to the given type.
 ///
-/// This function is similar to boost::lexical_cast,
-/// however, it always uses C locale.
+/// This function is either specialized for the given type or internally uses boost::lexical_cast.
+///
+/// \throws std::ios_base::failure If the conversion fails.
 template<typename T>
-T string_to(std::string str)
+T string_to(const std::string& str)
 {
-    std::istringstream ss{std::move(str)};
-    ss.imbue(std::locale::classic());
-    T val;
-    ss >> val;
-    if (!ss.eof() || ss.fail()) {
-        throw std::ios_base::failure(std::string("Failed to read type <") + typeid(T).name() +
-                                     "> from string \"" + ss.str() + "\"");
+    try {
+        return boost::lexical_cast<T>(str);
+    } catch(const boost::bad_lexical_cast &) {
+        throw std::ios_base::failure{std::string{"Failed to read type <"} + typeid(T).name() +
+                                     "> from string \"" + str + "\"."};
     }
-    return val;
 }
 
+/// Specialization of string_to() for std::string.
 template<>
-std::string string_to<std::string>(std::string str)
+std::string string_to<std::string>(const std::string& str)
 {
     return str;
+}
+
+/// Specialization of string_to() for std::experimental::filesystem::path.
+template<>
+std::experimental::filesystem::path
+string_to<std::experimental::filesystem::path>(const std::string& str)
+{
+    return str;
+}
+
+namespace detail
+{
+    /// List of recognized boolean strings for value `true`.
+    const std::set<std::string> true_set =
+      {"true ", "True ", "TRUE ", "1", "y", "Y", "yes", "Yes", "YES", "on ", "On ", "ON"};
+    /// List of recognized boolean strings for value `false`.
+    const std::set<std::string> false_set =
+      {"false", "False", "FALSE", "0", "n", "N", "no ", "No ", "NO ", "off", "Off", "OFF"};
+}
+
+/// Specialization of string_to() for bool.
+///
+/// The list of recognized terms:
+/// \code
+///     true |True |TRUE |1|y|Y|yes|Yes|YES|on |On |ON
+///     false|False|FALSE|0|n|N|no |No |NO |off|Off|OFF
+/// \endcode
+/// \throws std::ios_base::failure If an unrecognizable string is provided.
+template<>
+bool string_to<bool>(const std::string& str)
+{
+    if (detail::true_set.count(str)) return true;
+    if (detail::false_set.count(str)) return false;
+    throw std::ios_base::failure{"Failed to convert string \"" + str + "\" to bool."};
 }
 
 /// \ingroup String
 /// \brief Convert the given type to std::string.
 ///
-/// This function is similar to boost::lexical_cast and
-/// uses std::to_string wherever possible.
-std::string to_string(std::string str)
+/// This function is either overloaded for the given type or internally uses boost::lexical_cast.
+///
+/// \throws std::ios_base::failure If the conversion fails.
+template<typename T>
+std::string to_string(const T& value)
+{
+    try {
+        return boost::lexical_cast<std::string>(value);
+    } catch(const boost::bad_lexical_cast &) {
+        throw std::ios_base::failure{std::string{"Failed to read string from type <"}
+                                     + typeid(T).name() + ">."};
+    }
+}
+
+/// Specialization of to_string() for std::experimental::filesystem::path.
+std::string to_string(const std::experimental::filesystem::path& path)
+{
+    return path.string();
+}
+
+/// Specialization of to_string() for std::string.
+std::string to_string(const std::string& str)
 {
     return str;
 }
 
-std::string to_string(const char* str)
+/// Specialization of to_string() for const char *.
+std::string to_string(const char* const& str)
 {
     return str;
 }
 
-std::string to_string(bool b)
+/// Specialization of to_string() for bool.
+///
+/// The generated string is either "true" or "false".
+std::string to_string(const bool& b)
 {
     return b ? "true" : "false";
-}
-
-using std::to_string;
-
-/// \ingroup String
-/// \brief Removes whitespace characters from the beginning and the end of a string.
-///
-/// This function is similar to boost::trimmed,
-/// however, it always uses C locale.
-std::string trim(const std::string& str)
-{
-    auto isspace = [](char c) { return std::isspace(c, std::locale::classic()); };
-    auto begin = std::find_if_not(str.begin(), str.end(), isspace);
-    auto end = std::find_if_not(str.rbegin(), str.rend(), isspace).base();
-    if (begin < end) return std::string(begin, end);
-    return std::string{};
 }
 
 }  // namespace cxtream
