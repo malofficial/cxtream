@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.14"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>cxtream: /home/floop/Workspace/20170120_Cognexa/cxtream/test Directory Reference</title>
+<title>cxtream: cxtream::utility::ndim_container&lt; T, Dims, Container &gt; Struct Template Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -64,14 +64,31 @@ $(function() {
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="dir_13e138d54eb8818da29c3992edef070a.html">test</a></li>  </ul>
+<li class="navelem"><b>cxtream</b></li><li class="navelem"><b>utility</b></li><li class="navelem"><a class="el" href="structcxtream_1_1utility_1_1ndim__container.html">ndim_container</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
+  <div class="summary">
+<a href="structcxtream_1_1utility_1_1ndim__container-members.html">List of all members</a>  </div>
   <div class="headertitle">
-<div class="title">test Directory Reference</div>  </div>
+<div class="title">cxtream::utility::ndim_container&lt; T, Dims, Container &gt; Struct Template Reference<div class="ingroups"><a class="el" href="group___vector.html">Multidimensional container utilities.</a></div></div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p>Fast declaration of a multidimensional container.  
+ <a href="structcxtream_1_1utility_1_1ndim__container.html#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="vector_8hpp_source.html">cxtream/core/utility/vector.hpp</a>&gt;</code></p>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><h3>template&lt;typename T, long Dims, template&lt; typename... &gt; typename Container = std::vector&gt;<br />
+struct cxtream::utility::ndim_container&lt; T, Dims, Container &gt;</h3>
+
+<p>Fast declaration of a multidimensional container. </p>
+<p>Example: </p><div class="fragment"><div class="line">ndim_container_t&lt;double, 3&gt; vec_3d;</div><div class="line">static_assert(std::is_same&lt;decltype(vec_3d),</div><div class="line">                           std::vector&lt;std::vector&lt;std::vector&lt;double&gt;&gt;&gt;</div><div class="line">                           &gt;{});</div><div class="line"></div><div class="line">ndim_container_t&lt;int, 2, std::list&gt; list_2d;</div><div class="line">static_assert(std::is_same&lt;decltype(list_2d),</div><div class="line">                           std::list&lt;std::list&lt;int&gt;&gt;</div><div class="line">                           &gt;{});</div></div><!-- fragment --> 
+<p class="definition">Definition at line <a class="el" href="vector_8hpp_source.html#l00075">75</a> of file <a class="el" href="vector_8hpp_source.html">vector.hpp</a>.</p>
+</div><hr/>The documentation for this struct was generated from the following file:<ul>
+<li>cxtream/core/utility/<a class="el" href="vector_8hpp_source.html">vector.hpp</a></li>
+</ul>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

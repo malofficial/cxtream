@@ -1,7 +1,7 @@
 var searchData=
 [
-  ['col',['col',['../classcxtream_1_1dataframe.html#a610f2aead5eb14b792aef77d2bb29393',1,'cxtream::dataframe']]],
-  ['cols',['cols',['../classcxtream_1_1dataframe.html#ae0eba920efd029d5aee93a1b88e12f38',1,'cxtream::dataframe']]],
+  ['col',['col',['../classcxtream_1_1dataframe.html#a441562e8dcdef8effe750017ff699edc',1,'cxtream::dataframe']]],
+  ['cols',['cols',['../classcxtream_1_1dataframe.html#a2ba2d10f1bf51236920d6e433a30ca8a',1,'cxtream::dataframe']]],
   ['column_5fbase',['column_base',['../classcxtream_1_1stream_1_1column__base.html',1,'cxtream::stream']]],
   ['column_5fbase_3c_20t_2c_20false_20_3e',['column_base&lt; T, false &gt;',['../structcxtream_1_1stream_1_1column__base_3_01_t_00_01false_01_4.html',1,'cxtream::stream']]],
   ['column_5fbase_3c_20t_2c_20true_20_3e',['column_base&lt; T, true &gt;',['../classcxtream_1_1stream_1_1column__base.html',1,'cxtream::stream']]],

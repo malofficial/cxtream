@@ -11,6 +11,6 @@ var searchData=
   ['raw_5frows',['raw_rows',['../classcxtream_1_1dataframe.html#aee778d05d404e9895c8ac1a30787a894',1,'cxtream::dataframe::raw_rows()'],['../classcxtream_1_1dataframe.html#af15528f61da677245e6c12715ebbe151',1,'cxtream::dataframe::raw_rows() const'],['../classcxtream_1_1dataframe.html#a8ab2b68a74be8d9c0ae454f7417e54b6',1,'cxtream::dataframe::raw_rows(const std::vector&lt; std::string &gt; &amp;col_names)'],['../classcxtream_1_1dataframe.html#a5efc707c769c1a77641662a5419526ed',1,'cxtream::dataframe::raw_rows(const std::vector&lt; std::string &gt; &amp;col_names) const']]],
   ['read_5fcsv',['read_csv',['../group___c_s_v.html#ga3bcaf47f4154f9d1f9b5dc40bfd2cc63',1,'cxtream::read_csv(std::istream &amp;in, int drop=0, bool has_header=true, char separator=&apos;,&apos;, char quote=&apos;&quot;&apos;, char escape = &apos;\) '],['../group___c_s_v.html#ga58310ba434186b5d59b3e8a29f5921e9',1,'cxtream::read_csv(const std::experimental::filesystem::path &amp;file, int drop=0, bool header=true, char separator=&apos;,&apos;, char quote=&apos;&quot;&apos;, char escape = &apos;\) ']]],
   ['reshaped_5fview',['reshaped_view',['../group___vector.html#ga638fc5ea67fba496d178b2a866e65ca3',1,'vector.hpp']]],
-  ['rows',['rows',['../classcxtream_1_1dataframe.html#a60176c0b3369fdaf77a5fc4f2fbc4fe2',1,'cxtream::dataframe']]],
+  ['rows',['rows',['../classcxtream_1_1dataframe.html#ad133a370e11f4239742532072ecefaac',1,'cxtream::dataframe']]],
   ['run_5fgraph',['run_graph',['../group___tensorflow.html#ga0d9f9dc54ff9839573a8aeb38655e4a1',1,'cxtream::tensorflow']]]
 ];
